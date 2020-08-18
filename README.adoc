@@ -1,0 +1,4 @@
+= Knative CLI (kn) plugin for managing events
+
+This is a plugin for Knative CLI, that adds capability to handle events from
+command line.
