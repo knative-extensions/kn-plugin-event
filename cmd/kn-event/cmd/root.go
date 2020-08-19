@@ -8,10 +8,6 @@ import (
 )
 
 var (
-	// Used for flags.
-	cfgFile     string
-	userLicense string
-
 	rootCmd = &cobra.Command{
 		Use:     "event",
 		Aliases: []string{"kn event"},
@@ -32,4 +28,5 @@ func Execute() {
 
 func init() {
 	rootCmd.AddCommand(sendCmd)
+	rootCmd.AddCommand(versionCmd)
 }
