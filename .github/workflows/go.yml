@@ -2,9 +2,10 @@ name: Go 1.14
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
   pull_request:
-    branches: [ master ]
+    types: [opened, synchronize, reopened]
 
 jobs:
 
@@ -24,3 +25,5 @@ jobs:
 
     - name: Build & Test
       run: ./mage
+      env:
+        FORCE_COLOR: true
