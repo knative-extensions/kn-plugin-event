@@ -1,12 +1,17 @@
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"errors"
+
+	"github.com/spf13/cobra"
+)
 
 var (
 	sendCmd = &cobra.Command{
-		Use: "send",
-		Run: func(cmd *cobra.Command, args []string) {
-			// code
+		Use:   "send",
+		Short: "Builds and sends a CloudEvent to recipient",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return errors.New("not yet implemented")
 		},
 	}
 )

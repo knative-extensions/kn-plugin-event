@@ -9,9 +9,15 @@ import (
 
 var (
 	versionCmd = &cobra.Command{
-		Use: "version",
+		Use:   "version",
+		Short: "Prints the kn event plugin version",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("Version: %s\n", internal.Version)
+			switch Output {
+			case HumanReadable:
+				fmt.Printf("kn-event version: %s\n", internal.Version)
+			case JSON:
+				fmt.Printf("{\"name\": \"kn-event\", \"version\": \"%s\"}\n", internal.Version)
+			}
 		},
 	}
 )
