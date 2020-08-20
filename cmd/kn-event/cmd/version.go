@@ -14,9 +14,15 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			switch Output {
 			case HumanReadable:
-				fmt.Printf("kn-event version: %s\n", internal.Version)
+				fmt.Printf(
+					"%s version: %s\n",
+					internal.PluginName, internal.Version,
+				)
 			case JSON:
-				fmt.Printf("{\"name\": \"kn-event\", \"version\": \"%s\"}\n", internal.Version)
+				fmt.Printf(
+					`{"name": "%s", "version": "%s"}`,
+					internal.PluginName, internal.Version,
+				)
 			}
 		},
 	}
