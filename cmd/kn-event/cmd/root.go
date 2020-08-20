@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"hash/crc32"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -15,12 +16,13 @@ type OutputMode enumflag.Flag
 const (
 	HumanReadable OutputMode = iota
 	JSON
+	YAML
 )
 
-// OutputModeIds maps enumeration values to their textual representations
-var OutputModeIds = map[OutputMode][]string{
+var outputModeIds = map[OutputMode][]string{
 	HumanReadable: {"human"},
 	JSON:          {"json"},
+	YAML:          {"yaml"},
 }
 
 var (
@@ -43,8 +45,12 @@ building, and parsing, all from command line.`,
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		os.Exit(exitCode(err))
 	}
+}
+
+func exitCode(err error) int {
+	return int(crc32.ChecksumIEEE([]byte(err.Error())))%254 + 1
 }
 
 func init() {
@@ -53,9 +59,9 @@ func init() {
 		false, "verbose output",
 	)
 	rootCmd.PersistentFlags().VarP(
-		enumflag.New(&Output, "output", OutputModeIds, enumflag.EnumCaseInsensitive),
+		enumflag.New(&Output, "output", outputModeIds, enumflag.EnumCaseInsensitive),
 		"output", "o",
-		"Output format. One of: human|json.",
+		"Output format. One of: human|json|yaml.",
 	)
 
 	rootCmd.AddCommand(sendCmd)

@@ -20,7 +20,12 @@ var (
 				)
 			case JSON:
 				fmt.Printf(
-					`{"name": "%s", "version": "%s"}`,
+					"{\n  \"name\": \"%s\",\n  \"version\": \"%s\"\n}\n",
+					internal.PluginName, internal.Version,
+				)
+			case YAML:
+				fmt.Printf(
+					"name: %s\nversion: %s\n",
 					internal.PluginName, internal.Version,
 				)
 			}
