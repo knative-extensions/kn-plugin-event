@@ -7,4 +7,5 @@ require (
 	github.com/stretchr/testify v1.2.2
 	github.com/thediveo/enumflag v0.10.0
 	github.com/wavesoftware/go-magetasks v0.1.1
+	gopkg.in/yaml.v2 v2.2.4
 )
