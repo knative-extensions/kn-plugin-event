@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"fmt"
 	"hash/crc32"
+	"io"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -44,16 +44,24 @@ building, and parsing, all from command line.`,
 // Execute will execute the application
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(exitCode(err))
+		exitFunc(exitCode(err))
 	}
 }
+
+// SetOut sets output stream to cmd
+func SetOut(newOut io.Writer) {
+	rootCmd.SetOut(newOut)
+}
+
+var exitFunc = os.Exit
 
 func exitCode(err error) int {
 	return int(crc32.ChecksumIEEE([]byte(err.Error())))%254 + 1
 }
 
 func init() {
+	SetOut(os.Stdout)
+	rootCmd.SetErr(os.Stderr)
 	rootCmd.PersistentFlags().BoolVarP(
 		&Verbose, "verbose", "v",
 		false, "verbose output",

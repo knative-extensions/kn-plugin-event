@@ -6,13 +6,13 @@ import (
 	"os"
 	"testing"
 
+	"github.com/cardil/kn-event/cmd/kn-event/cmd"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMainFunc(t *testing.T) {
-	old := os.Stdout // keep backup of the real stdout
 	r, w, _ := os.Pipe()
-	os.Stdout = w
+	cmd.SetOut(w)
 
 	main()
 
@@ -27,7 +27,6 @@ func TestMainFunc(t *testing.T) {
 
 	// back to normal state
 	assert.NoError(t, w.Close())
-	os.Stdout = old // restoring the real stdout
 	out := <-outC
 
 	assert.Contains(t, out, "Manage CloudEvents from command line")
