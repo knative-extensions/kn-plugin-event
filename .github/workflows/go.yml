@@ -1,4 +1,4 @@
-name: Go 1.14
+name: Mage
 
 on:
   push:
@@ -12,12 +12,17 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version:
+          - '1.14'
+          - '1.13'
     steps:
 
-    - name: Set up Go 1.x
+    - name: Set up Go ${{ matrix.go-version }}
       uses: actions/setup-go@v2
       with:
-        go-version: ^1.14
+        go-version: ${{ matrix.go-version }}
       id: go
 
     - name: Check out code into the Go module directory
