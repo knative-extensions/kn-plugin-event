@@ -20,31 +20,34 @@ var (
 		Use:   "version",
 		Short: "Prints the kn event plugin version",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			pv := pluginVersionOutput{
+			output, err := presentAs(pluginVersionOutput{
 				Name:    internal.PluginName,
 				Version: internal.Version,
+			}, Output)
+			if err != nil {
+				return err
 			}
-			switch Output {
-			case HumanReadable:
-				cmd.Printf("%s version: %s\n", pv.Name, pv.Version)
-			case JSON, YAML:
-				bytes, err := marshalWith(pv, Output)
-				if err != nil {
-					return err
-				}
-				cmd.Println(string(bytes))
-			}
+			cmd.Println(output)
 			return nil
 		},
 	}
 )
 
-func marshalWith(in interface{}, mode OutputMode) ([]byte, error) {
+func presentAs(pv pluginVersionOutput, mode OutputMode) (string, error) {
 	switch mode {
 	case JSON:
-		return json.Marshal(in)
+		return marshalWith(pv, json.Marshal)
 	case YAML:
-		return yaml.Marshal(in)
+		return marshalWith(pv, yaml.Marshal)
+	case HumanReadable:
+		return fmt.Sprintf("%s version: %s", pv.Name, pv.Version), nil
 	}
-	return nil, fmt.Errorf("unsupported mode: %v", mode)
+	return "", fmt.Errorf("unsupported mode: %v", mode)
+}
+
+type marshalFunc func(in interface{}) (out []byte, err error)
+
+func marshalWith(pv pluginVersionOutput, marchaller marshalFunc) (string, error) {
+	bytes, err := marchaller(pv)
+	return string(bytes), err
 }
