@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/cardil/kn-event/internal"
+	"github.com/cardil/kn-event/internal/cli"
 	"github.com/spf13/cobra"
 
 	"gopkg.in/yaml.v2"
@@ -33,13 +34,13 @@ var (
 	}
 )
 
-func presentAs(pv pluginVersionOutput, mode OutputMode) (string, error) {
+func presentAs(pv pluginVersionOutput, mode cli.OutputMode) (string, error) {
 	switch mode {
-	case JSON:
+	case cli.JSON:
 		return marshalWith(pv, json.Marshal)
-	case YAML:
+	case cli.YAML:
 		return marshalWith(pv, yaml.Marshal)
-	case HumanReadable:
+	case cli.HumanReadable:
 		return fmt.Sprintf("%s version: %s", pv.Name, pv.Version), nil
 	}
 	return "", fmt.Errorf("unsupported mode: %v", mode)

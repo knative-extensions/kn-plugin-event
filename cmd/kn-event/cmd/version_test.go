@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/cardil/kn-event/internal"
+	"github.com/cardil/kn-event/internal/cli"
 	"github.com/stretchr/testify/assert"
 
 	"gopkg.in/yaml.v2"
@@ -47,6 +48,6 @@ func versionSubCommandChecks(t *testing.T, format string, unmarshal unmarshalFun
 }
 
 func TestPresentAsWithInvalidEnum(t *testing.T) {
-	_, err := presentAs(pluginVersionOutput{}, YAML+1)
+	_, err := presentAs(pluginVersionOutput{}, cli.YAML+1)
 	assert.Error(t, err)
 }

@@ -5,24 +5,15 @@ import (
 	"io"
 	"os"
 
+	"github.com/cardil/kn-event/internal/cli"
 	"github.com/spf13/cobra"
 	"github.com/thediveo/enumflag"
 )
 
-// OutputMode is type of output to produce
-type OutputMode enumflag.Flag
-
-// OutputMode enumeration values.
-const (
-	HumanReadable OutputMode = iota
-	JSON
-	YAML
-)
-
-var outputModeIds = map[OutputMode][]string{
-	HumanReadable: {"human"},
-	JSON:          {"json"},
-	YAML:          {"yaml"},
+var outputModeIds = map[cli.OutputMode][]string{
+	cli.HumanReadable: {"human"},
+	cli.JSON:          {"json"},
+	cli.YAML:          {"yaml"},
 }
 
 var (
@@ -30,7 +21,7 @@ var (
 	// what's happening? Verbose information is printed on stderr.
 	Verbose bool
 	// Output define type of output commands should be producing
-	Output = HumanReadable
+	Output = cli.HumanReadable
 
 	rootCmd = &cobra.Command{
 		Use:     "event",
@@ -72,6 +63,7 @@ func init() {
 		"Output format. One of: human|json|yaml.",
 	)
 
+	rootCmd.AddCommand(buildCmd)
 	rootCmd.AddCommand(sendCmd)
 	rootCmd.AddCommand(versionCmd)
 }
