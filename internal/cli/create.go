@@ -13,7 +13,15 @@ import (
 	"github.com/ghodss/yaml"
 )
 
-// CreateWithArgs will create an event by parsing given args
+var (
+	// ErrUnsupportedOutputMode if user passed unsupported output mode.
+	ErrUnsupportedOutputMode = errors.New("unsupported output mode")
+
+	// ErrInvalidFormat if user pass an un-parsable format.
+	ErrInvalidFormat = errors.New("invalid format")
+)
+
+// CreateWithArgs will create an event by parsing given args.
 func CreateWithArgs(args *EventArgs) (*cloudevents.Event, error) {
 	spec := &event.Spec{
 		Type:   args.Type,
@@ -40,7 +48,7 @@ func CreateWithArgs(args *EventArgs) (*cloudevents.Event, error) {
 	return event.CreateFromSpec(spec)
 }
 
-// PresentWith will present an event with specified output
+// PresentWith will present an event with specified output.
 func PresentWith(e *cloudevents.Event, output OutputMode) (string, error) {
 	switch output {
 	case HumanReadable:
@@ -50,7 +58,7 @@ func PresentWith(e *cloudevents.Event, output OutputMode) (string, error) {
 	case YAML:
 		return presentEventAsYaml(e)
 	}
-	return "", fmt.Errorf("unsupported output mode: %v", output)
+	return "", fmt.Errorf("%w: %v", ErrUnsupportedOutputMode, output)
 }
 
 func presentEventAsYaml(in *cloudevents.Event) (string, error) {
@@ -124,7 +132,7 @@ func readAsBoolean(in string) (bool, error) {
 	if in == text {
 		return val, nil
 	}
-	return false, errors.New("not a boolean: " + in)
+	return false, fmt.Errorf("%w: not a bool: %v", ErrInvalidFormat, in)
 }
 
 func readAsFloat64(in string) (float64, error) {
@@ -140,7 +148,7 @@ func readAsFloat64(in string) (float64, error) {
 	if in == text {
 		return val, nil
 	}
-	return -0, errors.New("not a float: " + in)
+	return -0, fmt.Errorf("%w: not a float: %v", ErrInvalidFormat, in)
 }
 
 func readAsInt64(in string) (int64, error) {
@@ -153,5 +161,5 @@ func readAsInt64(in string) (int64, error) {
 	if in == text {
 		return val, nil
 	}
-	return -0, errors.New("not an int: " + in)
+	return -0, fmt.Errorf("%w: not an int: %v", ErrInvalidFormat, in)
 }

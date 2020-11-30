@@ -9,7 +9,7 @@ import (
 	"github.com/wavesoftware/go-magetasks/config"
 )
 
-// Default target is set to binary
+// Default target is set to binary.
 var Default = magetasks.Binary
 
 func init() {

@@ -17,11 +17,7 @@ var outputModeIds = map[cli.OutputMode][]string{
 }
 
 var (
-	// Verbose tells does commands should display additional information about
-	// what's happening? Verbose information is printed on stderr.
-	Verbose bool
-	// Output define type of output commands should be producing
-	Output = cli.HumanReadable
+	options = &cli.OptionsArgs{}
 
 	rootCmd = &cobra.Command{
 		Use:     "event",
@@ -32,14 +28,14 @@ building, and parsing, all from command line.`,
 	}
 )
 
-// Execute will execute the application
+// Execute will execute the application.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		exitFunc(exitCode(err))
 	}
 }
 
-// SetOut sets output stream to cmd
+// SetOut sets output stream to cmd.
 func SetOut(newOut io.Writer) {
 	rootCmd.SetOut(newOut)
 }
@@ -54,11 +50,11 @@ func init() {
 	SetOut(os.Stdout)
 	rootCmd.SetErr(os.Stderr)
 	rootCmd.PersistentFlags().BoolVarP(
-		&Verbose, "verbose", "v",
+		&options.Verbose, "verbose", "v",
 		false, "verbose output",
 	)
 	rootCmd.PersistentFlags().VarP(
-		enumflag.New(&Output, "output", outputModeIds, enumflag.EnumCaseInsensitive),
+		enumflag.New(&options.Output, "output", outputModeIds, enumflag.EnumCaseInsensitive),
 		"output", "o",
 		"Output format. One of: human|json|yaml.",
 	)
@@ -66,4 +62,22 @@ func init() {
 	rootCmd.AddCommand(buildCmd)
 	rootCmd.AddCommand(sendCmd)
 	rootCmd.AddCommand(versionCmd)
+
+	rootCmd.PersistentFlags().StringVar(
+		&options.KnConfig, "config", "~/.config/kn/config.yaml",
+		"kn configuration file",
+	)
+	rootCmd.PersistentFlags().StringVar(
+		&options.Kubeconfig, "kubeconfig", "~/.kube/config",
+		"kubectl configuration file",
+	)
+	rootCmd.PersistentFlags().BoolVar(
+		&options.LogHTTP, "log-http", false,
+		"log http traffic",
+	)
+
+	rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
+		options.OutWriter = cmd.OutOrStdout()
+		options.ErrWriter = cmd.ErrOrStderr()
+	}
 }

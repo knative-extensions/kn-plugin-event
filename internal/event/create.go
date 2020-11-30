@@ -9,7 +9,7 @@ import (
 	"github.com/wavesoftware/go-ensure"
 )
 
-// NewDefault creates a default CloudEvent
+// NewDefault creates a default CloudEvent.
 func NewDefault() *cloudevents.Event {
 	e := cloudevents.NewEvent()
 	e.SetType(DefaultType)
@@ -21,7 +21,7 @@ func NewDefault() *cloudevents.Event {
 	return &e
 }
 
-// CreateFromSpec will create an event by parsing given args
+// CreateFromSpec will create an event by parsing given args.
 func CreateFromSpec(spec *Spec) (*cloudevents.Event, error) {
 	e := NewDefault()
 	e.SetID(spec.ID)
@@ -29,10 +29,7 @@ func CreateFromSpec(spec *Spec) (*cloudevents.Event, error) {
 	e.SetType(spec.Type)
 	m := map[string]interface{}{}
 	for _, fieldSpec := range spec.Fields {
-		err := updateMapWithSpec(m, fieldSpec)
-		if err != nil {
-			return nil, err
-		}
+		updateMapWithSpec(m, fieldSpec)
 	}
 	err := e.SetData(cloudevents.ApplicationJSON, m)
 	if err != nil {
@@ -41,7 +38,7 @@ func CreateFromSpec(spec *Spec) (*cloudevents.Event, error) {
 	return e, nil
 }
 
-func updateMapWithSpec(m map[string]interface{}, spec FieldSpec) error {
+func updateMapWithSpec(m map[string]interface{}, spec FieldSpec) {
 	paths := strings.Split(spec.Path, ".")
 	curr := m
 	for i, p := range paths {
@@ -54,10 +51,9 @@ func updateMapWithSpec(m map[string]interface{}, spec FieldSpec) error {
 			curr[p] = spec.Value
 		}
 	}
-	return nil
 }
 
-// UnmarshalData will take bytes and unmarshall it as JSON to map structure
+// UnmarshalData will take bytes and unmarshall it as JSON to map structure.
 func UnmarshalData(bytes []byte) (map[string]interface{}, error) {
 	m := map[string]interface{}{}
 	err := json.Unmarshal(bytes, &m)
@@ -67,7 +63,7 @@ func UnmarshalData(bytes []byte) (map[string]interface{}, error) {
 	return m, nil
 }
 
-// AddField will add a field to the spec
+// AddField will add a field to the spec.
 func (s *Spec) AddField(path string, val interface{}) {
 	s.Fields = append(s.Fields, FieldSpec{
 		Path: path, Value: val,

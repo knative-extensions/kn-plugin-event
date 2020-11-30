@@ -1,8 +1,28 @@
 package cli
 
-import "github.com/thediveo/enumflag"
+import (
+	"io"
 
-// EventArgs holds args of event to be created with
+	"github.com/cardil/kn-event/internal/event"
+	"github.com/thediveo/enumflag"
+)
+
+// OptionsArgs holds a general args for all commands.
+type OptionsArgs struct {
+	event.KnPluginOptions
+
+	// Output define type of output commands should be producing.
+	Output OutputMode
+
+	// Verbose tells does commands should display additional information about
+	// what's happening? Verbose information is printed on stderr.
+	Verbose bool
+
+	OutWriter io.Writer
+	ErrWriter io.Writer
+}
+
+// EventArgs holds args of event to be created with.
 type EventArgs struct {
 	Type      string
 	ID        string
@@ -11,7 +31,16 @@ type EventArgs struct {
 	RawFields []string
 }
 
-// OutputMode is type of output to produce
+// TargetArgs holds args specific for even sending.
+type TargetArgs struct {
+	URL             string
+	Addressable     string
+	Namespace       string
+	SenderNamespace string
+	AddressableURI  string
+}
+
+// OutputMode is type of output to produce.
 type OutputMode enumflag.Flag
 
 // OutputMode enumeration values.

@@ -36,9 +36,9 @@ func TestBuildSubCommandWithComplexOptions(t *testing.T) {
 					"name":  "Chris",
 					"email": "ksuszyns@example.com",
 				},
-				"ping": 123,
+				"ping":   123,
 				"active": true,
-				"ref":  "321",
+				"ref":    "321",
 			}))
 		},
 	)

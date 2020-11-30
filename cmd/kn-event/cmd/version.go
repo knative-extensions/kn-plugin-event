@@ -16,23 +16,21 @@ type pluginVersionOutput struct {
 	Version string `json:"version" yaml:"version"`
 }
 
-var (
-	versionCmd = &cobra.Command{
-		Use:   "version",
-		Short: "Prints the kn event plugin version",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			output, err := presentAs(pluginVersionOutput{
-				Name:    internal.PluginName,
-				Version: internal.Version,
-			}, Output)
-			if err != nil {
-				return err
-			}
-			cmd.Println(output)
-			return nil
-		},
-	}
-)
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Prints the kn event plugin version",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		output, err := presentAs(pluginVersionOutput{
+			Name:    internal.PluginName,
+			Version: internal.Version,
+		}, options.Output)
+		if err != nil {
+			return err
+		}
+		cmd.Println(output)
+		return nil
+	},
+}
 
 func presentAs(pv pluginVersionOutput, mode cli.OutputMode) (string, error) {
 	switch mode {
