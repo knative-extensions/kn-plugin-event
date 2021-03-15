@@ -1,0 +1,20 @@
+run:
+  timeout: 5m
+
+linters:
+  disable-all: false
+  presets:
+    - bugs
+    - unused
+    - complexity
+    - format
+    - performance
+    - style
+  enable:
+    - gci
+  disable:
+    - paralleltest
+    - nlreturn
+    - exhaustivestruct
+    - wsl
+    - godox

@@ -14,11 +14,11 @@ var (
 			Use:   "send",
 			Short: "Builds and sends a CloudEvent to recipient",
 			RunE: func(cmd *cobra.Command, args []string) error {
+				cli := configuration.CreateCli()
 				ce, err := cli.CreateWithArgs(eventArgs)
 				if err != nil {
 					return err
 				}
-				configuration.ConfigureSender()
 				return cli.Send(*ce, target, options)
 			},
 		}

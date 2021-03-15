@@ -49,3 +49,8 @@ const (
 	JSON
 	YAML
 )
+
+// App object.
+type App struct {
+	event.Binding
+}

@@ -2,11 +2,14 @@ package cli
 
 import (
 	"encoding/json"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/cardil/kn-event/internal/event"
 	"github.com/ghodss/yaml"
+	"github.com/mitchellh/go-homedir"
+	"github.com/wavesoftware/go-ensure"
 	"go.uber.org/zap"
 	"go.uber.org/zap/buffer"
 	"go.uber.org/zap/zapcore"
@@ -43,9 +46,23 @@ func (opts *OptionsArgs) WithLogger() *event.Properties {
 	)
 
 	return &event.Properties{
-		KnPluginOptions: opts.KnPluginOptions,
+		KnPluginOptions: resolvePluginOptions(opts.KnPluginOptions),
 		Log:             log.Sugar(),
 	}
+}
+
+func resolvePluginOptions(options event.KnPluginOptions) event.KnPluginOptions {
+	if options.Kubeconfig == event.DefaultKubeconfig {
+		if ke, ok := os.LookupEnv("KUBECONFIG"); ok {
+			options.Kubeconfig = ke
+		}
+	}
+	var err error
+	options.Kubeconfig, err = homedir.Expand(options.Kubeconfig)
+	ensure.NoError(err)
+	options.KnConfig, err = homedir.Expand(options.KnConfig)
+	ensure.NoError(err)
+	return options
 }
 
 func alignCapitalColorLevelEncoder(l zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {

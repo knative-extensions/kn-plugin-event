@@ -9,7 +9,6 @@ import (
 	"github.com/cardil/kn-event/internal"
 	"github.com/cardil/kn-event/internal/cli"
 	"github.com/stretchr/testify/assert"
-
 	"gopkg.in/yaml.v2"
 )
 

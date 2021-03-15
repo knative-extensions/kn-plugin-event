@@ -6,11 +6,15 @@ import (
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"go.uber.org/zap"
-	duckv1 "knative.dev/pkg/apis/duck/v1"
+	"knative.dev/pkg/apis"
+	"knative.dev/pkg/tracker"
 )
 
 // ErrNotYetImplemented is an error for not yet implemented code.
 var ErrNotYetImplemented = errors.New("not yet implemented")
+
+// DefaultKubeconfig is a default location of kubeconfig.
+const DefaultKubeconfig = "~/.kube/config"
 
 // Spec holds specification of event to be created.
 type Spec struct {
@@ -43,7 +47,8 @@ const (
 // AddressableSpec specify destination of a event to be sent, as well as sender
 // namespace that should be used to create a sender Job in.
 type AddressableSpec struct {
-	duckv1.Destination
+	*tracker.Reference
+	URI             *apis.URL
 	SenderNamespace string
 }
 
@@ -52,6 +57,7 @@ type Target struct {
 	Type           TargetType
 	URLVal         *url.URL
 	AddressableVal *AddressableSpec
+	*Properties
 }
 
 // KnPluginOptions holds options inherited to every Kn plugin.
@@ -77,4 +83,12 @@ type Sender interface {
 	// Send will send cloudevents.Event to configured target, or return an error
 	// if one occur.
 	Send(ce cloudevents.Event) error
+}
+
+// CreateSender creates a Sender.
+type CreateSender func(target *Target) (Sender, error)
+
+// Binding holds injectable dependencies.
+type Binding struct {
+	CreateSender
 }

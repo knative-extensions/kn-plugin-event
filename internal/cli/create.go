@@ -22,7 +22,7 @@ var (
 )
 
 // CreateWithArgs will create an event by parsing given args.
-func CreateWithArgs(args *EventArgs) (*cloudevents.Event, error) {
+func (c *App) CreateWithArgs(args *EventArgs) (*cloudevents.Event, error) {
 	spec := &event.Spec{
 		Type:   args.Type,
 		ID:     args.ID,
@@ -49,7 +49,7 @@ func CreateWithArgs(args *EventArgs) (*cloudevents.Event, error) {
 }
 
 // PresentWith will present an event with specified output.
-func PresentWith(e *cloudevents.Event, output OutputMode) (string, error) {
+func (c *App) PresentWith(e *cloudevents.Event, output OutputMode) (string, error) {
 	switch output {
 	case HumanReadable:
 		return presentEventAsHumanReadable(e)

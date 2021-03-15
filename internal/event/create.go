@@ -15,7 +15,7 @@ func NewDefault() *cloudevents.Event {
 	e.SetType(DefaultType)
 	e.SetID(NewID())
 	ensure.NoError(e.SetData(cloudevents.ApplicationJSON, map[string]string{}))
-	e.SetSource(DefaultSource)
+	e.SetSource(DefaultSource())
 	e.SetTime(time.Now())
 	ensure.NoError(e.Validate())
 	return &e

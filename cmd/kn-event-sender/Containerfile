@@ -1,0 +1,12 @@
+FROM docker.io/library/golang:1.16 as builder
+
+ADD . /usr/src/kn-event
+WORKDIR /usr/src/kn-event
+RUN go build -o build/_output/bin/kn-event-sender \
+  ./cmd/kn-event-sender
+
+FROM registry.access.redhat.com/ubi8/ubi-minimal
+COPY --from=builder \
+  /usr/src/kn-event/build/_output/bin/kn-event-sender \
+  /usr/bin/kn-event-sender
+ENTRYPOINT ["/usr/bin/kn-event-sender"]

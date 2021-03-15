@@ -1,18 +1,16 @@
 package cli
 
 import (
-	"github.com/cardil/kn-event/internal/event"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 )
 
 // Send will send CloudEvent to target.
-func Send(ce cloudevents.Event, target *TargetArgs, options *OptionsArgs) error {
-	t, err := createTarget(target)
+func (c *App) Send(ce cloudevents.Event, target *TargetArgs, options *OptionsArgs) error {
+	t, err := createTarget(target, options.WithLogger())
 	if err != nil {
 		return err
 	}
-	o := options.WithLogger()
-	sender, err := event.NewSender(t, o)
+	sender, err := c.Binding.NewSender(t)
 	if err != nil {
 		return err
 	}

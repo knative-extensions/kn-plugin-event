@@ -18,9 +18,11 @@ func TestPresentWith(t *testing.T) {
 		caseForPresentWithJSON(t),
 		caseForPresentWithYAML(t),
 	}
-	for _, tt := range tests {
+	for i := range tests {
+		tt := tests[i]
 		t.Run(tt.name, func(t *testing.T) {
-			actual, err := cli.PresentWith(tt.args.ce, tt.args.mode)
+			app := cli.App{}
+			actual, err := app.PresentWith(tt.args.ce, tt.args.mode)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("PresentWith():\n   error = %#v\n wantErr = %#v", err, tt.wantErr)
 			}
@@ -45,13 +47,13 @@ type testPresentWithCase struct {
 
 func caseForPresentWithHumanReadable(t *testing.T) testPresentWithCase {
 	return testPresentWithCase{
-	name: "OutputMode==HumanReadable",
+		name: "OutputMode==HumanReadable",
 		args: testPresentWithCaseArgs{
 			ce:   exampleEvent(t),
 			mode: cli.HumanReadable,
 		},
-			wantErr: nil,
-			want: fmt.Sprintf(`☁️  cloudevents.Event
+		wantErr: nil,
+		want: fmt.Sprintf(`☁️  cloudevents.Event
 Validation: valid
 Context Attributes,
   specversion: 1.0
@@ -69,7 +71,7 @@ Data,
     },
     "ping": 123,
     "ref": "321"
-  }`, event.DefaultSource),
+  }`, event.DefaultSource()),
 	}
 }
 
@@ -97,7 +99,7 @@ func caseForPresentWithJSON(t *testing.T) testPresentWithCase {
   "specversion": "1.0",
   "time": "2020-08-24T14:01:12.000601161Z",
   "type": "dev.knative.cli.plugin.event.generic"
-}`, event.DefaultSource),
+}`, event.DefaultSource()),
 	}
 }
 
@@ -122,7 +124,7 @@ source: %s
 specversion: "1.0"
 time: "2020-08-24T14:01:12.000601161Z"
 type: dev.knative.cli.plugin.event.generic
-`, event.DefaultSource),
+`, event.DefaultSource()),
 	}
 }
 
@@ -142,7 +144,8 @@ func TestCreateWithArgs(t *testing.T) {
 		},
 		RawFields: []string{"ref=321"},
 	}
-	actual, err := cli.CreateWithArgs(args)
+	app := cli.App{}
+	actual, err := app.CreateWithArgs(args)
 	assert.NoError(t, err)
 	assert.Equal(t, eventType, actual.Type())
 	assert.Equal(t, id, actual.ID())

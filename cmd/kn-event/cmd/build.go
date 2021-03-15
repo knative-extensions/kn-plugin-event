@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/cardil/kn-event/internal/cli"
+	"github.com/cardil/kn-event/internal/configuration"
 	"github.com/spf13/cobra"
 )
 
@@ -12,6 +12,7 @@ var buildCmd = func() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			options.OutWriter = cmd.OutOrStdout()
 			options.ErrWriter = cmd.ErrOrStderr()
+			cli := configuration.CreateCli()
 			ce, err := cli.CreateWithArgs(eventArgs)
 			if err != nil {
 				return err

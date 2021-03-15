@@ -8,16 +8,16 @@ import (
 )
 
 const (
-	// DefaultType holds a default type for a event
+	// DefaultType holds a default type for a event.
 	DefaultType = "dev.knative.cli.plugin.event.generic"
 )
 
-var (
-	// DefaultSource holds a default source of an event
-	DefaultSource = fmt.Sprintf("%s/%s", internal.PluginName, internal.Version)
-)
+// DefaultSource holds a default source of an event.
+func DefaultSource() string {
+	return fmt.Sprintf("%s/%s", internal.PluginName, internal.Version)
+}
 
-// NewID creates a new ID for an event
+// NewID creates a new ID for an event.
 func NewID() string {
 	return uuid.New().String()
 }

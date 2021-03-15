@@ -1,4 +1,4 @@
 package internal
 
-// PluginName hold a name of the plugin
-var PluginName = "kn-event"
+// PluginName hold a name of the plugin.
+const PluginName = "kn-event"

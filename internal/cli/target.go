@@ -7,6 +7,8 @@ import (
 	"regexp"
 
 	"github.com/cardil/kn-event/internal/event"
+	clientutil "knative.dev/client/pkg/util"
+	"knative.dev/pkg/apis"
 )
 
 var (
@@ -16,7 +18,7 @@ var (
 	// ErrUseToURLOrToFlagIsRequired will be raised if user didn't used --to or
 	// --to-url flags.
 	ErrUseToURLOrToFlagIsRequired = errors.New("use --to or --to-url flag is required")
-	// ErrInvalidURLFormat will be raised if given URL is invalid
+	// ErrInvalidURLFormat will be raised if given URL is invalid.
 	ErrInvalidURLFormat = errors.New("invalid URL format")
 	// ErrInvalidToFormat will be raised if given addressable doesn't have valid
 	// expected format.
@@ -26,7 +28,7 @@ var (
 		"a label selector")
 )
 
-// ValidateTarget will perform validation on CLI element of target.
+// ValidateTarget will perform validation on App element of target.
 func ValidateTarget(args *TargetArgs) error {
 	if args.URL == "" && args.Addressable == "" {
 		return ErrUseToURLOrToFlagIsRequired
@@ -54,16 +56,37 @@ func ValidateTarget(args *TargetArgs) error {
 	return nil
 }
 
-func createTarget(args *TargetArgs) (*event.Target, error) {
+func createTarget(args *TargetArgs, props *event.Properties) (*event.Target, error) {
+	if args.Addressable != "" {
+		ref, err := clientutil.ToTrackerReference(args.Addressable, args.Namespace)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %s", ErrInvalidToFormat, err.Error())
+		}
+		uri, err := apis.ParseURL(args.AddressableURI)
+		if err != nil {
+			return nil, fmt.Errorf("--addressable-uri %w: %s", ErrInvalidURLFormat, err.Error())
+		}
+		return &event.Target{
+			Type: event.TargetTypeAddressable,
+			// FIXME: .Reference.Namespace and .SenderNamespace needs to be filled in if they eql ""
+			AddressableVal: &event.AddressableSpec{
+				Reference:       ref,
+				URI:             uri,
+				SenderNamespace: args.SenderNamespace,
+			},
+			Properties: props,
+		}, nil
+	}
 	if args.URL != "" {
 		u, err := url.Parse(args.URL)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("--to-url %w: %s", ErrInvalidURLFormat, err.Error())
 		}
 		return &event.Target{
-			Type:   event.TargetTypeReachable,
-			URLVal: u,
+			Type:       event.TargetTypeReachable,
+			URLVal:     u,
+			Properties: props,
 		}, nil
 	}
-	return nil, event.ErrNotYetImplemented
+	return nil, ErrUseToURLOrToFlagIsRequired
 }

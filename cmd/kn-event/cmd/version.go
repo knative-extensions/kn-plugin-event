@@ -7,7 +7,6 @@ import (
 	"github.com/cardil/kn-event/internal"
 	"github.com/cardil/kn-event/internal/cli"
 	"github.com/spf13/cobra"
-
 	"gopkg.in/yaml.v2"
 )
 

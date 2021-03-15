@@ -2,6 +2,7 @@ package sender
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -22,7 +23,7 @@ func (d *directSender) Send(ce cloudevents.Event) error {
 	// Send that Event.
 	err = c.Send(ctx, ce)
 	if !cloudevents.IsACK(err) {
-		return err
+		return fmt.Errorf("%v: %w", ErrCouldntBeSent, err)
 	}
 
 	return nil

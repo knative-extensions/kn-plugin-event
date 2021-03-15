@@ -18,7 +18,7 @@ func addBuilderFlags(c *cobra.Command) {
 		"Specify a CloudEvent ID",
 	)
 	c.Flags().StringVarP(
-		&eventArgs.Source, "source", "s", event.DefaultSource,
+		&eventArgs.Source, "source", "s", event.DefaultSource(),
 		"Specify a source of an CloudEvent",
 	)
 	c.Flags().StringArrayVarP(
