@@ -1,4 +1,4 @@
-module github.com/cardil/kn-event
+module knative.dev/kn-plugin-event
 
 go 1.16
 
