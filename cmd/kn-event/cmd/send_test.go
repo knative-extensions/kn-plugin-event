@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/cardil/kn-event/internal/event"
-	"github.com/cardil/kn-event/internal/tests"
+	"knative.dev/kn-plugin-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/tests"
 	"github.com/stretchr/testify/assert"
 )
 

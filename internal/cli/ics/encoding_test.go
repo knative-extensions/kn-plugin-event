@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cardil/kn-event/internal/cli/ics"
+	"knative.dev/kn-plugin-event/internal/cli/ics"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/stretchr/testify/assert"
 )

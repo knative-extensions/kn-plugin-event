@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/cardil/kn-event/internal"
 	"github.com/joho/godotenv"
+	"knative.dev/kn-plugin-event/internal"
 
 	// mage:import
 	"github.com/wavesoftware/go-magetasks"
@@ -33,7 +33,7 @@ func init() { //nolint:gochecknoinits
 	for _, bin := range bins {
 		config.Binaries = append(config.Binaries, config.Binary{Name: bin})
 	}
-	config.VersionVariablePath = "github.com/cardil/kn-event/internal.Version"
+	config.VersionVariablePath = "knative.dev/kn-plugin-event/internal.Version"
 	checks.GolangCiLintWithOptions(checks.GolangCiLintOptions{
 		New: true,
 		Fix: true,

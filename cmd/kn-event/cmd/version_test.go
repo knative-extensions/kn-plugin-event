@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/cardil/kn-event/internal"
-	"github.com/cardil/kn-event/internal/cli"
+	"knative.dev/kn-plugin-event/internal"
+	"knative.dev/kn-plugin-event/internal/cli"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 )

@@ -3,7 +3,7 @@ package cli
 import (
 	"io"
 
-	"github.com/cardil/kn-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/event"
 	"github.com/thediveo/enumflag"
 )
 

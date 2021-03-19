@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/cardil/kn-event/internal/cli/retcode"
-	"github.com/cardil/kn-event/internal/sender"
+	"knative.dev/kn-plugin-event/internal/cli/retcode"
+	"knative.dev/kn-plugin-event/internal/sender"
 )
 
 func TestCalc(t *testing.T) {

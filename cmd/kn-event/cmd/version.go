@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/cardil/kn-event/internal"
-	"github.com/cardil/kn-event/internal/cli"
+	"knative.dev/kn-plugin-event/internal"
+	"knative.dev/kn-plugin-event/internal/cli"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 )

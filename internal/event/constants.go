@@ -3,7 +3,7 @@ package event
 import (
 	"fmt"
 
-	"github.com/cardil/kn-event/internal"
+	"knative.dev/kn-plugin-event/internal"
 	"github.com/google/uuid"
 )
 

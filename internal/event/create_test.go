@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cardil/kn-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/event"
 	"github.com/stretchr/testify/assert"
 )
 

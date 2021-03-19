@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/cardil/kn-event/internal/k8s"
-	"github.com/cardil/kn-event/internal/tests"
+	"knative.dev/kn-plugin-event/internal/k8s"
+	"knative.dev/kn-plugin-event/internal/tests"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

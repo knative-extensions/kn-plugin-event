@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cardil/kn-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/event"
 	"github.com/ghodss/yaml"
 	"github.com/mitchellh/go-homedir"
 	"github.com/wavesoftware/go-ensure"

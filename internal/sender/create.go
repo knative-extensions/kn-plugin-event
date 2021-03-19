@@ -3,7 +3,7 @@ package sender
 import (
 	"fmt"
 
-	"github.com/cardil/kn-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 // New creates a new Sender.

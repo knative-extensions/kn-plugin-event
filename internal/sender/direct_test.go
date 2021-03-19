@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cardil/kn-event/internal/event"
-	"github.com/cardil/kn-event/internal/sender"
-	"github.com/cardil/kn-event/internal/tests"
+	"knative.dev/kn-plugin-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/sender"
+	"knative.dev/kn-plugin-event/internal/tests"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/phayes/freeport"
 )

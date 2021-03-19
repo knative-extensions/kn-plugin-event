@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/cardil/kn-event/internal/configuration"
+	"knative.dev/kn-plugin-event/internal/configuration"
 	"github.com/spf13/cobra"
 )
 
