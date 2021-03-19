@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"knative.dev/kn-plugin-event/internal/cli"
-	"knative.dev/kn-plugin-event/internal/event"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/stretchr/testify/assert"
+	"knative.dev/kn-plugin-event/internal/cli"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 func TestPresentWith(t *testing.T) {

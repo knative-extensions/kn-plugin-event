@@ -8,14 +8,14 @@ import (
 	"testing"
 	"time"
 
-	"knative.dev/kn-plugin-event/internal/event"
-	"knative.dev/kn-plugin-event/internal/k8s"
-	"knative.dev/kn-plugin-event/internal/sender"
-	"knative.dev/kn-plugin-event/internal/tests"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/stretchr/testify/assert"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	"knative.dev/kn-plugin-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/k8s"
+	"knative.dev/kn-plugin-event/internal/sender"
+	"knative.dev/kn-plugin-event/internal/tests"
 	"knative.dev/pkg/apis"
 	"knative.dev/pkg/tracker"
 )

@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"knative.dev/kn-plugin-event/internal/event"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/ghodss/yaml"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 var (

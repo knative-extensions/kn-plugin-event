@@ -4,12 +4,12 @@ import (
 	"errors"
 	"testing"
 
-	"knative.dev/kn-plugin-event/internal/event"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 var errTestError = errors.New("test error")

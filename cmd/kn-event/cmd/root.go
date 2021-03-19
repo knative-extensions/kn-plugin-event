@@ -4,11 +4,11 @@ import (
 	"io"
 	"os"
 
+	"github.com/spf13/cobra"
+	"github.com/thediveo/enumflag"
 	"knative.dev/kn-plugin-event/internal/cli"
 	"knative.dev/kn-plugin-event/internal/cli/retcode"
 	"knative.dev/kn-plugin-event/internal/event"
-	"github.com/spf13/cobra"
-	"github.com/thediveo/enumflag"
 )
 
 var outputModeIds = map[cli.OutputMode][]string{

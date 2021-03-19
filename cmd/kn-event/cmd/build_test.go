@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"knative.dev/kn-plugin-event/internal/event"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/stretchr/testify/assert"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 func TestBuildSubCommandWithNoOptions(t *testing.T) {

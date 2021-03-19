@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
+	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"github.com/stretchr/testify/assert"
 	kes "knative.dev/kn-plugin-event/cmd/kn-event-sender"
 	"knative.dev/kn-plugin-event/internal/cli/ics"
 	"knative.dev/kn-plugin-event/internal/tests"
-	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestMainSender(t *testing.T) {

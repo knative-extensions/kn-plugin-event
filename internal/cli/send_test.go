@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"testing"
 
+	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"github.com/stretchr/testify/assert"
 	"knative.dev/kn-plugin-event/internal/cli"
 	"knative.dev/kn-plugin-event/internal/event"
 	"knative.dev/kn-plugin-event/internal/tests"
-	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestSendInCli(t *testing.T) {

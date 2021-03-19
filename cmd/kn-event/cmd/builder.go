@@ -1,9 +1,9 @@
 package cmd
 
 import (
+	"github.com/spf13/cobra"
 	"knative.dev/kn-plugin-event/internal/cli"
 	"knative.dev/kn-plugin-event/internal/event"
-	"github.com/spf13/cobra"
 )
 
 var eventArgs = &cli.EventArgs{}

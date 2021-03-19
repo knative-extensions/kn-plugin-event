@@ -5,9 +5,9 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"knative.dev/kn-plugin-event/internal/event"
 	"knative.dev/kn-plugin-event/internal/tests"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestSendToAddress(t *testing.T) {

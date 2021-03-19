@@ -3,8 +3,8 @@ package cli
 import (
 	"io"
 
-	"knative.dev/kn-plugin-event/internal/event"
 	"github.com/thediveo/enumflag"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 // OptionsArgs holds a general args for all commands.

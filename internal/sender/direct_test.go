@@ -8,11 +8,11 @@ import (
 	"testing"
 	"time"
 
+	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"github.com/phayes/freeport"
 	"knative.dev/kn-plugin-event/internal/event"
 	"knative.dev/kn-plugin-event/internal/sender"
 	"knative.dev/kn-plugin-event/internal/tests"
-	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/phayes/freeport"
 )
 
 func TestDirectSenderSend(t *testing.T) {

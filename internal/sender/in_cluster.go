@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"regexp"
 
-	"knative.dev/kn-plugin-event/internal/cli/ics"
-	"knative.dev/kn-plugin-event/internal/event"
-	"knative.dev/kn-plugin-event/internal/k8s"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"knative.dev/kn-plugin-event/internal/cli/ics"
+	"knative.dev/kn-plugin-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/k8s"
 )
 
 type inClusterSender struct {

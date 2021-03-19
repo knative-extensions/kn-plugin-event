@@ -4,11 +4,11 @@ import (
 	"testing"
 	"time"
 
+	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"github.com/stretchr/testify/assert"
 	"knative.dev/kn-plugin-event/internal/cli/ics"
 	"knative.dev/kn-plugin-event/internal/event"
 	"knative.dev/kn-plugin-event/internal/tests"
-	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestSendFromEnv(t *testing.T) {

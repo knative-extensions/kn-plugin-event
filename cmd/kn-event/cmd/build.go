@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"knative.dev/kn-plugin-event/internal/configuration"
 	"github.com/spf13/cobra"
+	"knative.dev/kn-plugin-event/internal/configuration"
 )
 
 var buildCmd = func() *cobra.Command {

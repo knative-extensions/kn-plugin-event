@@ -4,13 +4,13 @@ import (
 	"errors"
 	"testing"
 
-	"knative.dev/kn-plugin-event/internal/k8s"
-	"knative.dev/kn-plugin-event/internal/tests"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"knative.dev/kn-plugin-event/internal/k8s"
+	"knative.dev/kn-plugin-event/internal/tests"
 	"knative.dev/pkg/apis"
 	"knative.dev/pkg/tracker"
 )

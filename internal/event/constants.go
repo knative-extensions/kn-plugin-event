@@ -3,8 +3,8 @@ package event
 import (
 	"fmt"
 
-	"knative.dev/kn-plugin-event/internal"
 	"github.com/google/uuid"
+	"knative.dev/kn-plugin-event/internal"
 )
 
 const (
