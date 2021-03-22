@@ -3,8 +3,8 @@ package sender
 import (
 	"errors"
 
-	"github.com/cardil/kn-event/internal/event"
-	"github.com/cardil/kn-event/internal/k8s"
+	"knative.dev/kn-plugin-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/k8s"
 )
 
 var (

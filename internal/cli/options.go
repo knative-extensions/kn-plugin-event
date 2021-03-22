@@ -6,13 +6,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cardil/kn-event/internal/event"
 	"github.com/ghodss/yaml"
 	"github.com/mitchellh/go-homedir"
 	"github.com/wavesoftware/go-ensure"
 	"go.uber.org/zap"
 	"go.uber.org/zap/buffer"
 	"go.uber.org/zap/zapcore"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 // WithLogger will create an event suitable OptionsArgs from CLI ones.

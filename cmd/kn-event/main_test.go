@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cardil/kn-event/cmd/kn-event/cmd"
 	"github.com/stretchr/testify/assert"
+	"knative.dev/kn-plugin-event/cmd/kn-event/cmd"
 )
 
 func TestMainFunc(t *testing.T) {

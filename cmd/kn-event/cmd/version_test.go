@@ -6,10 +6,10 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/cardil/kn-event/internal"
-	"github.com/cardil/kn-event/internal/cli"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
+	"knative.dev/kn-plugin-event/internal"
+	"knative.dev/kn-plugin-event/internal/cli"
 )
 
 func TestVersionSubCommandWithHuman(t *testing.T) {

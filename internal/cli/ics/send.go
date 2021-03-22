@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/cardil/kn-event/internal/event"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/kelseyhightower/envconfig"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 // SendFromEnv will send an event based on a values stored in environmental

@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/cardil/kn-event/internal/cli"
-	"github.com/cardil/kn-event/internal/configuration"
 	"github.com/spf13/cobra"
+	"knative.dev/kn-plugin-event/internal/cli"
+	"knative.dev/kn-plugin-event/internal/configuration"
 )
 
 var (

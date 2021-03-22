@@ -1,7 +1,7 @@
 package configuration
 
 import (
-	"github.com/cardil/kn-event/internal/cli"
+	"knative.dev/kn-plugin-event/internal/cli"
 )
 
 // CreateCli creates the configured cli.App to work with.

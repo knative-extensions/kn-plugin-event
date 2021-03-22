@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cardil/kn-event/internal/event"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 // CreateKubeClient creates kubernetes.Interface.

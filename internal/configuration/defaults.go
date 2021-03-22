@@ -1,9 +1,9 @@
 package configuration
 
 import (
-	"github.com/cardil/kn-event/internal/event"
-	"github.com/cardil/kn-event/internal/k8s"
-	"github.com/cardil/kn-event/internal/sender"
+	"knative.dev/kn-plugin-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/k8s"
+	"knative.dev/kn-plugin-event/internal/sender"
 )
 
 func senderBinding() sender.Binding {

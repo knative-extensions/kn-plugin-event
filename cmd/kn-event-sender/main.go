@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cardil/kn-event/internal/cli/retcode"
-	"github.com/cardil/kn-event/internal/configuration"
+	"knative.dev/kn-plugin-event/internal/cli/retcode"
+	"knative.dev/kn-plugin-event/internal/configuration"
 )
 
 // ExitFunc will be used to exit Go process in case of error.

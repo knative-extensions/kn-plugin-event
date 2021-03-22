@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"regexp"
 
-	"github.com/cardil/kn-event/internal/event"
 	clientutil "knative.dev/client/pkg/util"
+	"knative.dev/kn-plugin-event/internal/event"
 	"knative.dev/pkg/apis"
 )
 

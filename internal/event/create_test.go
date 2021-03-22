@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cardil/kn-event/internal/event"
 	"github.com/stretchr/testify/assert"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 func TestCreateWithArgs(t *testing.T) {

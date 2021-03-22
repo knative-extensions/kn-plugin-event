@@ -3,7 +3,7 @@ package ics
 import (
 	"errors"
 
-	"github.com/cardil/kn-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 var (
