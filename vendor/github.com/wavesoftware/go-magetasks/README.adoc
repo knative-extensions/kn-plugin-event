@@ -1,0 +1,3 @@
+= A general purpuse, reusable Mage tasks
+
+This repo holds a list of reusable Mage tasks to be used in other projects.
