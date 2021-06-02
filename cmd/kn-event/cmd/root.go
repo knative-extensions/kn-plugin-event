@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/thediveo/enumflag"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"knative.dev/kn-plugin-event/internal/cli"
 	"knative.dev/kn-plugin-event/internal/cli/retcode"
 	"knative.dev/kn-plugin-event/internal/event"
