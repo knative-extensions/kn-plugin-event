@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/thediveo/enumflag"
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	_ "k8s.io/client-go/plugin/pkg/client/auth" // for kubeconfig auth plugins to work correctly see https://github.com/knative-sandbox/kn-plugin-event/issues/24
 	"knative.dev/kn-plugin-event/internal/cli"
 	"knative.dev/kn-plugin-event/internal/cli/retcode"
 	"knative.dev/kn-plugin-event/internal/event"
