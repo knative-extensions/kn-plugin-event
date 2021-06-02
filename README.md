@@ -20,6 +20,7 @@ before you build.
 Once you've set up your development environment, let's build the plugin.
 
 ```sh
+$ ./hack/update-deps.sh
 $ go build -o kn-event ./cmd/kn-event/main.go
 ```
 
