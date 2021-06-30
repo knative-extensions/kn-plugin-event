@@ -7,8 +7,8 @@ import (
 	"knative.dev/kn-plugin-event/internal/event"
 )
 
-// OptionsArgs holds a general args for all commands.
-type OptionsArgs struct {
+// Options holds a general args for all commands.
+type Options struct {
 	event.KnPluginOptions
 
 	// Output define type of output commands should be producing.

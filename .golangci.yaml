@@ -18,3 +18,12 @@ linters:
     - exhaustivestruct
     - wsl
     - godox
+    - scopelint
+    - maligned
+    - interfacer
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - wrapcheck

@@ -15,8 +15,8 @@ import (
 	"knative.dev/kn-plugin-event/internal/event"
 )
 
-// WithLogger will create an event suitable OptionsArgs from CLI ones.
-func (opts *OptionsArgs) WithLogger() *event.Properties {
+// WithLogger will create an event suitable Options from CLI ones.
+func (opts *Options) WithLogger() *event.Properties {
 	zc := zap.NewProductionConfig()
 	cfg := zap.NewProductionEncoderConfig()
 	if opts.Verbose {

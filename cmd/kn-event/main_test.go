@@ -1,9 +1,8 @@
-package main
+// Needs to suppress testpackage lint to be able to call main() func.
+package main // nolint:testpackage
 
 import (
 	"bytes"
-	"io"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,23 +10,18 @@ import (
 )
 
 func TestMainFunc(t *testing.T) {
-	r, w, _ := os.Pipe()
-	cmd.SetOut(w)
+	tc := cmd.TestingCmd{
+		Cmd: mainCmd,
+	}
+	buf := bytes.NewBuffer([]byte{})
+	tc.Out(buf)
+	tc.Args("")
+	tc.Exit(func(code int) {
+		assert.Equal(t, 0, code)
+	})
 
 	main()
 
-	outC := make(chan string)
-	// copy the output in a separate goroutine so printing can't block indefinitely
-	go func() {
-		var buf bytes.Buffer
-		_, err := io.Copy(&buf, r)
-		assert.NoError(t, err)
-		outC <- buf.String()
-	}()
-
-	// back to normal state
-	assert.NoError(t, w.Close())
-	out := <-outC
-
+	out := buf.String()
 	assert.Contains(t, out, "Manage CloudEvents from command line")
 }

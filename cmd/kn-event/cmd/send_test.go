@@ -1,4 +1,4 @@
-package cmd
+package cmd_test
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"knative.dev/kn-plugin-event/cmd/kn-event/cmd"
 	"knative.dev/kn-plugin-event/internal/event"
 	"knative.dev/kn-plugin-event/internal/tests"
 )
@@ -13,7 +14,8 @@ import (
 func TestSendToAddress(t *testing.T) {
 	buf := bytes.NewBuffer([]byte{})
 	ce, err := tests.WithCloudEventsServer(func(serverURL url.URL) error {
-		rootCmd.SetArgs([]string{
+		tc := cmd.TestingCmd{}
+		tc.Args(
 			"send",
 			"--to-url", serverURL.String(),
 			"--id", "654321",
@@ -22,11 +24,13 @@ func TestSendToAddress(t *testing.T) {
 			"--field", "ping=123",
 			"--field", "active=true",
 			"--raw-field", "ref=321",
-		})
-		rootCmd.SetOut(buf)
-		return rootCmd.Execute()
+		)
+		tc.Out(buf)
+		return tc.Execute()
 	})
-	assert.NoError(t, err)
+	if !assert.NoError(t, err) {
+		return
+	}
 	out := buf.String()
 	assert.Contains(t, out, "Event (ID: 654321) have been sent.")
 	assert.NotNil(t, ce)

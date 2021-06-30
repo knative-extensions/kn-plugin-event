@@ -5,7 +5,7 @@ import (
 )
 
 // Send will send CloudEvent to target.
-func (c *App) Send(ce cloudevents.Event, target *TargetArgs, options *OptionsArgs) error {
+func (c *App) Send(ce cloudevents.Event, target *TargetArgs, options *Options) error {
 	t, err := createTarget(target, options.WithLogger())
 	if err != nil {
 		return err
