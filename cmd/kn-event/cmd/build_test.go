@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"knative.dev/kn-plugin-event/cmd/kn-event/cmd"
 	"knative.dev/kn-plugin-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/tests"
 )
 
 func TestBuildSubCommandWithNoOptions(t *testing.T) {
@@ -88,7 +89,7 @@ func (ec eventChecks) performEventChecks(out []byte) {
 }
 
 func (ec eventChecks) unmarshalData(bytes []byte) map[string]interface{} {
-	m, err := event.UnmarshalData(bytes)
+	m, err := tests.UnmarshalCloudEventData(bytes)
 	assert.NoError(ec.t, err)
 	return m
 }

@@ -7,7 +7,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"knative.dev/kn-plugin-event/cmd/kn-event/cmd"
-	"knative.dev/kn-plugin-event/internal/event"
 	"knative.dev/kn-plugin-event/internal/tests"
 )
 
@@ -35,7 +34,7 @@ func TestSendToAddress(t *testing.T) {
 	assert.Contains(t, out, "Event (ID: 654321) have been sent.")
 	assert.NotNil(t, ce)
 	assert.Equal(t, "654321", ce.ID())
-	payload, err := event.UnmarshalData(ce.Data())
+	payload, err := tests.UnmarshalCloudEventData(ce.Data())
 	assert.NoError(t, err)
 	assert.EqualValues(t, map[string]interface{}{
 		"person": map[string]interface{}{
