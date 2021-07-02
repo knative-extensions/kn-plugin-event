@@ -2,11 +2,9 @@ package sender
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/wavesoftware/go-ensure"
 )
 
 type directSender struct {
@@ -15,7 +13,9 @@ type directSender struct {
 
 func (d *directSender) Send(ce cloudevents.Event) error {
 	c, err := cloudevents.NewDefaultClient()
-	ensure.NoError(err)
+	if err != nil {
+		return cantSentEvent(err)
+	}
 
 	// Set a target.
 	ctx := cloudevents.ContextWithTarget(context.TODO(), d.url.String())
@@ -23,7 +23,7 @@ func (d *directSender) Send(ce cloudevents.Event) error {
 	// Send that Event.
 	err = c.Send(ctx, ce)
 	if !cloudevents.IsACK(err) {
-		return fmt.Errorf("%v: %w", ErrCouldntBeSent, err)
+		return cantSentEvent(err)
 	}
 
 	return nil

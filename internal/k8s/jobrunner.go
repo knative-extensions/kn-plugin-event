@@ -57,7 +57,11 @@ func (j *jobRunner) Run(job *batchv1.Job) error {
 	if updated.Status.Succeeded < 1 {
 		return fmt.Errorf("%w: %s", ErrUnexcpected, "expected to have successful job")
 	}
-	return jobs.Delete(j.kube.Context(), job.Name, metav1.DeleteOptions{})
+	err = jobs.Delete(j.kube.Context(), job.Name, metav1.DeleteOptions{})
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrUnexcpected, err)
+	}
+	return nil
 }
 
 func waitOnStop(stop chan struct{}) {

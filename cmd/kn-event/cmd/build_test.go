@@ -1,4 +1,4 @@
-package cmd
+package cmd_test
 
 import (
 	"bytes"
@@ -7,7 +7,9 @@ import (
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/stretchr/testify/assert"
+	"knative.dev/kn-plugin-event/cmd/kn-event/cmd"
 	"knative.dev/kn-plugin-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/tests"
 )
 
 func TestBuildSubCommandWithNoOptions(t *testing.T) {
@@ -56,11 +58,13 @@ func newCmdArgs(args ...string) cmdArgs {
 	}
 }
 
-func performTestsOnBuildSubCommand(t *testing.T, cmd cmdArgs, preparers ...eventPreparer) {
-	rootCmd.SetArgs(cmd.args)
+func performTestsOnBuildSubCommand(t *testing.T, args cmdArgs, preparers ...eventPreparer) {
+	t.Helper()
 	buf := bytes.NewBuffer([]byte{})
-	rootCmd.SetOut(buf)
-	assert.NoError(t, rootCmd.Execute())
+	c := cmd.TestingCmd{}
+	c.Out(buf)
+	c.Args(args.args...)
+	assert.NoError(t, c.Execute())
 	output := buf.Bytes()
 	ec := newEventChecks(t)
 	for _, preparer := range preparers {
@@ -85,12 +89,13 @@ func (ec eventChecks) performEventChecks(out []byte) {
 }
 
 func (ec eventChecks) unmarshalData(bytes []byte) map[string]interface{} {
-	m, err := event.UnmarshalData(bytes)
+	m, err := tests.UnmarshalCloudEventData(bytes)
 	assert.NoError(ec.t, err)
 	return m
 }
 
 func newEventChecks(t *testing.T) eventChecks {
+	t.Helper()
 	return eventChecks{t: t, event: event.NewDefault()}
 }
 

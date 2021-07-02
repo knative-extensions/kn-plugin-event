@@ -57,7 +57,11 @@ func (i *inClusterSender) Send(ce cloudevents.Event) error {
 			},
 		},
 	}
-	return i.jobRunner.Run(job)
+	err = i.jobRunner.Run(job)
+	if err != nil {
+		return fmt.Errorf("%w: %v", ics.ErrCantSendWithICS, err)
+	}
+	return nil
 }
 
 func imageFor(artifact string) string {

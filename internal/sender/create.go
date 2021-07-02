@@ -1,6 +1,7 @@
 package sender
 
 import (
+	"errors"
 	"fmt"
 
 	"knative.dev/kn-plugin-event/internal/event"
@@ -27,4 +28,11 @@ func (b *Binding) New(target *event.Target) (event.Sender, error) {
 		}, nil
 	}
 	return nil, fmt.Errorf("%w: %v", ErrUnsupportedTargetType, target.Type)
+}
+
+func cantSentEvent(err error) error {
+	if errors.Is(err, event.ErrCantSentEvent) {
+		return err
+	}
+	return fmt.Errorf("%w: %v", event.ErrCantSentEvent, err)
 }

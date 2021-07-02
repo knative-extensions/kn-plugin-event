@@ -34,8 +34,5 @@ func init() { //nolint:gochecknoinits
 		config.Binaries = append(config.Binaries, config.Binary{Name: bin})
 	}
 	config.VersionVariablePath = "knative.dev/kn-plugin-event/internal.Version"
-	checks.GolangCiLintWithOptions(checks.GolangCiLintOptions{
-		New: true,
-		Fix: true,
-	})
+	checks.GolangCiLintWithOptions(checks.GolangCiLintOptions{})
 }

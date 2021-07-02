@@ -1,63 +1,95 @@
 package cmd
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/spf13/cobra"
 	"knative.dev/kn-plugin-event/internal/cli"
 	"knative.dev/kn-plugin-event/internal/configuration"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 var (
-	target = &cli.TargetArgs{}
+	// ErrSendTargetValidationFailed is returned if a send target can't pass a
+	// validation.
+	ErrSendTargetValidationFailed = errors.New("send target validation failed")
 
-	sendCmd = func() *cobra.Command {
-		c := &cobra.Command{
-			Use:   "send",
-			Short: "Builds and sends a CloudEvent to recipient",
-			RunE: func(cmd *cobra.Command, args []string) error {
-				cli := configuration.CreateCli()
-				ce, err := cli.CreateWithArgs(eventArgs)
-				if err != nil {
-					return err
-				}
-				return cli.Send(*ce, target, options)
-			},
-		}
-		addBuilderFlags(c)
-		c.Flags().StringVarP(
-			&target.URL, "to-url", "u", "",
-			`Specify an URL to send event to. This option can't be used with 
+	// ErrCantSendEvent is returned if event can't be sent.
+	ErrCantSendEvent = errors.New("can't send event")
+)
+
+type sendCommand struct {
+	target *cli.TargetArgs
+	event  *cli.EventArgs
+	*Cmd
+}
+
+func (s *sendCommand) command() *cobra.Command {
+	c := &cobra.Command{
+		Use:   "send",
+		Short: "Builds and sends a CloudEvent to recipient",
+		RunE:  s.run,
+	}
+	addBuilderFlags(s.event, c)
+	c.Flags().StringVarP(
+		&s.target.URL, "to-url", "u", "",
+		`Specify an URL to send event to. This option can't be used with 
 --to option.`,
-		)
-		c.Flags().StringVarP(
-			&target.Addressable, "to", "r", "",
-			`Specify an addressable resource to send event to. This argument
+	)
+	c.Flags().StringVarP(
+		&s.target.Addressable, "to", "r", "",
+		`Specify an addressable resource to send event to. This argument
 takes format kind:apiVersion:name for named resources or
 kind:apiVersion:labelKey1=value1,labelKey2=value2 for matching via a
 label selector. This option can't be used with --to-url option.`,
-		)
-		c.Flags().StringVarP(
-			&target.Namespace, "namespace", "n", "",
-			`Specify a namespace of addressable resource defined with --to
+	)
+	c.Flags().StringVarP(
+		&s.target.Namespace, "namespace", "n", "",
+		`Specify a namespace of addressable resource defined with --to
 option. If this option isn't specified a current context namespace will be used
 to find addressable resource. This option can't be used with --to-url option.`,
-		)
-		c.Flags().StringVar(
-			&target.SenderNamespace, "sender-namespace", "",
-			`Specify a namespace of sender job to be created. While using --to
+	)
+	c.Flags().StringVar(
+		&s.target.SenderNamespace, "sender-namespace", "",
+		`Specify a namespace of sender job to be created. While using --to
 option, event is send within a cluster. To do that kn-event uses a special Job
 that is deployed to cluster in namespace dictated by --sender-namespace. If
 this option isn't specified a current context namespace will be used. This
 option can't be used with --to-url option.`,
-		)
-		c.Flags().StringVar(
-			&target.AddressableURI, "addressable-uri", "/",
-			`Specify an URI of a target addressable resource. If this option
+	)
+	c.Flags().StringVar(
+		&s.target.AddressableURI, "addressable-uri", "/",
+		`Specify an URI of a target addressable resource. If this option
 isn't specified a '/' URI will be used. This option can't be used with 
 --to-url option.`,
-		)
-		c.PreRunE = func(cmd *cobra.Command, args []string) error {
-			return cli.ValidateTarget(target)
+	)
+	c.PreRunE = func(cmd *cobra.Command, args []string) error {
+		err := cli.ValidateTarget(s.target)
+		if err != nil {
+			return fmt.Errorf("%w: %v", ErrSendTargetValidationFailed, err)
 		}
-		return c
-	}()
-)
+		return nil
+	}
+	return c
+}
+
+func (s *sendCommand) run(_ *cobra.Command, _ []string) error {
+	c := configuration.CreateCli()
+	ce, err := c.CreateWithArgs(s.event)
+	if err != nil {
+		return cantBuildEventError(err)
+	}
+	err = c.Send(*ce, s.target, s.options)
+	if err != nil {
+		return cantSentEvent(err)
+	}
+	return nil
+}
+
+func cantSentEvent(err error) error {
+	if errors.Is(err, event.ErrCantSentEvent) {
+		return err
+	}
+	return fmt.Errorf("%w: %v", event.ErrCantSentEvent, err)
+}

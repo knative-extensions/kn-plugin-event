@@ -45,7 +45,7 @@ func assertWithOutputMode(t *testing.T, want cloudevents.Event, mode cli.OutputM
 	err := app.Send(
 		want,
 		&cli.TargetArgs{URL: "http://example.org"},
-		&cli.OptionsArgs{
+		&cli.Options{
 			Output:    mode,
 			OutWriter: &buf,
 		},

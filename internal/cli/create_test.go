@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"knative.dev/kn-plugin-event/internal/cli"
 	"knative.dev/kn-plugin-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/tests"
 )
 
 func TestPresentWith(t *testing.T) {
@@ -46,6 +47,7 @@ type testPresentWithCase struct {
 }
 
 func caseForPresentWithHumanReadable(t *testing.T) testPresentWithCase {
+	t.Helper()
 	return testPresentWithCase{
 		name: "OutputMode==HumanReadable",
 		args: testPresentWithCaseArgs{
@@ -76,6 +78,7 @@ Data,
 }
 
 func caseForPresentWithJSON(t *testing.T) testPresentWithCase {
+	t.Helper()
 	return testPresentWithCase{
 		name: "OutputMode==JSON",
 		args: testPresentWithCaseArgs{
@@ -104,6 +107,7 @@ func caseForPresentWithJSON(t *testing.T) testPresentWithCase {
 }
 
 func caseForPresentWithYAML(t *testing.T) testPresentWithCase {
+	t.Helper()
 	return testPresentWithCase{
 		name: "OutputMode==YAML",
 		args: testPresentWithCaseArgs{
@@ -159,7 +163,7 @@ func TestCreateWithArgs(t *testing.T) {
 		"ref":    "321",
 		"active": true,
 	}
-	actualData, err := event.UnmarshalData(actual.Data())
+	actualData, err := tests.UnmarshalCloudEventData(actual.Data())
 	assert.NoError(t, err)
 	assert.EqualValues(t, expectedData, actualData)
 	delta := 1_000_000.
@@ -167,6 +171,7 @@ func TestCreateWithArgs(t *testing.T) {
 }
 
 func exampleEvent(t *testing.T) *cloudevents.Event {
+	t.Helper()
 	e := event.NewDefault()
 	e.SetTime(time.Unix(1598277672, 601161))
 	e.SetID("99e4f4f6-08ff-4bff-acf1-47f61ded68c9")

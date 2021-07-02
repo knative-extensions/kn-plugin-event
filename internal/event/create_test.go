@@ -1,14 +1,16 @@
 package event_test
 
 import (
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"knative.dev/kn-plugin-event/internal/event"
+	"knative.dev/kn-plugin-event/internal/tests"
 )
 
-func TestCreateWithArgs(t *testing.T) {
+func TestCreateFromSpec(t *testing.T) {
 	id := event.NewID()
 	eventType := "org.example.kn.event.ping"
 	eventSource := "/k8s/events/ping"
@@ -38,9 +40,22 @@ func TestCreateWithArgs(t *testing.T) {
 		"ref":    "321",
 		"active": true,
 	}
-	actualData, err := event.UnmarshalData(actual.Data())
+	actualData, err := tests.UnmarshalCloudEventData(actual.Data())
 	assert.NoError(t, err)
 	assert.EqualValues(t, expectedData, actualData)
 	delta := 1_000_000.
 	assert.InDelta(t, time.Now().UnixNano(), actual.Time().UnixNano(), delta)
+}
+
+func TestCreateFromSpecWithInvalidFieldSpec(t *testing.T) {
+	spec := &event.Spec{
+		Fields: []event.FieldSpec{
+			{Path: "person.name", Value: "Chris Suszynski"},
+			{Path: "person.name.first", Value: "Chris"},
+		},
+	}
+	_, err := event.CreateFromSpec(spec)
+	assert.True(t, errors.Is(err, event.ErrCantSetField))
+	assert.Contains(t, err.Error(),
+		"\"person.name.first\" path in conflict with value \"Chris Suszynski\"")
 }

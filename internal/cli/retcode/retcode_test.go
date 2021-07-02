@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"knative.dev/kn-plugin-event/internal/cli/retcode"
-	"knative.dev/kn-plugin-event/internal/sender"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 func TestCalc(t *testing.T) {
@@ -26,13 +26,13 @@ func testCases() []testCase {
 		err:  nil,
 		want: 0,
 	}, {
-		name: "sender.ErrCouldntBeSent",
-		err:  sender.ErrCouldntBeSent,
-		want: 157,
+		name: "event.ErrCantSentEvent",
+		err:  event.ErrCantSentEvent,
+		want: 111,
 	}, {
 		name: "error of wrap caused by 12345",
-		err:  fmt.Errorf("%w: 12345", sender.ErrCouldntBeSent),
-		want: 193,
+		err:  fmt.Errorf("%w: 12345", event.ErrCantSentEvent),
+		want: 177,
 	}}
 }
 

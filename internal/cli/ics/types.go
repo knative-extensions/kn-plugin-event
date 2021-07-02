@@ -16,6 +16,8 @@ var (
 	// ErrCantConfigureICS is returned when problem occur while trying to
 	// configure ICS sender.
 	ErrCantConfigureICS = errors.New("can't configure ICS sender")
+	// ErrCantSendWithICS if can't send with ICS sender.
+	ErrCantSendWithICS = errors.New("can't send with ICS sender")
 )
 
 // Args holds a list of args for in-cluster-sender.

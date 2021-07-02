@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"io"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -14,70 +13,85 @@ import (
 	"knative.dev/kn-plugin-event/internal/event"
 )
 
-var outputModeIds = map[cli.OutputMode][]string{
-	cli.HumanReadable: {"human"},
-	cli.JSON:          {"json"},
-	cli.YAML:          {"yaml"},
+// Cmd represents a command line application entrypoint.
+type Cmd struct {
+	options *cli.Options
+	root    *cobra.Command
+	exit    func(code int)
 }
 
-var (
-	options = &cli.OptionsArgs{}
+// Execute will execute the application.
+func (c *Cmd) Execute() {
+	if err := c.execute(); err != nil {
+		c.exit(retcode.Calc(err))
+	}
+}
 
-	rootCmd = &cobra.Command{
+func (c *Cmd) execute() error {
+	c.init()
+	// cobra.Command should pass our own errors, no need to wrap them.
+	return c.root.Execute() //nolint:wrapcheck
+}
+
+func (c *Cmd) init() {
+	if c.root != nil {
+		return
+	}
+	c.exit = os.Exit
+	c.options = &cli.Options{}
+	c.root = &cobra.Command{
 		Use:     "event",
 		Aliases: []string{"kn event"},
 		Short:   "A plugin for operating on CloudEvents",
 		Long: `Manage CloudEvents from command line. Perform, easily, tasks like sending,
 building, and parsing, all from command line.`,
 	}
-)
-
-// Execute will execute the application.
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		exitFunc(retcode.Calc(err))
-	}
-}
-
-// SetOut sets output stream to cmd.
-func SetOut(newOut io.Writer) {
-	rootCmd.SetOut(newOut)
-}
-
-var exitFunc = os.Exit
-
-func init() {
-	SetOut(os.Stdout)
-	rootCmd.SetErr(os.Stderr)
-	rootCmd.PersistentFlags().BoolVarP(
-		&options.Verbose, "verbose", "v",
+	c.root.SetOut(os.Stdout)
+	c.root.SetErr(os.Stderr)
+	c.root.PersistentFlags().BoolVarP(
+		&c.options.Verbose, "verbose", "v",
 		false, "verbose output",
 	)
-	rootCmd.PersistentFlags().VarP(
-		enumflag.New(&options.Output, "output", outputModeIds, enumflag.EnumCaseInsensitive),
+	c.root.PersistentFlags().VarP(
+		enumflag.New(&c.options.Output, "output", outputModeIds(), enumflag.EnumCaseInsensitive),
 		"output", "o",
 		"Output format. One of: human|json|yaml.",
 	)
 
-	rootCmd.AddCommand(buildCmd)
-	rootCmd.AddCommand(sendCmd)
-	rootCmd.AddCommand(versionCmd)
+	eventArgs := &cli.EventArgs{}
+	targetArgs := &cli.TargetArgs{}
+	commands := []subcommand{
+		&buildCommand{Cmd: c, event: eventArgs},
+		&sendCommand{Cmd: c, event: eventArgs, target: targetArgs},
+		&versionCommand{Cmd: c},
+	}
+	for _, each := range commands {
+		c.root.AddCommand(each.command())
+	}
 
-	rootCmd.PersistentFlags().StringVar(
-		&options.KnConfig, "config", "~/.config/kn/config.yaml",
+	c.root.PersistentFlags().StringVar(
+		&c.options.KnConfig, "config", "~/.config/kn/config.yaml",
 		"kn configuration file",
 	)
-	rootCmd.PersistentFlags().StringVar(
-		&options.Kubeconfig, "kubeconfig", event.DefaultKubeconfig,
+	c.root.PersistentFlags().StringVar(
+		&c.options.Kubeconfig, "kubeconfig", event.DefaultKubeconfig,
 		"kubectl configuration file",
 	)
-	rootCmd.PersistentFlags().BoolVar(
-		&options.LogHTTP, "log-http", false,
+	c.root.PersistentFlags().BoolVar(
+		&c.options.LogHTTP, "log-http", false,
 		"log http traffic",
 	)
 
-	rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
-		options.OutWriter = cmd.OutOrStdout()
-		options.ErrWriter = cmd.ErrOrStderr()
+	c.root.PersistentPreRun = func(cmd *cobra.Command, args []string) {
+		c.options.OutWriter = cmd.OutOrStdout()
+		c.options.ErrWriter = cmd.ErrOrStderr()
+	}
+}
+
+func outputModeIds() map[cli.OutputMode][]string {
+	return map[cli.OutputMode][]string{
+		cli.HumanReadable: {"human"},
+		cli.JSON:          {"json"},
+		cli.YAML:          {"yaml"},
 	}
 }
