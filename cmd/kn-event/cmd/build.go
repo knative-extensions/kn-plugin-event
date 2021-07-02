@@ -9,13 +9,8 @@ import (
 	"knative.dev/kn-plugin-event/internal/configuration"
 )
 
-var (
-	// ErrCantBuildEvent is returned if an event can't be built.
-	ErrCantBuildEvent = errors.New("can't build event")
-
-	// ErrCantBePresented is returned if data can't be presented.
-	ErrCantBePresented = errors.New("can't be presented")
-)
+// ErrCantBePresented is returned if data can't be presented.
+var ErrCantBePresented = errors.New("can't be presented")
 
 type buildCommand struct {
 	*Cmd
@@ -38,7 +33,7 @@ func (b *buildCommand) run(cmd *cobra.Command, _ []string) error {
 	c := configuration.CreateCli()
 	ce, err := c.CreateWithArgs(b.event)
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrCantBuildEvent, err)
+		return cantBuildEventError(err)
 	}
 	out, err := c.PresentWith(ce, b.options.Output)
 	if err != nil {
@@ -46,4 +41,11 @@ func (b *buildCommand) run(cmd *cobra.Command, _ []string) error {
 	}
 	cmd.Println(out)
 	return nil
+}
+
+func cantBuildEventError(err error) error {
+	if errors.Is(err, cli.ErrCantBuildEvent) {
+		return err
+	}
+	return fmt.Errorf("%w: %v", cli.ErrCantBuildEvent, err)
 }

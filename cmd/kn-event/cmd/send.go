@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"knative.dev/kn-plugin-event/internal/cli"
 	"knative.dev/kn-plugin-event/internal/configuration"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 var (
@@ -77,11 +78,18 @@ func (s *sendCommand) run(_ *cobra.Command, _ []string) error {
 	c := configuration.CreateCli()
 	ce, err := c.CreateWithArgs(s.event)
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrCantBuildEvent, err)
+		return cantBuildEventError(err)
 	}
 	err = c.Send(*ce, s.target, s.options)
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrCantSendEvent, err)
+		return cantSentEvent(err)
 	}
 	return nil
+}
+
+func cantSentEvent(err error) error {
+	if errors.Is(err, event.ErrCantSentEvent) {
+		return err
+	}
+	return fmt.Errorf("%w: %v", event.ErrCantSentEvent, err)
 }

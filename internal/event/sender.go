@@ -30,5 +30,12 @@ func (l *sendLogic) Send(ce cloudevents.Event) error {
 		l.Log.Infof("Event (ID: %s) have been sent.", ce.ID())
 		return nil
 	}
+	return cantSentEvent(err)
+}
+
+func cantSentEvent(err error) error {
+	if errors.Is(err, ErrCantSentEvent) {
+		return err
+	}
 	return fmt.Errorf("%w: %v", ErrCantSentEvent, err)
 }

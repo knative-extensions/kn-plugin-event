@@ -7,15 +7,9 @@ import (
 	"knative.dev/kn-plugin-event/internal/k8s"
 )
 
-var (
-	// ErrUnsupportedTargetType is an error if user pass unsupported event target
-	// type. Only supporting: reachable or addressable.
-	ErrUnsupportedTargetType = errors.New("unsupported target type")
-
-	// ErrCouldntBeSent is an error that will be return in case event that suppose
-	// to be sent, couldn't be, for whatever technical reason.
-	ErrCouldntBeSent = errors.New("event couldn't be sent")
-)
+// ErrUnsupportedTargetType is an error if user pass unsupported event target
+// type. Only supporting: reachable or addressable.
+var ErrUnsupportedTargetType = errors.New("unsupported target type")
 
 // CreateKubeClients creates k8s.Clients.
 type CreateKubeClients func(props *event.Properties) (k8s.Clients, error)

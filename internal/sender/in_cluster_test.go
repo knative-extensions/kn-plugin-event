@@ -121,7 +121,7 @@ type jr struct {
 
 func (j *jr) Run(job *batchv1.Job) error {
 	if !j.isValid(job) {
-		return sender.ErrCouldntBeSent
+		return event.ErrCantSentEvent
 	}
 	return nil
 }

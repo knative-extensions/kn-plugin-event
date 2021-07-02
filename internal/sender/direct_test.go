@@ -3,6 +3,7 @@ package sender_test
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"testing"
@@ -75,7 +76,7 @@ func undelivered(t *testing.T) testCase {
 			handler(*u)
 		},
 		validateErr: func(err error) {
-			if !cloudevents.IsNACK(err) {
+			if !errors.Is(err, event.ErrCantSentEvent) {
 				unexpectedError(t, err)
 			}
 		},

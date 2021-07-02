@@ -1,18 +1,37 @@
 package cli
 
 import (
+	"errors"
+	"fmt"
+
 	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"knative.dev/kn-plugin-event/internal/event"
 )
 
 // Send will send CloudEvent to target.
 func (c *App) Send(ce cloudevents.Event, target *TargetArgs, options *Options) error {
-	t, err := createTarget(target, options.WithLogger())
+	props, err := options.WithLogger()
 	if err != nil {
 		return err
 	}
-	sender, err := c.Binding.NewSender(t)
+	t, err := createTarget(target, props)
 	if err != nil {
 		return err
 	}
-	return sender.Send(ce)
+	s, err := c.Binding.NewSender(t)
+	if err != nil {
+		return cantSentEvent(err)
+	}
+	err = s.Send(ce)
+	if err == nil {
+		return nil
+	}
+	return cantSentEvent(err)
+}
+
+func cantSentEvent(err error) error {
+	if errors.Is(err, event.ErrCantSentEvent) {
+		return err
+	}
+	return fmt.Errorf("%w: %v", event.ErrCantSentEvent, err)
 }

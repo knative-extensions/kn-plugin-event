@@ -2,21 +2,25 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/ghodss/yaml"
 	"github.com/mitchellh/go-homedir"
-	"github.com/wavesoftware/go-ensure"
 	"go.uber.org/zap"
 	"go.uber.org/zap/buffer"
 	"go.uber.org/zap/zapcore"
 	"knative.dev/kn-plugin-event/internal/event"
 )
 
+// ErrUnexpected if unexpected error found.
+var ErrUnexpected = errors.New("unexpected")
+
 // WithLogger will create an event suitable Options from CLI ones.
-func (opts *Options) WithLogger() *event.Properties {
+func (opts *Options) WithLogger() (*event.Properties, error) {
 	zc := zap.NewProductionConfig()
 	cfg := zap.NewProductionEncoderConfig()
 	if opts.Verbose {
@@ -45,24 +49,33 @@ func (opts *Options) WithLogger() *event.Properties {
 		zcore, buildOptions(zc, errSink)...,
 	)
 
-	return &event.Properties{
-		KnPluginOptions: resolvePluginOptions(opts.KnPluginOptions),
-		Log:             log.Sugar(),
+	var (
+		knOpts event.KnPluginOptions
+		err    error
+	)
+	if knOpts, err = resolvePluginOptions(opts.KnPluginOptions); err != nil {
+		return nil, err
 	}
+	return &event.Properties{
+		KnPluginOptions: knOpts,
+		Log:             log.Sugar(),
+	}, nil
 }
 
-func resolvePluginOptions(options event.KnPluginOptions) event.KnPluginOptions {
+func resolvePluginOptions(options event.KnPluginOptions) (event.KnPluginOptions, error) {
 	if options.Kubeconfig == event.DefaultKubeconfig {
 		if ke, ok := os.LookupEnv("KUBECONFIG"); ok {
 			options.Kubeconfig = ke
 		}
 	}
 	var err error
-	options.Kubeconfig, err = homedir.Expand(options.Kubeconfig)
-	ensure.NoError(err)
-	options.KnConfig, err = homedir.Expand(options.KnConfig)
-	ensure.NoError(err)
-	return options
+	if options.Kubeconfig, err = homedir.Expand(options.Kubeconfig); err != nil {
+		return event.KnPluginOptions{}, unexpected(err)
+	}
+	if options.KnConfig, err = homedir.Expand(options.KnConfig); err != nil {
+		return event.KnPluginOptions{}, unexpected(err)
+	}
+	return options, nil
 }
 
 func alignCapitalColorLevelEncoder(l zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
@@ -102,19 +115,25 @@ type yamlEncoder struct {
 func (y *yamlEncoder) EncodeEntry(entry zapcore.Entry, fields []zapcore.Field) (*buffer.Buffer, error) {
 	buf, err := y.Encoder.EncodeEntry(entry, fields)
 	if err != nil {
-		return nil, err
+		return nil, unexpected(err)
 	}
 	var v interface{}
 	err = json.Unmarshal(buf.Bytes(), &v)
 	if err != nil {
-		return nil, err
+		return nil, unexpected(err)
 	}
 	bytes, err := yaml.Marshal(v)
 	if err != nil {
-		return nil, err
+		return nil, unexpected(err)
 	}
 	buf = buffer.NewPool().Get()
 	_, _ = buf.Write([]byte("---\n"))
-	_, err = buf.Write(bytes)
-	return buf, err
+	if _, err = buf.Write(bytes); err != nil {
+		return nil, unexpected(err)
+	}
+	return buf, nil
+}
+
+func unexpected(err error) error {
+	return fmt.Errorf("%w: %v", ErrUnexpected, err)
 }
