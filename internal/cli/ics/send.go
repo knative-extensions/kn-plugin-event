@@ -16,7 +16,11 @@ func (app *App) SendFromEnv() error {
 	if err != nil {
 		return err
 	}
-	return c.sender.Send(*c.ce)
+	err = c.sender.Send(*c.ce)
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrCantSendWithICS, err)
+	}
+	return nil
 }
 
 func (app *App) configure() (config, error) {
