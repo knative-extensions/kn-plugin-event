@@ -1,7 +1,6 @@
 package event
 
 import (
-	"errors"
 	"net/url"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -9,9 +8,6 @@ import (
 	"knative.dev/pkg/apis"
 	"knative.dev/pkg/tracker"
 )
-
-// ErrNotYetImplemented is an error for not yet implemented code.
-var ErrNotYetImplemented = errors.New("not yet implemented")
 
 // DefaultKubeconfig is a default location of kubeconfig.
 const DefaultKubeconfig = "~/.kube/config"
