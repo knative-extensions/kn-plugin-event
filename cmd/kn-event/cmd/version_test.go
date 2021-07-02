@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 	"knative.dev/kn-plugin-event/cmd/kn-event/cmd"
-	"knative.dev/kn-plugin-event/internal"
-	"knative.dev/kn-plugin-event/internal/cli"
+	"knative.dev/kn-plugin-event/pkg"
+	"knative.dev/kn-plugin-event/pkg/cli"
 )
 
 func TestVersionSubCommandWithHuman(t *testing.T) {
@@ -46,8 +46,8 @@ func versionSubCommandChecks(t *testing.T, format string, unmarshal unmarshalFun
 
 	pv := cli.PluginVersionOutput{}
 	assert.NoError(t, unmarshal(buf.Bytes(), &pv))
-	assert.Equal(t, internal.PluginName, pv.Name)
-	assert.Equal(t, internal.Version, pv.Version)
+	assert.Equal(t, pkg.PluginName, pv.Name)
+	assert.Equal(t, pkg.Version, pv.Version)
 }
 
 func TestPresentAsWithInvalidOutput(t *testing.T) {

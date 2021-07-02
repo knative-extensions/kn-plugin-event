@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
-	"knative.dev/kn-plugin-event/internal"
-	"knative.dev/kn-plugin-event/internal/cli"
+	"knative.dev/kn-plugin-event/pkg"
+	"knative.dev/kn-plugin-event/pkg/cli"
 )
 
 // ErrUnsupportedOutputMode is returned if user passed a unsupported
@@ -29,8 +29,8 @@ func (v *versionCommand) command() *cobra.Command {
 
 func (v *versionCommand) run(cmd *cobra.Command, _ []string) error {
 	output, err := presentAs(cli.PluginVersionOutput{
-		Name:    internal.PluginName,
-		Version: internal.Version,
+		Name:    pkg.PluginName,
+		Version: pkg.Version,
 	}, v.options.Output)
 	if err != nil {
 		return err

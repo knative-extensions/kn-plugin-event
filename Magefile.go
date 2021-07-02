@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"github.com/joho/godotenv"
-	"knative.dev/kn-plugin-event/internal"
+	"knative.dev/kn-plugin-event/pkg"
 
 	// mage:import
 	"github.com/wavesoftware/go-magetasks"
@@ -27,12 +27,12 @@ func init() { //nolint:gochecknoinits
 		log.Fatal("Error loading .env file", err)
 	}
 	bins := []string{
-		internal.PluginName,
-		fmt.Sprintf("%s-sender", internal.PluginName),
+		pkg.PluginName,
+		fmt.Sprintf("%s-sender", pkg.PluginName),
 	}
 	for _, bin := range bins {
 		config.Binaries = append(config.Binaries, config.Binary{Name: bin})
 	}
-	config.VersionVariablePath = "knative.dev/kn-plugin-event/internal.Version"
+	config.VersionVariablePath = "knative.dev/kn-plugin-event/pkg.Version"
 	checks.GolangCiLintWithOptions(checks.GolangCiLintOptions{})
 }
