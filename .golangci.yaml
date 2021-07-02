@@ -21,6 +21,7 @@ linters:
     - scopelint
     - maligned
     - interfacer
+    - golint
 
 issues:
   exclude-rules:

@@ -13,6 +13,12 @@ import (
 	"knative.dev/kn-plugin-event/internal/event"
 )
 
+const (
+	fieldAssigmentSize = 2
+	decimalBase        = 10
+	precision64BitSize = 64
+)
+
 var (
 	// ErrUnsupportedOutputMode if user passed unsupported output mode.
 	ErrUnsupportedOutputMode = errors.New("unsupported output mode")
@@ -36,7 +42,7 @@ func (c *App) CreateWithArgs(args *EventArgs) (*cloudevents.Event, error) {
 		Fields: make([]event.FieldSpec, 0, len(args.Fields)+len(args.RawFields)),
 	}
 	for _, fieldAssigment := range args.Fields {
-		split := strings.SplitN(fieldAssigment, "=", 2)
+		split := strings.SplitN(fieldAssigment, "=", fieldAssigmentSize)
 		path, value := split[0], split[1]
 		var floatVal float64
 		if boolVal, err := readAsBoolean(value); err == nil {
@@ -48,7 +54,7 @@ func (c *App) CreateWithArgs(args *EventArgs) (*cloudevents.Event, error) {
 		}
 	}
 	for _, fieldAssigment := range args.RawFields {
-		split := strings.SplitN(fieldAssigment, "=", 2)
+		split := strings.SplitN(fieldAssigment, "=", fieldAssigmentSize)
 		path, value := split[0], split[1]
 		spec.AddField(path, value)
 	}
@@ -139,7 +145,7 @@ func readAsFloat64(in string) (float64, error) {
 	if intVal, err := readAsInt64(in); err == nil {
 		return float64(intVal), nil
 	}
-	val, err := strconv.ParseFloat(in, 64)
+	val, err := strconv.ParseFloat(in, precision64BitSize)
 	// TODO(cardil): log error as it may be beneficial for debugging
 	if err != nil {
 		return -0, fmt.Errorf("%w: %v", ErrInvalidFormat, err)
@@ -151,7 +157,7 @@ func readAsFloat64(in string) (float64, error) {
 }
 
 func readAsInt64(in string) (int64, error) {
-	val, err := strconv.ParseInt(in, 10, 64)
+	val, err := strconv.ParseInt(in, decimalBase, precision64BitSize)
 	// TODO(cardil): log error as it may be beneficial for debugging
 	if err != nil {
 		return -0, fmt.Errorf("%w: %v", ErrInvalidFormat, err)
