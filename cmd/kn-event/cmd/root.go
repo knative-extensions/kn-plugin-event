@@ -8,9 +8,9 @@ import (
 
 	// for kubeconfig auth plugins to work correctly see issue #24 .
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
-	"knative.dev/kn-plugin-event/internal/cli"
-	"knative.dev/kn-plugin-event/internal/cli/retcode"
-	"knative.dev/kn-plugin-event/internal/event"
+	"knative.dev/kn-plugin-event/pkg/cli"
+	"knative.dev/kn-plugin-event/pkg/cli/retcode"
+	"knative.dev/kn-plugin-event/pkg/event"
 )
 
 // Cmd represents a command line application entrypoint.

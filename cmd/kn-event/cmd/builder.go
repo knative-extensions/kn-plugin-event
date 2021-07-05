@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"knative.dev/kn-plugin-event/internal/cli"
-	"knative.dev/kn-plugin-event/internal/event"
+	"knative.dev/kn-plugin-event/pkg/cli"
+	"knative.dev/kn-plugin-event/pkg/event"
 )
 
 func addBuilderFlags(eventArgs *cli.EventArgs, c *cobra.Command) {

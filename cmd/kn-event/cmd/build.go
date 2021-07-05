@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"knative.dev/kn-plugin-event/internal/cli"
-	"knative.dev/kn-plugin-event/internal/configuration"
+	"knative.dev/kn-plugin-event/pkg/cli"
+	"knative.dev/kn-plugin-event/pkg/configuration"
 )
 
 // ErrCantBePresented is returned if data can't be presented.

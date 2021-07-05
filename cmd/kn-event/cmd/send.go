@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"knative.dev/kn-plugin-event/internal/cli"
-	"knative.dev/kn-plugin-event/internal/configuration"
-	"knative.dev/kn-plugin-event/internal/event"
+	"knative.dev/kn-plugin-event/pkg/cli"
+	"knative.dev/kn-plugin-event/pkg/configuration"
+	"knative.dev/kn-plugin-event/pkg/event"
 )
 
 var (

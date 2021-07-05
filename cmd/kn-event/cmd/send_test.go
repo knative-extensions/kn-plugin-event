@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"knative.dev/kn-plugin-event/cmd/kn-event/cmd"
-	"knative.dev/kn-plugin-event/internal/tests"
+	"knative.dev/kn-plugin-event/pkg/tests"
 )
 
 func TestSendToAddress(t *testing.T) {
