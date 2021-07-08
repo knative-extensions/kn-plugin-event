@@ -8,6 +8,8 @@ import (
 	fakedyna "k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/kubernetes"
 	fakekube "k8s.io/client-go/kubernetes/fake"
+	fakeservingv1 "knative.dev/serving/pkg/client/clientset/versioned/fake"
+	servingv1 "knative.dev/serving/pkg/client/clientset/versioned/typed/serving/v1"
 )
 
 // FakeClients creates K8s clients from a list of objects using fake packages.
@@ -15,6 +17,7 @@ type FakeClients struct {
 	Objects []runtime.Object
 	kube    kubernetes.Interface
 	dyna    dynamic.Interface
+	serving servingv1.ServingV1Interface
 	ctx     context.Context
 }
 
@@ -31,6 +34,13 @@ func (c *FakeClients) Dynamic() dynamic.Interface {
 		c.dyna = fakedyna.NewSimpleDynamicClient(s, c.Objects...)
 	}
 	return c.dyna
+}
+
+func (c *FakeClients) Serving() servingv1.ServingV1Interface {
+	if c.serving == nil {
+		c.serving = fakeservingv1.NewSimpleClientset(c.Objects...).ServingV1()
+	}
+	return c.serving
 }
 
 func (c *FakeClients) Context() context.Context {

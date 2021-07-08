@@ -8,8 +8,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	memory "k8s.io/client-go/discovery/cached"
-	"k8s.io/client-go/restmapper"
 	"knative.dev/pkg/apis"
 	"knative.dev/pkg/apis/duck"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
@@ -40,10 +38,7 @@ func (a *addressResolver) ResolveAddress(
 	ref *tracker.Reference,
 	uri *apis.URL,
 ) (*url.URL, error) {
-	gvr, err := a.toGVR(ref)
-	if err != nil {
-		return nil, err
-	}
+	gvr := a.toGVR(ref)
 	dest, err := a.toDestination(gvr, ref, uri)
 	if err != nil {
 		return nil, err
@@ -95,18 +90,10 @@ func (a *addressResolver) toDestination(
 	return dest, nil
 }
 
-func (a *addressResolver) toGVR(ref *tracker.Reference) (schema.GroupVersionResource, error) {
+func (a *addressResolver) toGVR(ref *tracker.Reference) schema.GroupVersionResource {
 	gvk := ref.GroupVersionKind()
-	dc := a.kube.Typed().Discovery()
-	mapper := restmapper.NewDeferredDiscoveryRESTMapper(
-		memory.NewMemCacheClient(dc),
-	)
-	mapping, err := mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
-	if err != nil {
-		return schema.GroupVersionResource{},
-			fmt.Errorf("%w: %v", ErrInvalidReference, err)
-	}
-	return mapping.Resource, nil
+	gvr := apis.KindToResource(gvk)
+	return gvr
 }
 
 func (a *addressResolver) toAddressable(un *unstructured.Unstructured) (*duckv1.Addressable, error) {
@@ -116,10 +103,10 @@ func (a *addressResolver) toAddressable(un *unstructured.Unstructured) (*duckv1.
 			URL: apis.HTTP(fmt.Sprintf("%s.%s.svc", un.GetName(), un.GetNamespace())),
 		}, nil
 	}
-	addr := &duckv1.Addressable{}
-	err := duck.VerifyType(un, addr)
+	addr := &duckv1.AddressableType{}
+	err := duck.FromUnstructured(un, addr)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrNotAddressable, err)
 	}
-	return addr, nil
+	return addr.Status.Address, nil
 }
