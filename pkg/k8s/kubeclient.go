@@ -2,21 +2,26 @@ package k8s
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/pkg/signals"
 	servingv1 "knative.dev/serving/pkg/client/clientset/versioned/typed/serving/v1"
 )
 
+// ErrNoKubernetesConnection if can't connect to Kube API server.
+var ErrNoKubernetesConnection = errors.New("no Kubernetes connection")
+
 // CreateKubeClient creates kubernetes.Interface.
 func CreateKubeClient(props *event.Properties) (Clients, error) {
-	config, err := clientcmd.BuildConfigFromFlags("", props.Kubeconfig)
+	config, err := createRestConfig(props)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrUnexcpected, err)
+		return nil, err
 	}
 	typed, err := kubernetes.NewForConfig(config)
 	if err != nil {
@@ -44,6 +49,26 @@ type Clients interface {
 	Dynamic() dynamic.Interface
 	Context() context.Context
 	Serving() servingv1.ServingV1Interface
+}
+
+func createRestConfig(props *event.Properties) (*rest.Config, error) {
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	configOverrides := &clientcmd.ConfigOverrides{}
+	if props.Context != "" {
+		configOverrides.CurrentContext = props.Context
+	}
+	if props.Cluster != "" {
+		configOverrides.Context.Cluster = props.Cluster
+	}
+	if len(props.Path) > 0 {
+		loadingRules.ExplicitPath = props.Path
+	}
+	cc := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
+	cfg, err := cc.ClientConfig()
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrNoKubernetesConnection, err)
+	}
+	return cfg, nil
 }
 
 type clients struct {

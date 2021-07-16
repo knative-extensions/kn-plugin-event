@@ -10,7 +10,6 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"knative.dev/kn-plugin-event/pkg/cli"
 	"knative.dev/kn-plugin-event/pkg/cli/retcode"
-	"knative.dev/kn-plugin-event/pkg/event"
 )
 
 // Cmd represents a command line application entrypoint.
@@ -70,16 +69,16 @@ building, and parsing, all from command line.`,
 	}
 
 	c.root.PersistentFlags().StringVar(
-		&c.options.KnConfig, "config", "~/.config/kn/config.yaml",
-		"kn configuration file",
+		&c.options.KubeconfigOptions.Path, "kubeconfig", "",
+		"kubectl configuration file (default: ~/.kube/config)",
 	)
 	c.root.PersistentFlags().StringVar(
-		&c.options.Kubeconfig, "kubeconfig", event.DefaultKubeconfig,
-		"kubectl configuration file",
+		&c.options.KubeconfigOptions.Context, "context", "",
+		"name of the kubeconfig context to use",
 	)
-	c.root.PersistentFlags().BoolVar(
-		&c.options.LogHTTP, "log-http", false,
-		"log http traffic",
+	c.root.PersistentFlags().StringVar(
+		&c.options.KubeconfigOptions.Cluster, "cluster", "",
+		"name of the kubeconfig cluster to use",
 	)
 
 	c.root.PersistentPreRun = func(cmd *cobra.Command, args []string) {

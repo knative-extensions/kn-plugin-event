@@ -4,20 +4,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/ghodss/yaml"
-	"github.com/mitchellh/go-homedir"
 	"go.uber.org/zap"
 	"go.uber.org/zap/buffer"
 	"go.uber.org/zap/zapcore"
 	"knative.dev/kn-plugin-event/pkg/event"
 )
-
-// ErrUnexpected if unexpected error found.
-var ErrUnexpected = errors.New("unexpected")
 
 // WithLogger will create an event suitable Options from CLI ones.
 func (opts *Options) WithLogger() (*event.Properties, error) {
@@ -49,33 +44,10 @@ func (opts *Options) WithLogger() (*event.Properties, error) {
 		zcore, buildOptions(zc, errSink)...,
 	)
 
-	var (
-		knOpts event.KnPluginOptions
-		err    error
-	)
-	if knOpts, err = resolvePluginOptions(opts.KnPluginOptions); err != nil {
-		return nil, err
-	}
 	return &event.Properties{
-		KnPluginOptions: knOpts,
+		KnPluginOptions: opts.KnPluginOptions,
 		Log:             log.Sugar(),
 	}, nil
-}
-
-func resolvePluginOptions(options event.KnPluginOptions) (event.KnPluginOptions, error) {
-	if options.Kubeconfig == event.DefaultKubeconfig {
-		if ke, ok := os.LookupEnv("KUBECONFIG"); ok {
-			options.Kubeconfig = ke
-		}
-	}
-	var err error
-	if options.Kubeconfig, err = homedir.Expand(options.Kubeconfig); err != nil {
-		return event.KnPluginOptions{}, unexpected(err)
-	}
-	if options.KnConfig, err = homedir.Expand(options.KnConfig); err != nil {
-		return event.KnPluginOptions{}, unexpected(err)
-	}
-	return options, nil
 }
 
 func alignCapitalColorLevelEncoder(l zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
@@ -135,5 +107,8 @@ func (y *yamlEncoder) EncodeEntry(entry zapcore.Entry, fields []zapcore.Field) (
 }
 
 func unexpected(err error) error {
-	return fmt.Errorf("%w: %v", ErrUnexpected, err)
+	if errors.Is(err, event.ErrUnexpected) {
+		return err
+	}
+	return fmt.Errorf("%w: %v", event.ErrUnexpected, err)
 }
