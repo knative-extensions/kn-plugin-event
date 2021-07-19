@@ -820,7 +820,7 @@ k8s.io/kube-openapi/pkg/util/proto
 k8s.io/utils/buffer
 k8s.io/utils/integer
 k8s.io/utils/trace
-# knative.dev/client v0.24.1-0.20210719095253-e26d5f27cab3
+# knative.dev/client v0.24.1-0.20210719095253-e26d5f27cab3 => github.com/cardil/knative-client v0.0.0-20210719180623-bd369c90b212
 ## explicit
 knative.dev/client/lib/test
 knative.dev/client/pkg/apis/client
@@ -972,3 +972,4 @@ sigs.k8s.io/structured-merge-diff/v4/value
 # sigs.k8s.io/yaml v1.2.0
 sigs.k8s.io/yaml
 # github.com/go-openapi/spec => github.com/go-openapi/spec v0.19.3
+# knative.dev/client => github.com/cardil/knative-client v0.0.0-20210719180623-bd369c90b212

@@ -37,3 +37,6 @@ require (
 
 // TODO: unpin for k8s 0.21+, see: https://github.com/knative/client/pull/1209
 replace github.com/go-openapi/spec => github.com/go-openapi/spec v0.19.3
+
+// TODO: remove after merge of https://github.com/knative/client/pull/1390
+replace knative.dev/client => github.com/cardil/knative-client v0.0.0-20210719180623-bd369c90b212
