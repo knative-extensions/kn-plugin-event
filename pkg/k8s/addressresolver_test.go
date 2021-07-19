@@ -12,11 +12,15 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	clienttest "knative.dev/client/lib/test"
+	eventingduckv1 "knative.dev/eventing/pkg/apis/duck/v1"
+	eventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
+	messagingv1 "knative.dev/eventing/pkg/apis/messaging/v1"
 	"knative.dev/kn-plugin-event/pkg/k8s"
 	"knative.dev/kn-plugin-event/pkg/tests"
 	netpkg "knative.dev/networking/pkg"
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
+	"knative.dev/pkg/kmeta"
 	"knative.dev/pkg/tracker"
 	"knative.dev/serving/pkg/apis/serving"
 	servingv1 "knative.dev/serving/pkg/apis/serving/v1"
@@ -26,8 +30,8 @@ func TestResolveAddress(t *testing.T) {
 	ns := clienttest.NextNamespace()
 	resolveAddressTestCases(ns, func(tc resolveAddressTestCase) {
 		t.Run(tc.name, func(t *testing.T) {
-			performResolveAddressTest(t, tc, func(tr resolveAddressTestResources) (k8s.Clients, func(tb testing.TB)) {
-				return fakeClients(t, tr), noCleanup
+			performResolveAddressTest(t, tc, func() (k8s.Clients, func(tb testing.TB)) {
+				return fakeClients(t, tc), noCleanup
 			})
 		})
 	})
@@ -37,15 +41,15 @@ func noCleanup(tb testing.TB) {
 	tb.Helper() // do nothing
 }
 
+// performResolveAddressTest thelper lint skipped for greater visibility of
+// failure location.
 func performResolveAddressTest( //nolint:thelper
-	// lint skipped for greater visibility of failure place
 	tb testing.TB,
 	tc resolveAddressTestCase,
-	clientsFn func(resolveAddressTestResources) (k8s.Clients, func(tb testing.TB)),
+	clientsFn func() (k8s.Clients, func(tb testing.TB)),
 ) {
-	uri, err := apis.ParseURL("/")
-	assert.NilError(tb, err)
-	clients, cleanup := clientsFn(tc.resolveAddressTestResources)
+	uri := &apis.URL{}
+	clients, cleanup := clientsFn()
 	defer cleanup(tb)
 	resolver := k8s.CreateAddressResolver(clients)
 	u, err := resolver.ResolveAddress(tc.ref, uri)
@@ -62,6 +66,8 @@ func resolveAddressTestCases(namespace string, casefn func(tc resolveAddressTest
 		k8sService(namespace),
 		knService(namespace, true),
 		knService(namespace, false),
+		mtBroker(namespace),
+		channel(namespace),
 	}
 	for _, tc := range tcs {
 		casefn(tc)
@@ -69,45 +75,33 @@ func resolveAddressTestCases(namespace string, casefn func(tc resolveAddressTest
 }
 
 func k8sService(namespace string) resolveAddressTestCase {
-	kind := "Service"
-	apiVersion := "v1"
+	svc := corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "k8s-hello",
+			Namespace: namespace,
+		},
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
+				Name: "http",
+				Port: 80,
+				TargetPort: intstr.IntOrString{
+					Type:   intstr.Int,
+					IntVal: 8080,
+				},
+			}},
+			Type: corev1.ServiceTypeClusterIP,
+		},
+	}
+	svc.SetGroupVersionKind(corev1.SchemeGroupVersion.WithKind("Service"))
 	return resolveAddressTestCase{
 		name: "k8s service",
 		matches: func(u *url.URL) bool {
 			return u.String() ==
 				fmt.Sprintf("http://k8s-hello.%s.svc.cluster.local/", namespace)
 		},
-		err: nil,
-		ref: &tracker.Reference{
-			APIVersion: apiVersion,
-			Kind:       kind,
-			Namespace:  namespace,
-			Name:       "k8s-hello",
-			Selector:   nil,
-		},
-		resolveAddressTestResources: resolveAddressTestResources{
-			k8sServices: []corev1.Service{{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       kind,
-					APIVersion: apiVersion,
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "k8s-hello",
-					Namespace: namespace,
-				},
-				Spec: corev1.ServiceSpec{
-					Ports: []corev1.ServicePort{{
-						Name: "http",
-						Port: 80,
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.Int,
-							IntVal: 8080,
-						},
-					}},
-					Type: corev1.ServiceTypeClusterIP,
-				},
-			}},
-		},
+		err:     nil,
+		ref:     toTrackerRef(&svc),
+		objects: []runtime.Object{&svc},
 	}
 }
 
@@ -124,50 +118,93 @@ func knService(namespace string, clusterLocal bool) resolveAddressTestCase {
 	}
 	clusterLocalURL := apis.HTTP(fmt.Sprintf(
 		"%s.%s.svc.cluster.local", m.name, namespace))
-	clusterLocalURL.Path = "/"
 	m.url = clusterLocalURL
 	publicURL := apis.HTTP(fmt.Sprintf(
 		"%s-%s.apps.cloud.example.org", m.name, namespace))
-	publicURL.Path = "/"
 	serviceURL := publicURL
 	if clusterLocal {
 		serviceURL = clusterLocalURL
 	}
-	kind := "Service"
-	apiVersion := "serving.knative.dev/v1"
+	ksvc := servingv1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: m.name, Namespace: namespace, Labels: labels,
+		},
+		Spec: ksvcSpec("gcr.io/knative-samples/helloworld-go"),
+		Status: servingv1.ServiceStatus{
+			RouteStatusFields: servingv1.RouteStatusFields{
+				URL: serviceURL,
+				Address: &duckv1.Addressable{
+					URL: clusterLocalURL,
+				},
+			},
+		},
+	}
+	ksvc.SetGroupVersionKind(servingv1.SchemeGroupVersion.WithKind("Service"))
 	return resolveAddressTestCase{
 		name:    m.name,
 		matches: m.matches,
 		err:     nil,
-		ref: &tracker.Reference{
-			APIVersion: apiVersion,
-			Kind:       kind,
-			Namespace:  namespace,
-			Name:       m.name,
-			Selector:   nil,
+		ref:     toTrackerRef(&ksvc),
+		objects: []runtime.Object{&ksvc},
+	}
+}
+
+func mtBroker(namespace string) resolveAddressTestCase {
+	name := "test"
+	u := apis.HTTP("broker-ingress.knative-eventing.svc.cluster.local")
+	u.Path = fmt.Sprintf("/%s/%s", namespace, name)
+	br := eventingv1.Broker{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: name, Namespace: namespace,
 		},
-		resolveAddressTestResources: resolveAddressTestResources{
-			knServices: []servingv1.Service{{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       kind,
-					APIVersion: apiVersion,
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      m.name,
-					Namespace: namespace,
-					Labels:    labels,
-				},
-				Spec: ksvcSpec("gcr.io/knative-samples/helloworld-go"),
-				Status: servingv1.ServiceStatus{
-					RouteStatusFields: servingv1.RouteStatusFields{
-						URL: serviceURL,
-						Address: &duckv1.Addressable{
-							URL: clusterLocalURL,
-						},
-					},
-				},
-			}},
+		Status: eventingv1.BrokerStatus{
+			Address: duckv1.Addressable{URL: u},
 		},
+	}
+	br.SetGroupVersionKind(eventingv1.SchemeGroupVersion.WithKind("Broker"))
+	return resolveAddressTestCase{
+		name:    "mt-broker",
+		err:     nil,
+		ref:     toTrackerRef(&br),
+		matches: equals(u),
+		objects: []runtime.Object{&br},
+	}
+}
+
+func channel(namespace string) resolveAddressTestCase {
+	name := "test"
+	u := apis.HTTP(
+		fmt.Sprintf("%s-kn-channel.%s.svc.cluster.local", name, namespace))
+	ch := messagingv1.Channel{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: name, Namespace: namespace,
+		},
+		Status: messagingv1.ChannelStatus{
+			ChannelableStatus: eventingduckv1.ChannelableStatus{
+				AddressStatus: duckv1.AddressStatus{
+					Address: &duckv1.Addressable{URL: u},
+				},
+			},
+		},
+	}
+	ch.SetGroupVersionKind(messagingv1.SchemeGroupVersion.WithKind("Channel"))
+	return resolveAddressTestCase{
+		name:    "channel",
+		err:     nil,
+		ref:     toTrackerRef(&ch),
+		matches: equals(u),
+		objects: []runtime.Object{&ch},
+	}
+}
+
+func toTrackerRef(accessor kmeta.Accessor) *tracker.Reference {
+	gvk := accessor.GroupVersionKind()
+	return &tracker.Reference{
+		APIVersion: gvk.GroupVersion().String(),
+		Kind:       gvk.Kind,
+		Namespace:  accessor.GetNamespace(),
+		Name:       accessor.GetName(),
+		Selector:   nil,
 	}
 }
 
@@ -187,6 +224,12 @@ func (m matcher) matches(u *url.URL) bool {
 		u.String() != m.url.String()
 }
 
+func equals(u *apis.URL) func(url *url.URL) bool {
+	return func(url *url.URL) bool {
+		return u.String() == url.String()
+	}
+}
+
 func ksvcSpec(image string) servingv1.ServiceSpec {
 	return servingv1.ServiceSpec{
 		ConfigurationSpec: servingv1.ConfigurationSpec{
@@ -203,27 +246,12 @@ func ksvcSpec(image string) servingv1.ServiceSpec {
 	}
 }
 
-func fakeClients(tb testing.TB, tr resolveAddressTestResources) k8s.Clients {
+func fakeClients(tb testing.TB, tc resolveAddressTestCase) k8s.Clients {
 	tb.Helper()
-	objects := make([]runtime.Object, 0, len(tr.k8sServices))
-	for j := range tr.k8sServices {
-		//goland:noinspection GoShadowedVar
-		service := tr.k8sServices[j]
-		objects = append(objects, &service)
-	}
-	for j := range tr.knServices {
-		service := tr.knServices[j]
-		objects = append(objects, &service)
-	}
 	return &tests.FakeClients{
-		Objects: objects,
+		Objects: tc.objects,
 		TB:      tb,
 	}
-}
-
-type resolveAddressTestResources struct {
-	k8sServices []corev1.Service
-	knServices  []servingv1.Service
 }
 
 type resolveAddressTestCase struct {
@@ -231,5 +259,5 @@ type resolveAddressTestCase struct {
 	matches func(url *url.URL) bool
 	err     error
 	ref     *tracker.Reference
-	resolveAddressTestResources
+	objects []runtime.Object
 }

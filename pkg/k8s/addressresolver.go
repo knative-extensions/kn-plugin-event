@@ -16,6 +16,7 @@ import (
 	"knative.dev/pkg/kmeta"
 	"knative.dev/pkg/resolver"
 	"knative.dev/pkg/tracker"
+	servingv1 "knative.dev/serving/pkg/apis/serving/v1"
 )
 
 // ReferenceAddressResolver will resolve the tracker.Reference to an url.URL, or
@@ -116,7 +117,7 @@ func (a *addressResolver) toGVR(ref *tracker.Reference) schema.GroupVersionResou
 
 func isKsvc(ref *tracker.Reference) bool {
 	return ref.Kind == "Service" &&
-		ref.APIVersion == "serving.knative.dev/v1"
+		ref.APIVersion == servingv1.SchemeGroupVersion.String()
 }
 
 func toAccessor(ref *tracker.Reference) kmeta.Accessor {
