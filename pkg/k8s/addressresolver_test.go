@@ -94,7 +94,7 @@ func k8sService(namespace string) resolveAddressTestCase {
 	}
 	svc.SetGroupVersionKind(corev1.SchemeGroupVersion.WithKind("Service"))
 	return resolveAddressTestCase{
-		name: "k8s service",
+		name: "k8s-service",
 		matches: func(u *url.URL) bool {
 			return u.String() ==
 				fmt.Sprintf("http://k8s-hello.%s.svc.cluster.local/", namespace)

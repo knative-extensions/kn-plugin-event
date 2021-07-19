@@ -6,7 +6,6 @@ require (
 	github.com/cloudevents/sdk-go/v2 v2.4.1
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/ghodss/yaml v1.0.0
-	github.com/google/go-containerregistry v0.5.2-0.20210709161016-b448abac9a70 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/joho/godotenv v1.3.0
@@ -19,11 +18,7 @@ require (
 	github.com/wavesoftware/go-ensure v1.0.0
 	github.com/wavesoftware/go-magetasks v0.4.3
 	go.uber.org/zap v1.18.1
-	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d // indirect
-	golang.org/x/time v0.0.0-20210611083556-38a9dc6acbc6 // indirect
-	google.golang.org/api v0.50.0 // indirect
-	google.golang.org/grpc v1.39.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools/v3 v3.0.3
 	k8s.io/api v0.20.7
@@ -31,12 +26,12 @@ require (
 	k8s.io/client-go v0.20.7
 	k8s.io/klog/v2 v2.8.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20210305001622-591a79e4bda7 // indirect
-	knative.dev/client v0.24.0
-	knative.dev/eventing v0.24.0
+	knative.dev/client v0.24.1-0.20210719095253-e26d5f27cab3
+	knative.dev/eventing v0.24.1-0.20210714200632-25bd8efb7179
 	knative.dev/hack v0.0.0-20210622141627-e28525d8d260
-	knative.dev/networking v0.0.0-20210622182128-53f45d6d2cfa
-	knative.dev/pkg v0.0.0-20210622173328-dd0db4b05c80
-	knative.dev/serving v0.24.0
+	knative.dev/networking v0.0.0-20210719003653-7390d8cf09e3
+	knative.dev/pkg v0.0.0-20210715175632-d9b7180af6f2
+	knative.dev/serving v0.24.1-0.20210719171254-2575a92d1484
 	sigs.k8s.io/structured-merge-diff/v4 v4.1.0 // indirect
 )
 

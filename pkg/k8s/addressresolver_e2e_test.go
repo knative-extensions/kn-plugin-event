@@ -5,6 +5,7 @@ package k8s_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -13,6 +14,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/watch"
 	clienttest "knative.dev/client/lib/test"
 	clienteventingv1 "knative.dev/client/pkg/eventing/v1"
 	clientmessagingv1 "knative.dev/client/pkg/messaging/v1"
@@ -161,23 +164,33 @@ func undeployChannel(tb testing.TB, clients k8s.Clients, channel messagingv1.Cha
 	assert.NilError(tb, err)
 }
 
-func waitForReady(clients k8s.Clients, acccessor kmeta.Accessor, timeout time.Duration) error {
-	gvk := acccessor.GroupVersionKind()
-	gvr := apis.KindToResource(gvk)
-	dynclient := clients.Dynamic().Resource(gvr).Namespace(acccessor.GetNamespace())
-	ctx, cancel := context.WithTimeout(clients.Context(), timeout)
-	defer cancel()
-	watcher, err := dynclient.Watch(ctx, metav1.ListOptions{})
-	if err != nil {
-		return err
-	}
-	defer watcher.Stop()
+type accessorWatchMaker struct {
+	clients   k8s.Clients
+	acccessor kmeta.Accessor
+}
 
-	ready := clientwait.NewWaitForReady(gvr.Resource, dynamicConditionExtractor)
-	err, _ = ready.Wait(
-		ctx,
-		watcher,
+func (a accessorWatchMaker) watchMaker(
+	ctx context.Context, name, _ string, _ time.Duration,
+) (watch.Interface, error) {
+	dynclient := a.clients.Dynamic().Resource(a.gvr()).
+		Namespace(a.acccessor.GetNamespace())
+	return dynclient.Watch(ctx, metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("metadata.name=%s", name),
+	})
+}
+
+func (a accessorWatchMaker) gvr() schema.GroupVersionResource {
+	gvk := a.acccessor.GroupVersionKind()
+	return apis.KindToResource(gvk)
+}
+
+func waitForReady(clients k8s.Clients, acccessor kmeta.Accessor, timeout time.Duration) error {
+	awm := accessorWatchMaker{clients: clients, acccessor: acccessor}
+	ready := clientwait.NewWaitForReady(awm.gvr().Resource, awm.watchMaker, dynamicConditionExtractor)
+	err, _ := ready.Wait(
+		clients.Context(),
 		acccessor.GetName(),
+		"0",
 		clientwait.Options{Timeout: &timeout},
 		clientwait.NoopMessageCallback(),
 	)

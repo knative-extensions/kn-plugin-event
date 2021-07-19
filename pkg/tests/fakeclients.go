@@ -14,7 +14,6 @@ import (
 	eventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
 	messagingv1 "knative.dev/eventing/pkg/apis/messaging/v1"
 	eventingv1fakeclient "knative.dev/eventing/pkg/client/clientset/versioned/fake"
-	messagingv1fakeclient "knative.dev/eventing/pkg/client/clientset/versioned/fake"
 	eventingv1client "knative.dev/eventing/pkg/client/clientset/versioned/typed/eventing/v1"
 	messagingv1client "knative.dev/eventing/pkg/client/clientset/versioned/typed/messaging/v1"
 	servingv1 "knative.dev/serving/pkg/apis/serving/v1"
@@ -69,7 +68,7 @@ func (c *FakeClients) Eventing() eventingv1client.EventingV1Interface {
 
 func (c *FakeClients) Messaging() messagingv1client.MessagingV1Interface {
 	if c.messaging == nil {
-		c.messaging = messagingv1fakeclient.NewSimpleClientset(c.Objects...).MessagingV1()
+		c.messaging = eventingv1fakeclient.NewSimpleClientset(c.Objects...).MessagingV1()
 	}
 	return c.messaging
 }
