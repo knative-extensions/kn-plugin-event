@@ -34,3 +34,5 @@ linters-settings:
     replace-allow-list:
       # TODO: remove for k8s 0.21+, see: https://github.com/knative/client/pull/1209
       - github.com/go-openapi/spec
+      # TODO: remove after merge of https://github.com/knative/client/pull/1390
+      - knative.dev/client

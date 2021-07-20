@@ -59,9 +59,9 @@ this option isn't specified a current context namespace will be used. This
 option can't be used with --to-url option.`,
 	)
 	c.Flags().StringVar(
-		&s.target.AddressableURI, "addressable-uri", "/",
+		&s.target.AddressableURI, "addressable-uri", "",
 		`Specify an URI of a target addressable resource. If this option
-isn't specified a '/' URI will be used. This option can't be used with 
+isn't specified target URL will not be changed. This option can't be used with 
 --to-url option.`,
 	)
 	c.PreRunE = func(cmd *cobra.Command, args []string) error {
