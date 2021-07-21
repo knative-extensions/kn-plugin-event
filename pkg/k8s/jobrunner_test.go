@@ -4,7 +4,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -20,18 +20,18 @@ func TestJobRunnerRun(t *testing.T) {
 	jobs := clients.Typed().BatchV1().Jobs(job.Namespace)
 	ctx := clients.Context()
 	watcher, err := jobs.Watch(ctx, metav1.ListOptions{})
-	assert.NoError(t, err)
+	assert.NilError(t, err)
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		assert.NoError(t, runner.Run(&job))
+		assert.NilError(t, runner.Run(&job))
 	}()
 	<-watcher.ResultChan()
 	watcher.Stop()
 	sucJob := jobSuccess(job)
 	_, err = jobs.Update(ctx, &sucJob, metav1.UpdateOptions{})
-	assert.NoError(t, err)
+	assert.NilError(t, err)
 	wg.Wait()
 }
 
