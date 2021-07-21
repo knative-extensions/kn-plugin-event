@@ -14,13 +14,13 @@ import (
 )
 
 func TestPresentWith(t *testing.T) {
-	tests := []testPresentWithCase{
+	tcs := []testPresentWithCase{
 		caseForPresentWithHumanReadable(t),
 		caseForPresentWithJSON(t),
 		caseForPresentWithYAML(t),
 	}
-	for i := range tests {
-		tt := tests[i]
+	for i := range tcs {
+		tt := tcs[i]
 		t.Run(tt.name, func(t *testing.T) {
 			app := cli.App{}
 			actual, err := app.PresentWith(tt.args.ce, tt.args.mode)
@@ -87,6 +87,12 @@ func caseForPresentWithJSON(t *testing.T) testPresentWithCase {
 		},
 		wantErr: nil,
 		want: fmt.Sprintf(`{
+  "specversion": "1.0",
+  "id": "99e4f4f6-08ff-4bff-acf1-47f61ded68c9",
+  "source": "%s",
+  "type": "dev.knative.cli.plugin.event.generic",
+  "datacontenttype": "application/json",
+  "time": "2020-08-24T14:01:12.000601161Z",
   "data": {
     "active": true,
     "person": {
@@ -95,13 +101,7 @@ func caseForPresentWithJSON(t *testing.T) testPresentWithCase {
     },
     "ping": 123,
     "ref": "321"
-  },
-  "datacontenttype": "application/json",
-  "id": "99e4f4f6-08ff-4bff-acf1-47f61ded68c9",
-  "source": "%s",
-  "specversion": "1.0",
-  "time": "2020-08-24T14:01:12.000601161Z",
-  "type": "dev.knative.cli.plugin.event.generic"
+  }
 }`, event.DefaultSource()),
 	}
 }

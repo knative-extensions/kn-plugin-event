@@ -12,7 +12,7 @@ type directSender struct {
 }
 
 func (d *directSender) Send(ce cloudevents.Event) error {
-	c, err := cloudevents.NewDefaultClient()
+	c, err := cloudevents.NewClientHTTP()
 	if err != nil {
 		return cantSentEvent(err)
 	}
