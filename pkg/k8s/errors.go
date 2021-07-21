@@ -17,4 +17,7 @@ var (
 
 	// ErrUnexcpected if something unexpected actually has happened.
 	ErrUnexcpected = errors.New("something unexpected actually has happened")
+
+	// ErrICSenderJobFailed if the ICS job runner has failed.
+	ErrICSenderJobFailed = errors.New("the ICS job runner has failed")
 )
