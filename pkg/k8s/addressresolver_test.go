@@ -39,7 +39,7 @@ func TestResolveAddress(t *testing.T) {
 
 func passingService(t *testing.T) resolveAddressTestCase {
 	t.Helper()
-	clients := &tests.FakeClients{Objects: []runtime.Object{
+	clients := &tests.FakeClients{TB: t, Objects: []runtime.Object{
 		&corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "hello",
