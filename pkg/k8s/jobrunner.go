@@ -74,6 +74,7 @@ func (j *jobRunner) watchJob(meta metav1.Object, changeFn func(job *batchv1.Job)
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
 	}
+	defer watcher.Stop()
 	for result := range watcher.ResultChan() {
 		if result.Type == watch.Added || result.Type == watch.Modified {
 			job, ok := result.Object.(*batchv1.Job)
