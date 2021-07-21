@@ -26,7 +26,7 @@ require (
 	k8s.io/client-go v0.20.7
 	k8s.io/klog/v2 v2.8.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20210305001622-591a79e4bda7 // indirect
-	knative.dev/client v0.24.1-0.20210721162239-5a4496900bd8
+	knative.dev/client v0.24.1-0.20210721192038-a7df7c76a0d1
 	knative.dev/eventing v0.24.1-0.20210720191312-003a8a2d4ef5
 	knative.dev/hack v0.0.0-20210622141627-e28525d8d260
 	knative.dev/networking v0.0.0-20210721164339-e3c72d213a1a
@@ -37,6 +37,3 @@ require (
 
 // TODO: unpin for k8s 0.21+, see: https://github.com/knative/client/pull/1209
 replace github.com/go-openapi/spec => github.com/go-openapi/spec v0.19.3
-
-// TODO: remove after merge of https://github.com/knative/client/pull/1390
-replace knative.dev/client => github.com/cardil/knative-client v0.0.0-20210719180623-bd369c90b212
