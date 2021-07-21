@@ -14,13 +14,13 @@ import (
 )
 
 func TestPresentWith(t *testing.T) {
-	tests := []testPresentWithCase{
+	tcs := []testPresentWithCase{
 		caseForPresentWithHumanReadable(t),
 		caseForPresentWithJSON(t),
 		caseForPresentWithYAML(t),
 	}
-	for i := range tests {
-		tt := tests[i]
+	for i := range tcs {
+		tt := tcs[i]
 		t.Run(tt.name, func(t *testing.T) {
 			app := cli.App{}
 			actual, err := app.PresentWith(tt.args.ce, tt.args.mode)
