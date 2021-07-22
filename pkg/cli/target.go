@@ -62,8 +62,12 @@ func validateAddressableURI(uri string) error {
 	return nil
 }
 
-func createTarget(args *TargetArgs, props *event.Properties) (*event.Target, error) {
+func (c *App) createTarget(args TargetArgs, props *event.Properties) (*event.Target, error) {
 	if args.Addressable != "" {
+		args, err := c.fillInDefaultNamespace(args, props)
+		if err != nil {
+			return nil, err
+		}
 		ref, err := clientutil.ToTrackerReference(args.Addressable, args.Namespace)
 		if err != nil {
 			return nil, fmt.Errorf("%w: %s", ErrInvalidToFormat, err.Error())
@@ -71,7 +75,6 @@ func createTarget(args *TargetArgs, props *event.Properties) (*event.Target, err
 		uri := &apis.URL{Path: args.AddressableURI}
 		return &event.Target{
 			Type: event.TargetTypeAddressable,
-			// FIXME: .Reference.Namespace and .SenderNamespace needs to be filled in if they eql ""
 			AddressableVal: &event.AddressableSpec{
 				Reference:       ref,
 				URI:             uri,
@@ -92,4 +95,20 @@ func createTarget(args *TargetArgs, props *event.Properties) (*event.Target, err
 		}, nil
 	}
 	return nil, ErrUseToURLOrToFlagIsRequired
+}
+
+func (c *App) fillInDefaultNamespace(args TargetArgs, props *event.Properties) (TargetArgs, error) {
+	if len(args.Namespace) == 0 || len(args.SenderNamespace) == 0 {
+		defaultNs, err := c.DefaultNamespace(props)
+		if err != nil {
+			return TargetArgs{}, cantSentEvent(err)
+		}
+		if len(args.Namespace) == 0 {
+			args.Namespace = defaultNs
+		}
+		if len(args.SenderNamespace) == 0 {
+			args.SenderNamespace = defaultNs
+		}
+	}
+	return args, nil
 }

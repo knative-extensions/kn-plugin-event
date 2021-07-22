@@ -81,7 +81,12 @@ type Sender interface {
 // CreateSender creates a Sender.
 type CreateSender func(target *Target) (Sender, error)
 
+// DefaultNamespace returns a default namespace for connected K8s cluster or
+// error is namespace can't be determined.
+type DefaultNamespace func(props *Properties) (string, error)
+
 // Binding holds injectable dependencies.
 type Binding struct {
 	CreateSender
+	DefaultNamespace
 }
