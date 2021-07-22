@@ -1,6 +1,7 @@
 package event
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -11,6 +12,9 @@ const (
 	// DefaultType holds a default type for a event.
 	DefaultType = "dev.knative.cli.plugin.event.generic"
 )
+
+// ErrUnexpected if unexpected error found.
+var ErrUnexpected = errors.New("unexpected")
 
 // DefaultSource holds a default source of an event.
 func DefaultSource() string {

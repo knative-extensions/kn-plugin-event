@@ -9,9 +9,6 @@ import (
 	"knative.dev/pkg/tracker"
 )
 
-// DefaultKubeconfig is a default location of kubeconfig.
-const DefaultKubeconfig = "~/.kube/config"
-
 // Spec holds specification of event to be created.
 type Spec struct {
 	Type   string
@@ -56,16 +53,16 @@ type Target struct {
 	*Properties
 }
 
+// KubeconfigOptions holds options for Kubernetes Client.
+type KubeconfigOptions struct {
+	Path    string
+	Context string
+	Cluster string
+}
+
 // KnPluginOptions holds options inherited to every Kn plugin.
 type KnPluginOptions struct {
-	// KnConfig holds kn configuration file (default: ~/.config/kn/config.yaml)
-	KnConfig string
-
-	// Kubeconfig holds kubectl configuration file (default: ~/.kube/config)
-	Kubeconfig string
-
-	// LogHTTP tells if kn-event plugin should log HTTP requests it makes
-	LogHTTP bool
+	KubeconfigOptions
 }
 
 // Properties holds a general properties.

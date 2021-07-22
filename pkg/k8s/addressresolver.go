@@ -8,12 +8,15 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	memory "k8s.io/client-go/discovery/cached"
-	"k8s.io/client-go/restmapper"
+	"k8s.io/apimachinery/pkg/types"
 	"knative.dev/pkg/apis"
-	"knative.dev/pkg/apis/duck"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
+	"knative.dev/pkg/client/injection/ducks/duck/v1/addressable"
+	"knative.dev/pkg/injection/clients/dynamicclient"
+	"knative.dev/pkg/kmeta"
+	"knative.dev/pkg/resolver"
 	"knative.dev/pkg/tracker"
+	servingv1 "knative.dev/serving/pkg/apis/serving/v1"
 )
 
 // ReferenceAddressResolver will resolve the tracker.Reference to an url.URL, or
@@ -25,8 +28,9 @@ type ReferenceAddressResolver interface {
 // CreateAddressResolver will create ReferenceAddressResolver, or return an
 // error.
 func CreateAddressResolver(kube Clients) ReferenceAddressResolver {
+	ctx := ctxWithDynamic(kube)
 	return &addressResolver{
-		kube: kube, ctx: kube.Context(),
+		kube: kube, ctx: addressable.WithDuck(ctx),
 	}
 }
 
@@ -40,25 +44,35 @@ func (a *addressResolver) ResolveAddress(
 	ref *tracker.Reference,
 	uri *apis.URL,
 ) (*url.URL, error) {
-	gvr, err := a.toGVR(ref)
-	if err != nil {
-		return nil, err
+	if isKsvc(ref) {
+		// knative.dev/pkg/resolver doesn't resolve proper URL for knative service
+		return a.resolveKsvcAddress(ref, uri)
 	}
+	gvr := a.toGVR(ref)
 	dest, err := a.toDestination(gvr, ref, uri)
 	if err != nil {
 		return nil, err
 	}
-	un, err := a.kube.Dynamic().Resource(gvr).
-		Namespace(ref.Namespace).Get(a.ctx, dest.Ref.Name, metav1.GetOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrNotFound, err)
-	}
-	addr, err := a.toAddressable(un)
+	parent := toAccessor(ref)
+	r := resolver.NewURIResolver(a.ctx, noopCallback)
+	u, err := r.URIFromDestinationV1(a.ctx, *dest, parent)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrNotAddressable, err)
 	}
-	u := addr.URL.ResolveReference(uri).URL()
-	return u, nil
+	resolved := u.URL()
+	return resolved, nil
+}
+
+func (a *addressResolver) resolveKsvcAddress(
+	ref *tracker.Reference,
+	uri *apis.URL,
+) (*url.URL, error) {
+	ksvc, err := a.kube.Serving().Services(ref.Namespace).
+		Get(a.ctx, ref.Name, metav1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrNotFound, err)
+	}
+	return ksvc.Status.URL.ResolveReference(uri).URL(), nil
 }
 
 func (a *addressResolver) toDestination(
@@ -95,31 +109,31 @@ func (a *addressResolver) toDestination(
 	return dest, nil
 }
 
-func (a *addressResolver) toGVR(ref *tracker.Reference) (schema.GroupVersionResource, error) {
+func (a *addressResolver) toGVR(ref *tracker.Reference) schema.GroupVersionResource {
 	gvk := ref.GroupVersionKind()
-	dc := a.kube.Typed().Discovery()
-	mapper := restmapper.NewDeferredDiscoveryRESTMapper(
-		memory.NewMemCacheClient(dc),
-	)
-	mapping, err := mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
-	if err != nil {
-		return schema.GroupVersionResource{},
-			fmt.Errorf("%w: %v", ErrInvalidReference, err)
-	}
-	return mapping.Resource, nil
+	gvr := apis.KindToResource(gvk)
+	return gvr
 }
 
-func (a *addressResolver) toAddressable(un *unstructured.Unstructured) (*duckv1.Addressable, error) {
-	gvk := un.GroupVersionKind()
-	if gvk.Version == "v1" && gvk.Kind == "Service" && gvk.Group == "" {
-		return &duckv1.Addressable{
-			URL: apis.HTTP(fmt.Sprintf("%s.%s.svc", un.GetName(), un.GetNamespace())),
-		}, nil
-	}
-	addr := &duckv1.Addressable{}
-	err := duck.VerifyType(un, addr)
-	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrNotAddressable, err)
-	}
-	return addr, nil
+func isKsvc(ref *tracker.Reference) bool {
+	return ref.Kind == "Service" &&
+		ref.APIVersion == servingv1.SchemeGroupVersion.String()
+}
+
+func toAccessor(ref *tracker.Reference) kmeta.Accessor {
+	return &unstructured.Unstructured{Object: map[string]interface{}{
+		"apiVersion": ref.APIVersion,
+		"kind":       ref.Kind,
+		"metadata": map[string]interface{}{
+			"name":      ref.Name,
+			"namespace": ref.Namespace,
+		},
+	}}
+}
+
+func ctxWithDynamic(kube Clients) context.Context {
+	return context.WithValue(kube.Context(), dynamicclient.Key{}, kube.Dynamic())
+}
+
+func noopCallback(_ types.NamespacedName) {
 }

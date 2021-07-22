@@ -49,9 +49,15 @@ func ValidateTarget(args *TargetArgs) error {
 			return ErrInvalidToFormat
 		}
 	}
-	_, err := url.ParseRequestURI(args.AddressableURI)
-	if err != nil {
-		return fmt.Errorf("--addressable-uri %w: %s", ErrInvalidURLFormat, err.Error())
+	return validateAddressableURI(args.AddressableURI)
+}
+
+func validateAddressableURI(uri string) error {
+	if len(uri) > 0 {
+		_, err := url.ParseRequestURI(uri)
+		if err != nil {
+			return fmt.Errorf("--addressable-uri %w: %s", ErrInvalidURLFormat, err.Error())
+		}
 	}
 	return nil
 }
@@ -62,10 +68,7 @@ func createTarget(args *TargetArgs, props *event.Properties) (*event.Target, err
 		if err != nil {
 			return nil, fmt.Errorf("%w: %s", ErrInvalidToFormat, err.Error())
 		}
-		uri, err := apis.ParseURL(args.AddressableURI)
-		if err != nil {
-			return nil, fmt.Errorf("--addressable-uri %w: %s", ErrInvalidURLFormat, err.Error())
-		}
+		uri := &apis.URL{Path: args.AddressableURI}
 		return &event.Target{
 			Type: event.TargetTypeAddressable,
 			// FIXME: .Reference.Namespace and .SenderNamespace needs to be filled in if they eql ""

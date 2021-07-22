@@ -68,8 +68,14 @@ type Clients interface {
 func createRestConfig(props *event.Properties) (*rest.Config, error) {
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
 	configOverrides := &clientcmd.ConfigOverrides{}
-	if len(props.Kubeconfig) > 0 {
-		loadingRules.ExplicitPath = props.Kubeconfig
+	if props.Context != "" {
+		configOverrides.CurrentContext = props.Context
+	}
+	if props.Cluster != "" {
+		configOverrides.Context.Cluster = props.Cluster
+	}
+	if len(props.Path) > 0 {
+		loadingRules.ExplicitPath = props.Path
 	}
 	cc := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
 	cfg, err := cc.ClientConfig()
