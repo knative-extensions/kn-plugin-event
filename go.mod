@@ -31,7 +31,7 @@ require (
 	knative.dev/hack v0.0.0-20210622141627-e28525d8d260
 	knative.dev/networking v0.0.0-20210721164339-e3c72d213a1a
 	knative.dev/pkg v0.0.0-20210722223844-842df75f5c02
-	knative.dev/serving v0.24.1-0.20210722232843-d068a6dacbda
+	knative.dev/serving v0.24.1-0.20210723122544-644798277d9f
 	sigs.k8s.io/structured-merge-diff/v4 v4.1.0 // indirect
 )
 
