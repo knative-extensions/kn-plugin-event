@@ -722,7 +722,7 @@ k8s.io/kube-openapi/pkg/util/proto
 k8s.io/utils/buffer
 k8s.io/utils/integer
 k8s.io/utils/trace
-# knative.dev/client v0.24.1-0.20210721192038-a7df7c76a0d1
+# knative.dev/client v0.24.1-0.20210722120603-c145ecaf263d
 ## explicit
 knative.dev/client/lib/test
 knative.dev/client/pkg/apis/client
@@ -737,7 +737,7 @@ knative.dev/client/pkg/serving/v1
 knative.dev/client/pkg/util
 knative.dev/client/pkg/util/mock
 knative.dev/client/pkg/wait
-# knative.dev/eventing v0.24.1-0.20210720191312-003a8a2d4ef5
+# knative.dev/eventing v0.24.1-0.20210722165903-7251c1b9508f
 ## explicit
 knative.dev/eventing/pkg/apis/config
 knative.dev/eventing/pkg/apis/duck
@@ -778,7 +778,7 @@ knative.dev/hack
 knative.dev/networking/pkg
 knative.dev/networking/pkg/apis/networking
 knative.dev/networking/pkg/apis/networking/v1alpha1
-# knative.dev/pkg v0.0.0-20210715175632-d9b7180af6f2
+# knative.dev/pkg v0.0.0-20210722223844-842df75f5c02
 ## explicit
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
@@ -818,7 +818,7 @@ knative.dev/pkg/tracing/config
 knative.dev/pkg/tracing/propagation
 knative.dev/pkg/tracing/propagation/tracecontextb3
 knative.dev/pkg/tracker
-# knative.dev/serving v0.24.1-0.20210721140446-55a613957a4f
+# knative.dev/serving v0.24.1-0.20210722232843-d068a6dacbda
 ## explicit
 knative.dev/serving/pkg/apis/autoscaling
 knative.dev/serving/pkg/apis/autoscaling/v1alpha1
