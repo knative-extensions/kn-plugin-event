@@ -80,7 +80,7 @@ func (s *sendCommand) run(_ *cobra.Command, _ []string) error {
 	if err != nil {
 		return cantBuildEventError(err)
 	}
-	err = c.Send(*ce, s.target, s.options)
+	err = c.Send(*ce, *s.target, s.options)
 	if err != nil {
 		return cantSentEvent(err)
 	}

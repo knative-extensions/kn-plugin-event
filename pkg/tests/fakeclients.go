@@ -79,3 +79,7 @@ func (c *FakeClients) Context() context.Context {
 	}
 	return c.ctx
 }
+
+func (c *FakeClients) Namespace() string {
+	return "default"
+}

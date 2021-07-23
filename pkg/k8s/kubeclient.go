@@ -12,7 +12,6 @@ import (
 	eventingv1 "knative.dev/eventing/pkg/client/clientset/versioned/typed/eventing/v1"
 	messagingv1 "knative.dev/eventing/pkg/client/clientset/versioned/typed/messaging/v1"
 	"knative.dev/kn-plugin-event/pkg/event"
-	"knative.dev/pkg/signals"
 	servingv1 "knative.dev/serving/pkg/client/clientset/versioned/typed/serving/v1"
 )
 
@@ -21,32 +20,34 @@ var ErrNoKubernetesConnection = errors.New("no Kubernetes connection")
 
 // CreateKubeClient creates kubernetes.Interface.
 func CreateKubeClient(props *event.Properties) (Clients, error) {
-	config, err := createRestConfig(props)
+	cc, err := loadClientConfig(props)
 	if err != nil {
 		return nil, err
 	}
-	typed, err := kubernetes.NewForConfig(config)
+	restcfg := cc.Config
+	typed, err := kubernetes.NewForConfig(restcfg)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrUnexcpected, err)
 	}
-	dyn, err := dynamic.NewForConfig(config)
+	dyn, err := dynamic.NewForConfig(restcfg)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrUnexcpected, err)
 	}
-	servingclient, err := servingv1.NewForConfig(config)
+	servingclient, err := servingv1.NewForConfig(restcfg)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrUnexcpected, err)
 	}
-	eventingclient, err := eventingv1.NewForConfig(config)
+	eventingclient, err := eventingv1.NewForConfig(restcfg)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrUnexcpected, err)
 	}
-	messagingclient, err := messagingv1.NewForConfig(config)
+	messagingclient, err := messagingv1.NewForConfig(restcfg)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrUnexcpected, err)
 	}
 	return &clients{
-		ctx:       signals.NewContext(),
+		ctx:       context.Background(),
+		namespace: cc.namespace,
 		typed:     typed,
 		dynamic:   dyn,
 		serving:   servingclient,
@@ -57,6 +58,7 @@ func CreateKubeClient(props *event.Properties) (Clients, error) {
 
 // Clients holds available Kubernetes clients.
 type Clients interface {
+	Namespace() string
 	Typed() kubernetes.Interface
 	Dynamic() dynamic.Interface
 	Context() context.Context
@@ -65,14 +67,17 @@ type Clients interface {
 	Messaging() messagingv1.MessagingV1Interface
 }
 
-func createRestConfig(props *event.Properties) (*rest.Config, error) {
+func loadClientConfig(props *event.Properties) (clientConfig, error) {
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-	configOverrides := &clientcmd.ConfigOverrides{}
-	if props.Context != "" {
-		configOverrides.CurrentContext = props.Context
-	}
-	if props.Cluster != "" {
-		configOverrides.Context.Cluster = props.Cluster
+	var configOverrides *clientcmd.ConfigOverrides
+	if props.Context != "" && props.Cluster != "" {
+		configOverrides = &clientcmd.ConfigOverrides{}
+		if props.Context != "" {
+			configOverrides.CurrentContext = props.Context
+		}
+		if props.Cluster != "" {
+			configOverrides.Context.Cluster = props.Cluster
+		}
 	}
 	if len(props.Path) > 0 {
 		loadingRules.ExplicitPath = props.Path
@@ -80,12 +85,22 @@ func createRestConfig(props *event.Properties) (*rest.Config, error) {
 	cc := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
 	cfg, err := cc.ClientConfig()
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrNoKubernetesConnection, err)
+		return clientConfig{}, fmt.Errorf("%w: %v", ErrNoKubernetesConnection, err)
 	}
-	return cfg, nil
+	ns, _, err := cc.Namespace()
+	if err != nil {
+		return clientConfig{}, fmt.Errorf("%w: %v", ErrNoKubernetesConnection, err)
+	}
+	return clientConfig{Config: cfg, namespace: ns}, nil
+}
+
+type clientConfig struct {
+	*rest.Config
+	namespace string
 }
 
 type clients struct {
+	namespace string
 	ctx       context.Context
 	typed     kubernetes.Interface
 	dynamic   dynamic.Interface
@@ -116,4 +131,8 @@ func (c *clients) Eventing() eventingv1.EventingV1Interface {
 
 func (c *clients) Messaging() messagingv1.MessagingV1Interface {
 	return c.messaging
+}
+
+func (c *clients) Namespace() string {
+	return c.namespace
 }

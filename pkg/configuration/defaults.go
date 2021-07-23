@@ -8,7 +8,7 @@ import (
 
 func senderBinding() sender.Binding {
 	return sender.Binding{
-		CreateKubeClients:     k8s.CreateKubeClient,
+		CreateKubeClients:     memoizeKubeClients(k8s.CreateKubeClient),
 		CreateJobRunner:       k8s.CreateJobRunner,
 		CreateAddressResolver: k8s.CreateAddressResolver,
 	}
@@ -16,6 +16,7 @@ func senderBinding() sender.Binding {
 
 func eventsBinding(binding sender.Binding) event.Binding {
 	return event.Binding{
-		CreateSender: binding.New,
+		CreateSender:     binding.New,
+		DefaultNamespace: binding.DefaultNamespace,
 	}
 }
