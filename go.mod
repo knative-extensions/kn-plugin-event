@@ -29,10 +29,11 @@ require (
 	knative.dev/client v0.24.1-0.20210722120603-c145ecaf263d
 	knative.dev/eventing v0.24.1-0.20210722165903-7251c1b9508f
 	knative.dev/hack v0.0.0-20210622141627-e28525d8d260
-	knative.dev/networking v0.0.0-20210721164339-e3c72d213a1a
-	knative.dev/pkg v0.0.0-20210722223844-842df75f5c02
-	knative.dev/serving v0.24.1-0.20210723122544-644798277d9f
+	knative.dev/networking v0.0.0-20210723170945-03e4c4360c07
+	knative.dev/pkg v0.0.0-20210726021015-889b5670e173
+	knative.dev/serving v0.24.1-0.20210726021115-0703daacbd29
 	sigs.k8s.io/structured-merge-diff/v4 v4.1.0 // indirect
+	sigs.k8s.io/yaml v1.2.0
 )
 
 // TODO: unpin for k8s 0.21+, see: https://github.com/knative/client/pull/1209
