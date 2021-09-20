@@ -31,6 +31,3 @@ require (
 	knative.dev/serving v0.25.1-0.20210917135332-2858ef6185db
 	sigs.k8s.io/yaml v1.2.0
 )
-
-// TODO: unpin for k8s 0.21+, see: https://github.com/knative/client/pull/1209
-replace github.com/go-openapi/spec => github.com/go-openapi/spec v0.19.3
