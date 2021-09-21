@@ -1,3 +1,4 @@
+//go:build mage
 // +build mage
 
 package main
@@ -7,7 +8,6 @@ import (
 	"log"
 
 	"github.com/joho/godotenv"
-	"knative.dev/kn-plugin-event/pkg"
 
 	// mage:import
 	"github.com/wavesoftware/go-magetasks"
@@ -16,6 +16,7 @@ import (
 	// mage:import
 	_ "github.com/wavesoftware/go-magetasks/container"
 	"github.com/wavesoftware/go-magetasks/pkg/checks"
+	"knative.dev/kn-plugin-event/pkg"
 )
 
 // Default target is set to binary.
