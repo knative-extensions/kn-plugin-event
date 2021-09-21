@@ -1,6 +1,7 @@
 package k8s_test
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -24,6 +25,12 @@ import (
 	"knative.dev/pkg/tracker"
 	"knative.dev/serving/pkg/apis/serving"
 	servingv1 "knative.dev/serving/pkg/apis/serving/v1"
+)
+
+var (
+	ErrNotEqual       = errors.New("not equal")
+	ErrDontContain    = errors.New("don't contain")
+	ErrNotDomainLocal = errors.New("not a cluster local URL")
 )
 
 func TestResolveAddress(t *testing.T) {
@@ -58,7 +65,7 @@ func performResolveAddressTest( //nolint:thelper
 	} else {
 		assert.Equal(tb, err, nil)
 	}
-	assert.Check(tb, tc.matches(u), u)
+	assert.NilError(tb, tc.matches(u))
 }
 
 func resolveAddressTestCases(namespace string, casefn func(tc resolveAddressTestCase)) {
@@ -93,12 +100,10 @@ func k8sService(namespace string) resolveAddressTestCase {
 		},
 	}
 	svc.SetGroupVersionKind(corev1.SchemeGroupVersion.WithKind("Service"))
+	want := apis.HTTP(fmt.Sprintf("k8s-hello.%s.svc.cluster.local", namespace))
 	return resolveAddressTestCase{
-		name: "k8s-service",
-		matches: func(u *url.URL) bool {
-			return u.String() ==
-				fmt.Sprintf("http://k8s-hello.%s.svc.cluster.local/", namespace)
-		},
+		name:    "k8s-service",
+		matches: equals(want),
 		err:     nil,
 		ref:     toTrackerRef(&svc),
 		objects: []runtime.Object{&svc},
@@ -107,9 +112,9 @@ func k8sService(namespace string) resolveAddressTestCase {
 
 func knService(namespace string, clusterLocal bool) resolveAddressTestCase {
 	m := matcher{
-		local:     clusterLocal,
-		name:      "kn-hello",
-		namespace: namespace,
+		isClusterLocal: clusterLocal,
+		name:           "kn-hello",
+		namespace:      namespace,
 	}
 	labels := map[string]string{}
 	if clusterLocal {
@@ -118,7 +123,7 @@ func knService(namespace string, clusterLocal bool) resolveAddressTestCase {
 	}
 	clusterLocalURL := apis.HTTP(fmt.Sprintf(
 		"%s.%s.svc.cluster.local", m.name, namespace))
-	m.url = clusterLocalURL
+	m.clusterLocalURL = clusterLocalURL
 	publicURL := apis.HTTP(fmt.Sprintf(
 		"%s-%s.apps.cloud.example.org", m.name, namespace))
 	serviceURL := publicURL
@@ -209,24 +214,72 @@ func toTrackerRef(accessor kmeta.Accessor) *tracker.Reference {
 }
 
 type matcher struct {
-	url       *apis.URL
-	local     bool
-	name      string
-	namespace string
+	clusterLocalURL *apis.URL
+	isClusterLocal  bool
+	name            string
+	namespace       string
 }
 
-func (m matcher) matches(u *url.URL) bool {
-	if m.local {
-		return u.String() == m.url.String()
+func (m matcher) matches(u *url.URL) error {
+	if m.isClusterLocal {
+		if u.String() != m.clusterLocalURL.String() {
+			return fmt.Errorf("%w: got: %v, want: %v", ErrNotEqual, u, m.clusterLocalURL)
+		}
+		return nil
 	}
-	return strings.Contains(u.Host, m.name) &&
-		strings.Contains(u.Host, m.namespace) &&
-		u.String() != m.url.String()
+	if !strings.Contains(u.Host, m.name) {
+		return fmt.Errorf("%w: expect %v to contain %v", ErrDontContain, u, m.name)
+	}
+	if !strings.Contains(u.Host, m.namespace) {
+		return fmt.Errorf("%w: expect %v to contain %v", ErrDontContain, u, m.namespace)
+	}
+	return check(u,
+		m.containsName,
+		m.containsNamespace,
+		m.differsFromClusterLocalURL,
+	)
 }
 
-func equals(u *apis.URL) func(url *url.URL) bool {
-	return func(url *url.URL) bool {
-		return u.String() == url.String()
+func (m matcher) containsName(u *url.URL) error {
+	return hostContains(u, m.name)
+}
+
+func (m matcher) containsNamespace(u *url.URL) error {
+	return hostContains(u, m.namespace)
+}
+
+func hostContains(u *url.URL, needle string) error {
+	if !strings.Contains(u.Host, needle) {
+		return fmt.Errorf("%w: expect %v to contain %#v",
+			ErrDontContain, u, needle)
+	}
+	return nil
+}
+
+func (m matcher) differsFromClusterLocalURL(u *url.URL) error {
+	if u.String() == m.clusterLocalURL.String() {
+		return fmt.Errorf("%w: expect %v to differ from cluster local URL %v",
+			ErrNotDomainLocal, u, m.clusterLocalURL)
+	}
+	return nil
+}
+
+func check(u *url.URL, fns ...func(*url.URL) error) error {
+	for _, fn := range fns {
+		err := fn(u)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func equals(u *apis.URL) func(url *url.URL) error {
+	return func(url *url.URL) error {
+		if u.String() != url.String() {
+			return fmt.Errorf("%w: got %v, want %v", ErrNotEqual, url, u)
+		}
+		return nil
 	}
 }
 
@@ -256,7 +309,7 @@ func fakeClients(tb testing.TB, tc resolveAddressTestCase) k8s.Clients {
 
 type resolveAddressTestCase struct {
 	name    string
-	matches func(url *url.URL) bool
+	matches func(url *url.URL) error
 	err     error
 	ref     *tracker.Reference
 	objects []runtime.Object
