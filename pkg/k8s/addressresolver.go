@@ -12,6 +12,7 @@ import (
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 	"knative.dev/pkg/client/injection/ducks/duck/v1/addressable"
+	"knative.dev/pkg/controller"
 	"knative.dev/pkg/injection/clients/dynamicclient"
 	"knative.dev/pkg/kmeta"
 	"knative.dev/pkg/resolver"
@@ -54,7 +55,8 @@ func (a *addressResolver) ResolveAddress(
 		return nil, err
 	}
 	parent := toAccessor(ref)
-	r := resolver.NewURIResolver(a.ctx, noopCallback)
+	tr := tracker.New(noopCallback, controller.GetTrackerLease(a.ctx))
+	r := resolver.NewURIResolverFromTracker(a.ctx, tr)
 	u, err := r.URIFromDestinationV1(a.ctx, *dest, parent)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrNotAddressable, err)
