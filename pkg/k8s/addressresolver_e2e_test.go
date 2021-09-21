@@ -1,3 +1,4 @@
+//go:build e2e
 // +build e2e
 
 package k8s_test

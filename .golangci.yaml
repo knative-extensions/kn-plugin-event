@@ -1,5 +1,8 @@
 run:
   timeout: 5m
+  build-tags:
+    - e2e
+    - mage
 
 linters:
   disable-all: false
@@ -29,8 +32,4 @@ issues:
       linters:
         - wrapcheck
 
-linters-settings:
-  gomoddirectives:
-    replace-allow-list:
-      # TODO: remove for k8s 0.21+, see: https://github.com/knative/client/pull/1209
-      - github.com/go-openapi/spec
+

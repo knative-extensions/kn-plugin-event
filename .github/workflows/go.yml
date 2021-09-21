@@ -2,8 +2,7 @@ name: Mage
 
 on:
   push:
-    branches:
-      - master
+    branches: [ 'main', 'master', 'release-*' ]
   pull_request:
     types: [opened, synchronize, reopened]
 
