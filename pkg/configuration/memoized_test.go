@@ -84,7 +84,7 @@ func safeConfig(tb testing.TB, cfgfile string, config clientcmdapi.Config) {
 	config.SetGroupVersionKind(clientcmdapi.SchemeGroupVersion.WithKind("Config"))
 	bytes, err := yaml.Marshal(config)
 	assert.NilError(tb, err)
-	err = ioutil.WriteFile(cfgfile, bytes, 0600)
+	err = ioutil.WriteFile(cfgfile, bytes, 0o600)
 	assert.NilError(tb, err)
 }
 
