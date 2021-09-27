@@ -5,7 +5,6 @@ package k8s_test
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -17,15 +16,14 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/watch"
-	clienttest "knative.dev/client/lib/test"
 	clienteventingv1 "knative.dev/client/pkg/eventing/v1"
 	clientmessagingv1 "knative.dev/client/pkg/messaging/v1"
 	clientservingv1 "knative.dev/client/pkg/serving/v1"
 	clientwait "knative.dev/client/pkg/wait"
 	eventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
 	messagingv1 "knative.dev/eventing/pkg/apis/messaging/v1"
-	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/kn-plugin-event/pkg/k8s"
+	plugintest "knative.dev/kn-plugin-event/test"
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 	"knative.dev/pkg/kmeta"
@@ -33,29 +31,18 @@ import (
 )
 
 func TestResolveAddressE2E(t *testing.T) {
-	clients, err := k8s.CreateKubeClient(&event.Properties{})
-	if err != nil && errors.Is(err, k8s.ErrNoKubernetesConnection) {
-		t.Skip("AUTO-SKIP:", err)
-	} else {
-		assert.NilError(t, err)
-	}
-	t.Parallel()
-	it, err := clienttest.NewKnTest()
-	assert.NilError(t, err)
-	t.Cleanup(func() {
-		assert.NilError(t, it.Teardown())
-	})
-
-	resolveAddressTestCases(it.Namespace(), func(tc resolveAddressTestCase) {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			performResolveAddressTest(t, tc, func() (k8s.Clients, func(tb testing.TB)) {
-				deploy(t, tc, clients)
-				cleanup := func(tb testing.TB) {
-					tb.Helper()
-					undeploy(tb, tc, clients)
-				}
-				return clients, cleanup
+	plugintest.WithClients(t, func(c plugintest.ClientsContext) {
+		resolveAddressTestCases(c.KnTest.Namespace(), func(tc resolveAddressTestCase) {
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+				performResolveAddressTest(t, tc, func() (k8s.Clients, func(tb testing.TB)) {
+					deploy(t, tc, c.Clients)
+					cleanup := func(tb testing.TB) {
+						tb.Helper()
+						undeploy(tb, tc, c.Clients)
+					}
+					return c.Clients, cleanup
+				})
 			})
 		})
 	})

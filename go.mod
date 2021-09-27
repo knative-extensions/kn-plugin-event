@@ -28,6 +28,7 @@ require (
 	knative.dev/hack v0.0.0-20210806075220-815cd312d65c
 	knative.dev/networking v0.0.0-20210914225408-69ad45454096
 	knative.dev/pkg v0.0.0-20210919202233-5ae482141474
+	knative.dev/reconciler-test v0.0.0-20210915181908-49fac7555086
 	knative.dev/serving v0.25.1-0.20210920201536-4a26f1daa58a
 	sigs.k8s.io/yaml v1.2.0
 )

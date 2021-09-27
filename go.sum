@@ -45,6 +45,7 @@ contrib.go.opencensus.io/exporter/ocagent v0.7.1-0.20200907061046-05415f1de66d h
 contrib.go.opencensus.io/exporter/ocagent v0.7.1-0.20200907061046-05415f1de66d/go.mod h1:IshRmMJBhDfFj5Y67nVhMYTTIze91RUeT73ipWKs/GY=
 contrib.go.opencensus.io/exporter/prometheus v0.4.0 h1:0QfIkj9z/iVZgK31D9H9ohjjIDApI2GOPScCKwxedbs=
 contrib.go.opencensus.io/exporter/prometheus v0.4.0/go.mod h1:o7cosnyfuPVK0tB8q0QmaQNhGnptITnPQB+z1+qeFB0=
+contrib.go.opencensus.io/exporter/zipkin v0.1.2 h1:YqE293IZrKtqPnpwDPH/lOqTWD/s3Iwabycam74JV3g=
 contrib.go.opencensus.io/exporter/zipkin v0.1.2/go.mod h1:mP5xM3rrgOjpn79MM8fZbj3gsxcuytSqtH0dxSWW1RE=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 github.com/Azure/azure-sdk-for-go v16.2.1+incompatible/go.mod h1:9XXNKU+eRnpl9moKnB4QOLf1HestfXbmab5FXxiDBjc=
@@ -179,6 +180,7 @@ github.com/cilium/ebpf v0.0.0-20200702112145-1c8d4c9ef775/go.mod h1:7cR51M8ViRLI
 github.com/cilium/ebpf v0.2.0/go.mod h1:To2CFviqOWL/M0gIMsvSMlqe7em/l1ALkX1PyjrX2Qs=
 github.com/cilium/ebpf v0.4.0/go.mod h1:4tRaxcgiL706VnOzHOdBlY8IEAIdxINsQBcU4xJJXRs=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
+github.com/cloudevents/conformance v0.2.0 h1:NvSXOKlagcsOWMEbi8U7Ex/0oQ4JZE1HQ45bnxYf2zk=
 github.com/cloudevents/conformance v0.2.0/go.mod h1:rHKDwylBH89Rns6U3wL9ww8bg9/4GbwRCDNuyoC6bcc=
 github.com/cloudevents/sdk-go/observability/opencensus/v2 v2.4.1/go.mod h1:lhEpxMrIUkeu9rVRgoAbyqZ8GR8Hd3DUy+thHUxAHoI=
 github.com/cloudevents/sdk-go/v2 v2.4.1 h1:rZJoz9QVLbWQmnvLPDFEmv17Czu+CfSPwMO6lhJ72xQ=
@@ -1663,6 +1665,7 @@ knative.dev/networking v0.0.0-20210914225408-69ad45454096/go.mod h1:nQnVhVss/mFw
 knative.dev/pkg v0.0.0-20210914164111-4857ab6939e3/go.mod h1:jMSqkNMsrzuy+XR4Yr/BMy7SDVbUOl3KKB6+5MR+ZU8=
 knative.dev/pkg v0.0.0-20210919202233-5ae482141474 h1:anlUJXoxJvI2U1Fd69mV9uv6d7XvhAgb0zP+FoChP7k=
 knative.dev/pkg v0.0.0-20210919202233-5ae482141474/go.mod h1:jMSqkNMsrzuy+XR4Yr/BMy7SDVbUOl3KKB6+5MR+ZU8=
+knative.dev/reconciler-test v0.0.0-20210915181908-49fac7555086 h1:IAM7f2XCCfxwH9WODJ3+Puv0lrdK5IhqQloYaO4lfvg=
 knative.dev/reconciler-test v0.0.0-20210915181908-49fac7555086/go.mod h1:6yDmb26SINSmgw6wVy9qQwgRMewiW8ddkkwGLR0ZvOY=
 knative.dev/serving v0.25.1-0.20210920201536-4a26f1daa58a h1:6qjSFMqEONX3DNRym49iYMXrbehgWqMFlk0ZEvBLTRs=
 knative.dev/serving v0.25.1-0.20210920201536-4a26f1daa58a/go.mod h1:h9xgMseMjlDOHNULR/zsgDacYdRUQsYPR3ETpS/uqlA=
