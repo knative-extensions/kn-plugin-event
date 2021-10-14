@@ -1077,8 +1077,8 @@ github.com/vishvananda/netns v0.0.0-20200728191858-db3c7e526aae/go.mod h1:DD4vA1
 github.com/vmware/govmomi v0.20.3/go.mod h1:URlwyTFZX72RmxtxuaFL2Uj3fD1JTvZdx59bHWk6aFU=
 github.com/wavesoftware/go-ensure v1.0.0 h1:6X3gQL5psBWwtu/H9a+69xQ+JGTUELaLhgOB/iB3AQk=
 github.com/wavesoftware/go-ensure v1.0.0/go.mod h1:K2UAFSwMTvpiRGay/M3aEYYuurcR8S4A6HkQlJPV8k4=
-github.com/wavesoftware/go-magetasks v0.5.1 h1:usHd/ybrtresM3wPj8SYJjloydrfRsGcgY4DL9tUMRA=
-github.com/wavesoftware/go-magetasks v0.5.1/go.mod h1:z3LEHIlfg/ALds/J6AZdEQueZKS/B8uYACRIcx5aTM8=
+github.com/wavesoftware/go-magetasks v0.5.2 h1:2CQ7AKCsxAncqnUrqNKh9WaOSzVpO5BwCSV6VpcR+wg=
+github.com/wavesoftware/go-magetasks v0.5.2/go.mod h1:z3LEHIlfg/ALds/J6AZdEQueZKS/B8uYACRIcx5aTM8=
 github.com/willf/bitset v1.1.11-0.20200630133818-d5bec3311243/go.mod h1:RjeCKbqT1RxIR/KWY6phxZiaY1IyutSBfGjNPySAYV4=
 github.com/willf/bitset v1.1.11/go.mod h1:83CECat5yLh5zVOf4P1ErAgKA5UDvKtgyUABdr3+MjI=
 github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f/go.mod h1:N2zxlSyiKSe5eX1tZViRH5QA0qijqEDrYZiPEAiq3wU=

@@ -13,7 +13,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/thediveo/enumflag v0.10.0
 	github.com/wavesoftware/go-ensure v1.0.0
-	github.com/wavesoftware/go-magetasks v0.5.1
+	github.com/wavesoftware/go-magetasks v0.5.2
 	go.uber.org/zap v1.19.0
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools/v3 v3.0.3

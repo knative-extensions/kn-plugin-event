@@ -366,7 +366,7 @@ github.com/vbatts/tar-split/archive/tar
 # github.com/wavesoftware/go-ensure v1.0.0
 ## explicit
 github.com/wavesoftware/go-ensure
-# github.com/wavesoftware/go-magetasks v0.5.1
+# github.com/wavesoftware/go-magetasks v0.5.2
 ## explicit
 github.com/wavesoftware/go-magetasks
 github.com/wavesoftware/go-magetasks/config

@@ -68,8 +68,10 @@ func (kp KoPublisher) Publish(artifact config.Artifact, notifier config.Notifier
 
 func (kp KoPublisher) publishOptions() (*options.PublishOptions, error) {
 	if v, ok := os.LookupEnv(magetasksImageBasename); ok {
-		if err := os.Setenv(koDockerRepo, v); err != nil {
-			return nil, err
+		if _, ok2 := os.LookupEnv(koDockerRepo); !ok2 {
+			if err := os.Setenv(koDockerRepo, v); err != nil {
+				return nil, err
+			}
 		}
 	}
 	opts := &options.PublishOptions{
