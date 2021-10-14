@@ -16,7 +16,7 @@ var (
 func ResolveImage() string {
 	//goland:noinspection GoBoolExpressions
 	if Image == "" {
-		return fmt.Sprintf("%s:%s", ImageBasename, Version)
+		return fmt.Sprintf("%s/kn-event-sender:%s", ImageBasename, Version)
 	}
 	return Image
 }

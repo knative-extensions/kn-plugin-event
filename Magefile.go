@@ -31,10 +31,8 @@ func init() { //nolint:gochecknoinits
 	}
 	cli := artifact.Binary{
 		Metadata: config.Metadata{
-			Name: "kn-event",
-			BuildVariables: config.NewBuildVariablesBuilder().
-				ConditionallyAdd(referenceImageByDigest, metadata.ImagePath(), artifact.ImageReferenceOf(sender)).
-				Build(),
+			Name:           "kn-event",
+			BuildVariables: cliBuildVariables(sender),
 		},
 		Platforms: []artifact.Platform{
 			{OS: platform.Linux, Architecture: platform.AMD64},
@@ -51,16 +49,32 @@ func init() { //nolint:gochecknoinits
 		Artifacts: []config.Artifact{sender, cli},
 		Checks:    []config.Task{checks.GolangCiLint()},
 		BuildVariables: map[string]config.Resolver{
-			metadata.ImageBasenamePath(): env("IMAGE_BASENAME"),
+			metadata.ImageBasenamePath(): imageBasenameFromEnv,
 		},
 		Overrides: overrides.List,
 	})
 }
 
-func env(key string) func() string {
-	return func() string {
-		return os.Getenv(key)
+func cliBuildVariables(sender artifact.Image) config.BuildVariables {
+	return config.NewBuildVariablesBuilder().
+		ConditionallyAdd(
+			referenceImageByDigest,
+			metadata.ImagePath(),
+			artifact.ImageReferenceOf(sender),
+		).Build()
+}
+
+func imageBasenameFromEnv() string {
+	return env("KO_DOCKER_REPO", "IMAGE_BASENAME")
+}
+
+func env(keys ...string) string {
+	for _, key := range keys {
+		if val, ok := os.LookupEnv(key); ok {
+			return val
+		}
 	}
+	return ""
 }
 
 func skipImageReference() bool {
