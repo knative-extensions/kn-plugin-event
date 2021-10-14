@@ -1,57 +1,36 @@
 run:
   timeout: 5m
+  build-tags:
+    - e2e
+    - mage
 
 linters:
   disable-all: false
   presets:
     - bugs
     - unused
+    - complexity
+    - format
+    - performance
+    - style
   enable:
-    - bodyclose
-    - deadcode
-    - depguard
-    - dogsled
-    - dupl
-    - errcheck
-    - exhaustive
-    - funlen
-    - goconst
-    - gocritic
-    - gocyclo
-    - gofmt
-    - goimports
-    - golint
-    - gomnd
-    - goprintffuncname
-    - gosec
-    - gosimple
-    - govet
-    - ineffassign
-    - interfacer
-    - lll
-    - misspell
-    - nakedret
-    - noctx
-    - nolintlint
-    - rowserrcheck
-    - scopelint
-    - staticcheck
-    - structcheck
-    - stylecheck
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
-    - varcheck
-    - asciicheck
-    - gocognit
-    - godot
-    - godox
-    - goerr113
-    - maligned
-    - nestif
-    - prealloc
-    - testpackage
+    - gci
   disable:
-    - whitespace
+    - paralleltest
+    - nlreturn
+    - exhaustivestruct
     - wsl
+    - godox
+    - scopelint
+    - maligned
+    - interfacer
+    - golint
+    - deadcode
+    - gochecknoglobals
+    - wrapcheck
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - wrapcheck

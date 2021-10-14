@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
-	"knative.dev/kn-plugin-event/pkg"
 	"knative.dev/kn-plugin-event/pkg/cli"
+	"knative.dev/kn-plugin-event/pkg/metadata"
 )
 
 // ErrUnsupportedOutputMode is returned if user passed a unsupported
@@ -29,8 +29,9 @@ func (v *versionCommand) command() *cobra.Command {
 
 func (v *versionCommand) run(cmd *cobra.Command, _ []string) error {
 	output, err := presentAs(cli.PluginVersionOutput{
-		Name:    pkg.PluginName,
-		Version: pkg.Version,
+		Name:    metadata.PluginName,
+		Version: metadata.Version,
+		Image:   metadata.ResolveImage(),
 	}, v.options.Output)
 	if err != nil {
 		return err
@@ -46,7 +47,8 @@ func presentAs(pv cli.PluginVersionOutput, mode cli.OutputMode) (string, error) 
 	case cli.YAML:
 		return marshalWith(pv, yaml.Marshal)
 	case cli.HumanReadable:
-		return fmt.Sprintf("%s version: %s", pv.Name, pv.Version), nil
+		return fmt.Sprintf("%s version: %s\nsender image: %s",
+			pv.Name, pv.Version, pv.Image), nil
 	}
 	return "", fmt.Errorf("%w: %v", ErrUnsupportedOutputMode, mode)
 }
