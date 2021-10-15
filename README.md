@@ -19,9 +19,9 @@ channels, etc) inside of Kubernetes cluster.
 
 ### Build an event
 
-You could use `build` subcommand to create an event with a help of 
-convenient builder-like interface. It may be helpful to send that even later 
-or use it in other context.
+You could use `build` subcommand to create an event with a help of convenient
+builder-like interface. It may be helpful to send that even later or use it in
+other context.
 
 #### Simplest event
 
@@ -71,8 +71,8 @@ $ kn event build \
 
 ### Send an event
 
-To send and event you should utilize `send` subcommand. The `send` command 
-leverages the same builder-like interface as `build` command does. You could 
+To send and event you should utilize `send` subcommand. The `send` command
+leverages the same builder-like interface as `build` command does. You could
 send an event to public address of your application by using `--to-url` option,
 or to supported in-cluster resources by using `--to` option.
 
@@ -89,14 +89,14 @@ $ kn event send \
     --to-url http://ce-api.foo.example.org/
 ```
 
-> **NOTE**: All argument, except `--to-url` are optional. Use 
+> **NOTE**: All argument, except `--to-url` are optional. Use
 > `kn event send --help` to see full usage information.
 
 #### Sending to in-cluster resources
 
-Sending event to in-cluster resources is done with a companion Job that is 
-deployed on your cluster. In that way `kn-event` and send your event even 
-to resources that are not publicly accessible.
+Sending event to in-cluster resources is done with a companion Job that is
+deployed on your cluster. In that way `kn-event` and send your event even to
+resources that are not publicly accessible.
 
 Send an event to a Knative service `event-display` in namespace `default`:
 
@@ -114,8 +114,9 @@ $ kn event send \
 
 ## Install
 
-You can download a pre-built version of `kn-plugin-event` from [our release page](https://github.com/knative-sandbox/kn-plugin-event/releases). Choose the one
-that fits your platform.
+You can download a pre-built version of `kn-plugin-event`
+from [our release page](https://github.com/knative-sandbox/kn-plugin-event/releases)
+. Choose the one that fits your platform.
 
 When the download is ready, you should be ready to use `kn-plugin-event` as a
 standalone binary. Check the available commands with:
@@ -171,7 +172,7 @@ $ ./mage -l
 
 ### Updating dependencies
 
-To update dependencies, please utilize the standard `hack/update-deps.sh` 
-script. It's also needed to run this script if you are doing any changes to 
-Go libraries. Read more about it at 
+To update dependencies, please utilize the standard `hack/update-deps.sh`
+script. It's also needed to run this script if you are doing any changes to Go
+libraries. Read more about it at
 [knative/hack](https://github.com/knative/hack) repository.
