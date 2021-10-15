@@ -84,7 +84,7 @@ func (ec eventChecks) performEventChecks(out []byte) {
 	assert.Equal(t, expected.DataContentType(), actual.DataContentType())
 	assert.Equal(t, ec.unmarshalData(expected.Data()), ec.unmarshalData(actual.Data()))
 	assert.Equal(t, expected.Source(), actual.Source())
-	delta := 1_000_000.
+	delta := tests.UnixNanoDelta
 	assert.InDelta(t, expected.Time().UnixNano(), actual.Time().UnixNano(), delta)
 }
 
