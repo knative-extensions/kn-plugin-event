@@ -88,7 +88,7 @@ func (j *jobRunner) watchJob(meta metav1.Object, changeFn func(job *batchv1.Job)
 				return fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
 			}
 			if brk {
-				watcher.Stop()
+				return nil
 			}
 		}
 	}
