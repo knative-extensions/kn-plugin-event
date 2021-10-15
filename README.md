@@ -168,3 +168,10 @@ You could list all available build targets with:
 ```sh
 $ ./mage -l
 ```
+
+### Updating dependencies
+
+To update dependencies, please utilize the standard `hack/update-deps.sh` 
+script. It's also needed to run this script if you are doing any changes to 
+Go libraries. Read more about it at 
+[knative/hack](https://github.com/knative/hack) repository.
