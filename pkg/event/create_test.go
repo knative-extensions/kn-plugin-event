@@ -43,7 +43,7 @@ func TestCreateFromSpec(t *testing.T) {
 	actualData, err := tests.UnmarshalCloudEventData(actual.Data())
 	assert.NoError(t, err)
 	assert.EqualValues(t, expectedData, actualData)
-	delta := 1_000_000.
+	delta := tests.UnixNanoDelta
 	assert.InDelta(t, time.Now().UnixNano(), actual.Time().UnixNano(), delta)
 }
 
