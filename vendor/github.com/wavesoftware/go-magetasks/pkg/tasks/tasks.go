@@ -3,15 +3,11 @@ package tasks
 import (
 	"fmt"
 
-	"github.com/fatih/color"
 	"github.com/hashicorp/go-multierror"
 	"github.com/wavesoftware/go-ensure"
-)
-
-var (
-	red    = color.New(color.FgHiRed).Add(color.Bold).SprintFunc()
-	green  = color.New(color.FgHiGreen).Add(color.Bold).SprintFunc()
-	yellow = color.New(color.FgHiYellow).Add(color.Bold).SprintFunc()
+	"github.com/wavesoftware/go-magetasks/config"
+	"github.com/wavesoftware/go-magetasks/pkg/output"
+	"github.com/wavesoftware/go-magetasks/pkg/output/color"
 )
 
 // Task represents a mage task enriched with icon and description that might
@@ -32,14 +28,15 @@ type Part struct {
 // PartProcessing is an interface that is used to process long running part of
 // tasks.
 type PartProcessing interface {
+	config.Notifier
 	Done(err error)
 }
 
 // Skip print a warning message.
 func (p *Part) Skip(reason string) {
 	if p.t.multiline {
-		msg := fmt.Sprintf(" %s › %s is skipped due to %s\n", p.t.icon, p.name, reason)
-		fmt.Print(mageTag() + yellow(msg))
+		msg := fmt.Sprintf("%s › %s is skipped due to %s", p.t.icon, p.name, reason)
+		output.Println(color.Yellow(msg))
 	}
 }
 
@@ -47,43 +44,39 @@ type partProcessing struct {
 	p *Part
 }
 
+func (pp *partProcessing) Notify(status string) {
+	if pp.p.t.multiline {
+		output.Printlnf("%s › %s › %s",
+			pp.p.t.icon, pp.p.name, status)
+	}
+}
+
 // Done is reporting a completeness of part processing.
-func (p *partProcessing) Done(err error) {
+func (pp *partProcessing) Done(err error) {
 	if err != nil {
-		if p.p.t.multiline {
-			msg := fmt.Sprintf(" %s %s have failed: %v\n", p.p.t.icon, p.p.name, err)
-			fmt.Print(mageTag() + red(msg))
+		if pp.p.t.multiline {
+			msg := fmt.Sprintf("%s %s have failed: %v", pp.p.t.icon, pp.p.name, err)
+			output.Println(color.Red(msg))
 		}
-		p.p.t.raised = append(p.p.t.raised, err)
+		pp.p.t.raised = append(pp.p.t.raised, err)
 	}
 }
 
 // Starting starts a part processing.
 func (p *Part) Starting() PartProcessing {
 	if p.t.multiline {
-		msg := fmt.Sprintf(" %s › %s\n", p.t.icon, p.name)
-		fmt.Print(mageTag() + msg)
+		msg := fmt.Sprintf("%s › %s", p.t.icon, p.name)
+		output.Println(msg)
 	}
 	return &partProcessing{p: p}
 }
 
 // Start will start a single line task.
-func Start(icon, action string) *Task {
+func Start(icon, action string, multiline bool) *Task {
 	t := &Task{
 		icon:      icon,
 		action:    action,
-		multiline: false,
-	}
-	t.start()
-	return t
-}
-
-// StartMultiline will start a multi line task.
-func StartMultiline(icon, action string) *Task {
-	t := &Task{
-		icon:      icon,
-		action:    action,
-		multiline: true,
+		multiline: multiline,
 	}
 	t.start()
 	return t
@@ -91,27 +84,25 @@ func StartMultiline(icon, action string) *Task {
 
 func (t *Task) start() {
 	if t.multiline {
-		fmt.Printf("%s %s %s\n", mageTag(), t.icon, t.action)
+		output.Printlnf("%s %s", t.icon, t.action)
 	} else {
-		fmt.Printf("%s %s %s... ", mageTag(), t.icon, t.action)
+		output.PrintPending(t.icon, " ", t.action, "... ")
 	}
 }
 
 // End will report task completion, either successful or failures.
 func (t *Task) End(errs ...error) {
-	var msg string
 	sum := make([]error, 0, len(errs)+len(t.raised))
 	sum = append(sum, t.raised...)
 	sum = append(sum, errs...)
 	merr := multierror.Append(nil, sum...)
 	err := merr.ErrorOrNil()
 	if err != nil {
-		msg = erroneousMsg(t)
+		erroneousMsg(t)
 	} else {
-		msg = successfulMsg(t)
+		successfulMsg(t)
 	}
 
-	fmt.Print(msg)
 	ensure.NoError(err)
 }
 
@@ -123,16 +114,18 @@ func (t *Task) Part(part string) *Part {
 	}
 }
 
-func erroneousMsg(t *Task) string {
+func erroneousMsg(t *Task) {
 	if t.multiline {
-		return mageTag() + red(fmt.Sprintf(" %s have failed!\n", t.action))
+		output.Println(color.Red(fmt.Sprintf("%s %s have failed!", t.icon, t.action)))
+	} else {
+		output.PrintEnd(color.Red("failed!"))
 	}
-	return red(fmt.Sprintln("failed!"))
 }
 
-func successfulMsg(t *Task) string {
+func successfulMsg(t *Task) {
 	if t.multiline {
-		return mageTag() + green(fmt.Sprintf(" %s was successful.\n", t.action))
+		output.Println(color.Green(fmt.Sprintf("%s %s was successful.", t.icon, t.action)))
+	} else {
+		output.PrintEnd(color.Green("done."))
 	}
-	return green(fmt.Sprintln("done."))
 }
