@@ -38,4 +38,6 @@ linters-settings:
     replace-allow-list:
       # FIXME: google/ko requires 0.22, remove when knative will work with 0.22+
       - k8s.io/apimachinery
+      # FIXME: unpin for k8s 0.21+, see: https://github.com/knative/client/pull/1209
+      - github.com/go-openapi/spec
 

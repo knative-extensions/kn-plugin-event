@@ -32,5 +32,9 @@ require (
 	sigs.k8s.io/yaml v1.3.0
 )
 
-// FIXME: google/ko requires 0.22, remove when knative will work with 0.22+
-replace k8s.io/apimachinery v0.22.2 => k8s.io/apimachinery v0.20.7
+replace (
+	// FIXME: unpin for k8s 0.21+, see: https://github.com/knative/client/pull/1209
+	github.com/go-openapi/spec => github.com/go-openapi/spec v0.19.3
+	// FIXME: google/ko requires 0.22, remove when knative will work with 0.22+
+	k8s.io/apimachinery => k8s.io/apimachinery v0.20.7
+)
