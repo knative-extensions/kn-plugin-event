@@ -16,6 +16,9 @@
 
 set -Eeuo pipefail
 
+# Coordinates in GitHub.
+ORG_NAME="${ORG_NAME:-knative-sandbox}"
+
 source "$(dirname "$0")/../vendor/knative.dev/hack/release.sh"
 
 function build_release {
