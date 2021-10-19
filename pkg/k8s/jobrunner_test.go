@@ -1,6 +1,9 @@
 package k8s_test
 
 import (
+	"fmt"
+	"math/rand"
+	"strconv"
 	"sync"
 	"testing"
 
@@ -9,6 +12,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/watch"
 	"knative.dev/kn-plugin-event/pkg/k8s"
 	"knative.dev/kn-plugin-event/pkg/tests"
 )
@@ -27,7 +31,9 @@ func TestJobRunnerRun(t *testing.T) {
 		defer wg.Done()
 		assert.NilError(t, runner.Run(&job))
 	}()
-	<-watcher.ResultChan()
+	ev := <-watcher.ResultChan()
+	assert.Equal(t, ev.Type, watch.Added)
+	assert.Equal(t, ev.Object.(*batchv1.Job).Name, job.GetName())
 	watcher.Stop()
 	sucJob := jobSuccess(job)
 	_, err = jobs.Update(ctx, &sucJob, metav1.UpdateOptions{})
@@ -54,9 +60,11 @@ func jobSuccess(job batchv1.Job) batchv1.Job {
 }
 
 func examplePiJob() batchv1.Job {
+	name := fmt.Sprintf("test-%s",
+		strconv.FormatInt(rand.Int63(), 36)) //nolint:gosec
 	return batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "test",
+			Name:      name,
 			Namespace: "demo",
 		},
 		Spec: batchv1.JobSpec{
