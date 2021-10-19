@@ -71,7 +71,7 @@ type InMemoryChannelSpec struct {
 
 // ChannelStatus represents the current state of a Channel.
 type InMemoryChannelStatus struct {
-	// Channel conforms to Duck type ChannelableStatus.
+	// Channel conforms to Duck type Channelable.
 	eventingduckv1.ChannelableStatus `json:",inline"`
 }
 

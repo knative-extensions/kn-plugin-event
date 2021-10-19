@@ -53,8 +53,7 @@ type Listable interface {
 }
 
 // Annotatable indicates that a particular type applies various annotations.
-//
-// Deprecated: Use WithUserInfo / GetUserInfo from within SetDefaults instead.
+// DEPRECATED: Use WithUserInfo / GetUserInfo from within SetDefaults instead.
 // The webhook functionality for this has been turned down, which is why this
 // interface is empty.
 type Annotatable interface{}

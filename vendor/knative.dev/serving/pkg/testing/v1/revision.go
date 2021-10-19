@@ -130,6 +130,11 @@ func MarkActive(r *v1.Revision) {
 	r.Status.MarkActiveTrue()
 }
 
+// WithK8sServiceName applies sn to the revision status field.
+func WithK8sServiceName(r *v1.Revision) {
+	r.Status.ServiceName = r.Name
+}
+
 // MarkInactive calls .Status.MarkInactive on the Revision.
 func MarkInactive(reason, message string) RevisionOption {
 	return func(r *v1.Revision) {
