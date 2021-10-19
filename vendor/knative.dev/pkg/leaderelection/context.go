@@ -94,11 +94,7 @@ func BuildElector(ctx context.Context, la reconciler.LeaderAware, queueName stri
 	return &unopposedElector{
 		la:  la,
 		bkt: reconciler.UniversalBucket(),
-		// The UniversalBucket owns everything, so there is never a need to
-		// enqueue things (no possible state change).  We pass nil here to
-		// avoid filling the queue for an extra resynce at startup along
-		// this path.
-		enq: nil,
+		enq: enq,
 	}, nil
 }
 

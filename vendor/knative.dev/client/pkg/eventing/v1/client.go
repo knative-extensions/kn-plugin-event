@@ -19,8 +19,6 @@ import (
 	"fmt"
 	"time"
 
-	"k8s.io/client-go/util/retry"
-
 	apis_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -35,8 +33,6 @@ import (
 	"knative.dev/client/pkg/wait"
 )
 
-type TriggerUpdateFunc func(origTrigger *eventingv1.Trigger) (*eventingv1.Trigger, error)
-
 // KnEventingClient to Eventing Sources. All methods are relative to the
 // namespace specified during construction
 type KnEventingClient interface {
@@ -48,19 +44,17 @@ type KnEventingClient interface {
 	DeleteTrigger(ctx context.Context, name string) error
 	// GetTrigger is used to get an instance of trigger
 	GetTrigger(ctx context.Context, name string) (*eventingv1.Trigger, error)
-	// ListTriggers returns list of trigger CRDs
+	// ListTrigger returns list of trigger CRDs
 	ListTriggers(ctx context.Context) (*eventingv1.TriggerList, error)
 	// UpdateTrigger is used to update an instance of trigger
 	UpdateTrigger(ctx context.Context, trigger *eventingv1.Trigger) error
-	// UpdateTriggerWithRetry is used to update an instance of trigger
-	UpdateTriggerWithRetry(ctx context.Context, name string, updateFunc TriggerUpdateFunc, nrRetries int) error
 	// CreateBroker is used to create an instance of broker
 	CreateBroker(ctx context.Context, broker *eventingv1.Broker) error
 	// GetBroker is used to get an instance of broker
 	GetBroker(ctx context.Context, name string) (*eventingv1.Broker, error)
 	// DeleteBroker is used to delete an instance of broker
 	DeleteBroker(ctx context.Context, name string, timeout time.Duration) error
-	// ListBrokers returns list of broker CRDs
+	// ListBroker returns list of broker CRDs
 	ListBrokers(ctx context.Context) (*eventingv1.BrokerList, error)
 }
 
@@ -134,7 +128,7 @@ func (c *knEventingClient) ListTriggers(ctx context.Context) (*eventingv1.Trigge
 	return triggerListNew, nil
 }
 
-// UpdateTrigger is used to update an instance of trigger
+//CreateTrigger is used to create an instance of trigger
 func (c *knEventingClient) UpdateTrigger(ctx context.Context, trigger *eventingv1.Trigger) error {
 	_, err := c.client.Triggers(c.namespace).Update(ctx, trigger, meta_v1.UpdateOptions{})
 	if err != nil {
@@ -143,37 +137,7 @@ func (c *knEventingClient) UpdateTrigger(ctx context.Context, trigger *eventingv
 	return nil
 }
 
-func (c *knEventingClient) UpdateTriggerWithRetry(ctx context.Context, name string, updateFunc TriggerUpdateFunc, nrRetries int) error {
-	return updateTriggerWithRetry(ctx, c, name, updateFunc, nrRetries)
-}
-
-func updateTriggerWithRetry(ctx context.Context, c KnEventingClient, name string, updateFunc TriggerUpdateFunc, nrRetries int) error {
-	b := retry.DefaultRetry
-	b.Steps = nrRetries
-	updateTriggerFunc := func() error {
-		return updateTrigger(ctx, c, name, updateFunc)
-	}
-	err := retry.RetryOnConflict(b, updateTriggerFunc)
-	return err
-}
-
-func updateTrigger(ctx context.Context, c KnEventingClient, name string, updateFunc TriggerUpdateFunc) error {
-	trigger, err := c.GetTrigger(ctx, name)
-	if err != nil {
-		return err
-	}
-	if trigger.GetDeletionTimestamp() != nil {
-		return fmt.Errorf("can't update trigger %s because it has been marked for deletion", name)
-	}
-	updatedTrigger, err := updateFunc(trigger.DeepCopy())
-	if err != nil {
-		return err
-	}
-
-	return c.UpdateTrigger(ctx, updatedTrigger)
-}
-
-// Namespace returns the namespace this client is bound to
+// Return the client's namespace
 func (c *knEventingClient) Namespace() string {
 	return c.namespace
 }
@@ -190,17 +154,11 @@ type TriggerBuilder struct {
 
 // NewTriggerBuilder for building trigger object
 func NewTriggerBuilder(name string) *TriggerBuilder {
-	return &TriggerBuilder{&eventingv1.Trigger{
+	return &TriggerBuilder{trigger: &eventingv1.Trigger{
 		ObjectMeta: meta_v1.ObjectMeta{
 			Name: name,
 		},
 	}}
-}
-
-// WithGvk sets the GVK for the triggers (which otherwise remains empty
-func (b *TriggerBuilder) WithGvk() *TriggerBuilder {
-	_ = updateEventingGVK(b.trigger)
-	return b
 }
 
 // NewTriggerBuilderFromExisting for building the object from existing Trigger object
@@ -359,12 +317,6 @@ func NewBrokerBuilder(name string) *BrokerBuilder {
 			Name: name,
 		},
 	}}
-}
-
-// WithGvk add the GVK coordinates for read tests
-func (b *BrokerBuilder) WithGvk() *BrokerBuilder {
-	_ = updateEventingGVK(b.broker)
-	return b
 }
 
 // Namespace for broker builder

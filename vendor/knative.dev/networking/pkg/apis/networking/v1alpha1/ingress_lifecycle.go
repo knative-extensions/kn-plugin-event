@@ -46,6 +46,9 @@ func (is *IngressStatus) GetCondition(t apis.ConditionType) *apis.Condition {
 // InitializeConditions initializes conditions of an IngressStatus
 func (is *IngressStatus) InitializeConditions() {
 	ingressCondSet.Manage(is).InitializeConditions()
+
+	// Deprecated, do not set.
+	is.DeprecatedLoadBalancer = nil
 }
 
 // MarkNetworkConfigured set IngressConditionNetworkConfigured in IngressStatus as true

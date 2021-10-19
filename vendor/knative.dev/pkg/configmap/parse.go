@@ -141,11 +141,7 @@ func AsDuration(key string, target *time.Duration) ParseFunc {
 func AsStringSet(key string, target *sets.String) ParseFunc {
 	return func(data map[string]string) error {
 		if raw, ok := data[key]; ok {
-			splitted := strings.Split(raw, ",")
-			for i, v := range splitted {
-				splitted[i] = strings.TrimSpace(v)
-			}
-			*target = sets.NewString(splitted...)
+			*target = sets.NewString(strings.Split(raw, ",")...)
 		}
 		return nil
 	}
