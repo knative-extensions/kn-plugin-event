@@ -2,6 +2,7 @@ package k8s
 
 import (
 	"fmt"
+	"sync"
 
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -24,14 +25,54 @@ type jobRunner struct {
 	kube Clients
 }
 
+type task struct {
+	errs  chan<- error
+	ready chan<- bool
+	wg    *sync.WaitGroup
+}
+
 func (j *jobRunner) Run(job *batchv1.Job) error {
+	ready := make(chan bool)
+	errs := make(chan error)
+	tsk := task{
+		errs, ready, &sync.WaitGroup{},
+	}
+	tasks := []func(*batchv1.Job, task){
+		// wait is started first,  making sure to capture success, even the ultra-fast one.
+		j.waitForSuccess,
+		j.createJob,
+	}
+	tsk.wg.Add(len(tasks))
+	// run all tasks in parallel
+	for _, fn := range tasks {
+		go fn(job, tsk)
+		<-ready
+	}
+	go waitAndClose(tsk)
+	// return the first error
+	for err := range errs {
+		if err != nil {
+			return err
+		}
+	}
+
+	return j.deleteJob(job)
+}
+
+func (j *jobRunner) createJob(job *batchv1.Job, tsk task) {
+	defer tsk.wg.Done()
+	tsk.ready <- true
 	ctx := j.kube.Context()
 	jobs := j.kube.Typed().BatchV1().Jobs(job.Namespace)
 	_, err := jobs.Create(ctx, job, metav1.CreateOptions{})
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
+		tsk.errs <- fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
 	}
-	err = j.watchJob(job, func(job *batchv1.Job) (bool, error) {
+}
+
+func (j *jobRunner) waitForSuccess(job *batchv1.Job, tsk task) {
+	defer tsk.wg.Done()
+	err := j.watchJob(job, tsk, func(job *batchv1.Job) (bool, error) {
 		if job.Status.CompletionTime == nil && job.Status.Failed == 0 {
 			return false, nil
 		}
@@ -43,9 +84,13 @@ func (j *jobRunner) Run(job *batchv1.Job) error {
 		return true, nil
 	})
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
+		tsk.errs <- fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
 	}
-	return j.deleteJob(job)
+}
+
+func waitAndClose(tsk task) {
+	tsk.wg.Wait()
+	close(tsk.errs)
 }
 
 func (j *jobRunner) deleteJob(job *batchv1.Job) error {
@@ -65,17 +110,19 @@ func (j *jobRunner) deleteJob(job *batchv1.Job) error {
 	return nil
 }
 
-func (j *jobRunner) watchJob(meta metav1.Object, changeFn func(job *batchv1.Job) (bool, error)) error {
+func (j *jobRunner) watchJob(obj metav1.Object, tsk task, changeFn func(job *batchv1.Job) (bool, error)) error {
 	ctx := j.kube.Context()
-	jobs := j.kube.Typed().BatchV1().Jobs(meta.GetNamespace())
+	jobs := j.kube.Typed().BatchV1().Jobs(obj.GetNamespace())
 	watcher, err := jobs.Watch(ctx, metav1.ListOptions{
-		FieldSelector: fmt.Sprintf("metadata.name=%s", meta.GetName()),
+		FieldSelector: fmt.Sprintf("metadata.name=%s", obj.GetName()),
 	})
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
 	}
 	defer watcher.Stop()
-	for result := range watcher.ResultChan() {
+	resultCh := watcher.ResultChan()
+	tsk.ready <- true
+	for result := range resultCh {
 		if result.Type == watch.Added || result.Type == watch.Modified {
 			job, ok := result.Object.(*batchv1.Job)
 			if !ok {
@@ -88,7 +135,7 @@ func (j *jobRunner) watchJob(meta metav1.Object, changeFn func(job *batchv1.Job)
 				return fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
 			}
 			if brk {
-				watcher.Stop()
+				return nil
 			}
 		}
 	}
