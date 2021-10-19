@@ -20,10 +20,9 @@ require (
 	go.uber.org/zap v1.19.0
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools/v3 v3.0.3
-	k8s.io/api v0.21.4
+	k8s.io/api v0.20.7
 	k8s.io/apimachinery v0.22.2
-	k8s.io/cli-runtime v0.21.4 // indirect
-	k8s.io/client-go v0.21.4
+	k8s.io/client-go v0.20.7
 	knative.dev/client v0.25.1
 	knative.dev/eventing v0.25.2
 	knative.dev/hack v0.0.0-20210622141627-e28525d8d260
@@ -34,4 +33,4 @@ require (
 )
 
 // FIXME: google/ko requires 0.22, remove when knative will work with 0.22+
-replace k8s.io/apimachinery v0.22.2 => k8s.io/apimachinery v0.21.4
+replace k8s.io/apimachinery v0.22.2 => k8s.io/apimachinery v0.20.7
