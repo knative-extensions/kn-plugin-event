@@ -21,7 +21,4 @@ package tools
 
 import (
 	_ "knative.dev/hack"
-
-	// For Mage stuff
-	_ "github.com/magefile/mage/mage"
 )

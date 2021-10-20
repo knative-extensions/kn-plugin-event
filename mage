@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 
-# shellcheck disable=SC2068
-exec go run mage.go $@
+set -Eeuo pipefail
+
+pushd build >/dev/null
+exec go run mage.go "$@"
