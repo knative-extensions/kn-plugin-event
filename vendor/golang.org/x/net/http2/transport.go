@@ -1395,7 +1395,6 @@ func (cs *clientStream) cleanupWriteRequest(err error) {
 	if cs.ID != 0 {
 		cc.forgetStreamID(cs.ID)
 	}
-	close(cs.donec)
 
 	cc.wmu.Lock()
 	werr := cc.werr
@@ -1403,6 +1402,8 @@ func (cs *clientStream) cleanupWriteRequest(err error) {
 	if werr != nil {
 		cc.Close()
 	}
+
+	close(cs.donec)
 }
 
 // awaitOpenSlotForStream waits until len(streams) < maxConcurrentStreams.
@@ -1999,7 +2000,13 @@ func (rl *clientConnReadLoop) cleanup() {
 	}
 	cc.closed = true
 	for _, cs := range cc.streams {
-		cs.abortStreamLocked(err)
+		select {
+		case <-cs.peerClosed:
+			// The server closed the stream before closing the conn,
+			// so no need to interrupt it.
+		default:
+			cs.abortStreamLocked(err)
+		}
 	}
 	cc.cond.Broadcast()
 	cc.mu.Unlock()
