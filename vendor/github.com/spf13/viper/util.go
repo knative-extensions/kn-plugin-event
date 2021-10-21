@@ -95,7 +95,19 @@ func absPathify(inPath string) string {
 		inPath = userHomeDir() + inPath[5:]
 	}
 
-	inPath = os.ExpandEnv(inPath)
+	if strings.HasPrefix(inPath, "$") {
+		end := strings.Index(inPath, string(os.PathSeparator))
+
+		var value, suffix string
+		if end == -1 {
+			value = os.Getenv(inPath[1:])
+		} else {
+			value = os.Getenv(inPath[1:end])
+			suffix = inPath[end:]
+		}
+
+		inPath = value + suffix
+	}
 
 	if filepath.IsAbs(inPath) {
 		return filepath.Clean(inPath)

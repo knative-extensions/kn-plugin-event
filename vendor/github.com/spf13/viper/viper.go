@@ -22,6 +22,7 @@ package viper
 import (
 	"bytes"
 	"encoding/csv"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -35,20 +36,18 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/hashicorp/hcl"
+	"github.com/hashicorp/hcl/hcl/printer"
 	"github.com/magiconair/properties"
 	"github.com/mitchellh/mapstructure"
+	"github.com/pelletier/go-toml"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/pflag"
 	"github.com/subosito/gotenv"
 	"gopkg.in/ini.v1"
-
-	"github.com/spf13/viper/internal/encoding"
-	"github.com/spf13/viper/internal/encoding/hcl"
-	"github.com/spf13/viper/internal/encoding/json"
-	"github.com/spf13/viper/internal/encoding/toml"
-	"github.com/spf13/viper/internal/encoding/yaml"
+	"gopkg.in/yaml.v2"
 )
 
 // ConfigMarshalError happens when failing to marshal the configuration.
@@ -68,47 +67,8 @@ type RemoteResponse struct {
 	Error error
 }
 
-var (
-	encoderRegistry = encoding.NewEncoderRegistry()
-	decoderRegistry = encoding.NewDecoderRegistry()
-)
-
 func init() {
 	v = New()
-
-	{
-		codec := yaml.Codec{}
-
-		encoderRegistry.RegisterEncoder("yaml", codec)
-		decoderRegistry.RegisterDecoder("yaml", codec)
-
-		encoderRegistry.RegisterEncoder("yml", codec)
-		decoderRegistry.RegisterDecoder("yml", codec)
-	}
-
-	{
-		codec := json.Codec{}
-
-		encoderRegistry.RegisterEncoder("json", codec)
-		decoderRegistry.RegisterDecoder("json", codec)
-	}
-
-	{
-		codec := toml.Codec{}
-
-		encoderRegistry.RegisterEncoder("toml", codec)
-		decoderRegistry.RegisterDecoder("toml", codec)
-	}
-
-	{
-		codec := hcl.Codec{}
-
-		encoderRegistry.RegisterEncoder("hcl", codec)
-		decoderRegistry.RegisterDecoder("hcl", codec)
-
-		encoderRegistry.RegisterEncoder("tfvars", codec)
-		decoderRegistry.RegisterDecoder("tfvars", codec)
-	}
 }
 
 type remoteConfigFactory interface {
@@ -332,7 +292,7 @@ func NewWithOptions(opts ...Option) *Viper {
 // can use it in their testing as well.
 func Reset() {
 	v = New()
-	SupportedExts = []string{"json", "toml", "yaml", "yml", "properties", "props", "prop", "hcl", "tfvars", "dotenv", "env", "ini"}
+	SupportedExts = []string{"json", "toml", "yaml", "yml", "properties", "props", "prop", "hcl", "dotenv", "env", "ini"}
 	SupportedRemoteProviders = []string{"etcd", "consul", "firestore"}
 }
 
@@ -371,7 +331,7 @@ type RemoteProvider interface {
 }
 
 // SupportedExts are universally supported extensions.
-var SupportedExts = []string{"json", "toml", "yaml", "yml", "properties", "props", "prop", "hcl", "tfvars", "dotenv", "env", "ini"}
+var SupportedExts = []string{"json", "toml", "yaml", "yml", "properties", "props", "prop", "hcl", "dotenv", "env", "ini"}
 
 // SupportedRemoteProviders are universally supported remote providers.
 var SupportedRemoteProviders = []string{"etcd", "consul", "firestore"}
@@ -1407,13 +1367,11 @@ func (v *Viper) realKey(key string) string {
 func InConfig(key string) bool { return v.InConfig(key) }
 
 func (v *Viper) InConfig(key string) bool {
-	lcaseKey := strings.ToLower(key)
-
 	// if the requested key is an alias, then return the proper key
-	lcaseKey = v.realKey(lcaseKey)
-	path := strings.Split(lcaseKey, v.keyDelim)
+	key = v.realKey(key)
 
-	return v.searchIndexableWithPathPrefixes(v.config, path) != nil
+	_, exists := v.config[key]
+	return exists
 }
 
 // SetDefault sets the default value for this key.
@@ -1584,7 +1542,7 @@ func (v *Viper) writeConfig(filename string, force bool) error {
 	var configType string
 
 	ext := filepath.Ext(filename)
-	if ext != "" && ext != filepath.Base(filename) {
+	if ext != "" {
 		configType = ext[1:]
 	} else {
 		configType = v.configType
@@ -1626,11 +1584,34 @@ func (v *Viper) unmarshalReader(in io.Reader, c map[string]interface{}) error {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(in)
 
-	switch format := strings.ToLower(v.getConfigType()); format {
-	case "yaml", "yml", "json", "toml", "hcl", "tfvars":
-		err := decoderRegistry.Decode(format, buf.Bytes(), &c)
+	switch strings.ToLower(v.getConfigType()) {
+	case "yaml", "yml":
+		if err := yaml.Unmarshal(buf.Bytes(), &c); err != nil {
+			return ConfigParseError{err}
+		}
+
+	case "json":
+		if err := json.Unmarshal(buf.Bytes(), &c); err != nil {
+			return ConfigParseError{err}
+		}
+
+	case "hcl":
+		obj, err := hcl.Parse(buf.String())
 		if err != nil {
 			return ConfigParseError{err}
+		}
+		if err = hcl.DecodeObject(&c, obj); err != nil {
+			return ConfigParseError{err}
+		}
+
+	case "toml":
+		tree, err := toml.LoadReader(buf)
+		if err != nil {
+			return ConfigParseError{err}
+		}
+		tmap := tree.ToMap()
+		for k, v := range tmap {
+			c[k] = v
 		}
 
 	case "dotenv", "env":
@@ -1684,13 +1665,26 @@ func (v *Viper) unmarshalReader(in io.Reader, c map[string]interface{}) error {
 func (v *Viper) marshalWriter(f afero.File, configType string) error {
 	c := v.AllSettings()
 	switch configType {
-	case "yaml", "yml", "json", "toml", "hcl", "tfvars":
-		b, err := encoderRegistry.Encode(configType, c)
+	case "json":
+		b, err := json.MarshalIndent(c, "", "  ")
+		if err != nil {
+			return ConfigMarshalError{err}
+		}
+		_, err = f.WriteString(string(b))
 		if err != nil {
 			return ConfigMarshalError{err}
 		}
 
-		_, err = f.WriteString(string(b))
+	case "hcl":
+		b, err := json.Marshal(c)
+		if err != nil {
+			return ConfigMarshalError{err}
+		}
+		ast, err := hcl.Parse(string(b))
+		if err != nil {
+			return ConfigMarshalError{err}
+		}
+		err = printer.Fprint(f, ast.Node)
 		if err != nil {
 			return ConfigMarshalError{err}
 		}
@@ -1720,6 +1714,25 @@ func (v *Viper) marshalWriter(f afero.File, configType string) error {
 		}
 		s := strings.Join(lines, "\n")
 		if _, err := f.WriteString(s); err != nil {
+			return ConfigMarshalError{err}
+		}
+
+	case "toml":
+		t, err := toml.TreeFromMap(c)
+		if err != nil {
+			return ConfigMarshalError{err}
+		}
+		s := t.String()
+		if _, err := f.WriteString(s); err != nil {
+			return ConfigMarshalError{err}
+		}
+
+	case "yaml", "yml":
+		b, err := yaml.Marshal(c)
+		if err != nil {
+			return ConfigMarshalError{err}
+		}
+		if _, err = f.WriteString(string(b)); err != nil {
 			return ConfigMarshalError{err}
 		}
 
