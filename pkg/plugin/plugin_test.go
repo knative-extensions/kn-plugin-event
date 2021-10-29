@@ -8,7 +8,6 @@ import (
 	knplugin "knative.dev/client/pkg/kn/plugin"
 	"knative.dev/kn-plugin-event/pkg/metadata"
 	"knative.dev/kn-plugin-event/pkg/plugin"
-	_ "knative.dev/kn-plugin-event/pkg/plugin"
 )
 
 func TestPluginRegistersAsInternal(t *testing.T) {
@@ -22,7 +21,7 @@ func TestPluginExecutes(t *testing.T) {
 		err := pl.Execute([]string{"version", "-o", "json"})
 		assert.NilError(t, err)
 	})
-	ver := extactVersionFromJsonOutput(t, bytes)
+	ver := extactVersionFromJSONOutput(t, bytes)
 	assert.Equal(t, ver, metadata.Version)
 }
 
@@ -36,7 +35,8 @@ func TestPluginDescription(t *testing.T) {
 	assert.Equal(t, pl.Path(), "")
 }
 
-func extactVersionFromJsonOutput(tb testing.TB, bytes []byte) string {
+func extactVersionFromJSONOutput(tb testing.TB, bytes []byte) string {
+	tb.Helper()
 	assert.Check(tb, len(bytes) > 0)
 	un := map[string]string{}
 	err := json.Unmarshal(bytes, &un)
