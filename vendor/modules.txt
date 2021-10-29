@@ -20,7 +20,7 @@ github.com/Azure/go-autorest/tracing
 # github.com/BurntSushi/toml v0.4.1
 github.com/BurntSushi/toml
 github.com/BurntSushi/toml/internal
-# github.com/Microsoft/go-winio v0.5.0
+# github.com/Microsoft/go-winio v0.5.1
 github.com/Microsoft/go-winio
 github.com/Microsoft/go-winio/pkg/guid
 # github.com/PuerkitoBio/purell v1.1.1
@@ -31,6 +31,8 @@ github.com/PuerkitoBio/urlesc
 github.com/alessio/shellescape
 # github.com/beorn7/perks v1.0.1
 github.com/beorn7/perks/quantile
+# github.com/blang/semver/v4 v4.0.0
+github.com/blang/semver/v4
 # github.com/blendle/zapdriver v1.3.1
 github.com/blendle/zapdriver
 # github.com/census-instrumentation/opencensus-proto v0.3.0
@@ -67,7 +69,7 @@ github.com/containerd/stargz-snapshotter/estargz
 github.com/containerd/stargz-snapshotter/estargz/errorutil
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
-# github.com/docker/cli v20.10.9+incompatible
+# github.com/docker/cli v20.10.10+incompatible
 github.com/docker/cli/cli/config
 github.com/docker/cli/cli/config/configfile
 github.com/docker/cli/cli/config/credentials
@@ -77,7 +79,7 @@ github.com/docker/distribution/digestset
 github.com/docker/distribution/reference
 github.com/docker/distribution/registry/api/errcode
 github.com/docker/distribution/registry/client/auth/challenge
-# github.com/docker/docker v20.10.9+incompatible
+# github.com/docker/docker v20.10.10+incompatible
 github.com/docker/docker/api
 github.com/docker/docker/api/types
 github.com/docker/docker/api/types/blkiodev
@@ -110,7 +112,7 @@ github.com/docker/go-units
 github.com/dprotaso/go-yit
 # github.com/evanphx/json-patch v4.9.0+incompatible
 github.com/evanphx/json-patch
-# github.com/evanphx/json-patch/v5 v5.5.0
+# github.com/evanphx/json-patch/v5 v5.6.0
 github.com/evanphx/json-patch/v5
 # github.com/fatih/color v1.13.0
 github.com/fatih/color
@@ -128,7 +130,7 @@ github.com/go-kit/log
 github.com/go-kit/log/level
 # github.com/go-logfmt/logfmt v0.5.0
 github.com/go-logfmt/logfmt
-# github.com/go-logr/logr v1.1.0
+# github.com/go-logr/logr v1.2.0
 github.com/go-logr/logr
 # github.com/go-openapi/jsonpointer v0.19.5
 github.com/go-openapi/jsonpointer
@@ -366,21 +368,27 @@ github.com/vbatts/tar-split/archive/tar
 # github.com/wavesoftware/go-ensure v1.0.0
 ## explicit
 github.com/wavesoftware/go-ensure
-# github.com/wavesoftware/go-magetasks v0.5.2
+# github.com/wavesoftware/go-magetasks v0.6.0
 ## explicit
 github.com/wavesoftware/go-magetasks
 github.com/wavesoftware/go-magetasks/config
 github.com/wavesoftware/go-magetasks/pkg/artifact
 github.com/wavesoftware/go-magetasks/pkg/artifact/platform
+github.com/wavesoftware/go-magetasks/pkg/cache
 github.com/wavesoftware/go-magetasks/pkg/checks
 github.com/wavesoftware/go-magetasks/pkg/deps
 github.com/wavesoftware/go-magetasks/pkg/dotenv
+github.com/wavesoftware/go-magetasks/pkg/environment
 github.com/wavesoftware/go-magetasks/pkg/files
 github.com/wavesoftware/go-magetasks/pkg/git
+github.com/wavesoftware/go-magetasks/pkg/image
+github.com/wavesoftware/go-magetasks/pkg/knative
 github.com/wavesoftware/go-magetasks/pkg/ldflags
 github.com/wavesoftware/go-magetasks/pkg/output
 github.com/wavesoftware/go-magetasks/pkg/output/color
+github.com/wavesoftware/go-magetasks/pkg/strings
 github.com/wavesoftware/go-magetasks/pkg/tasks
+github.com/wavesoftware/go-magetasks/pkg/version
 # github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 github.com/xlab/treeprint
 # go.opencensus.io v0.23.0
@@ -432,7 +440,7 @@ golang.org/x/mod/internal/lazyregexp
 golang.org/x/mod/modfile
 golang.org/x/mod/module
 golang.org/x/mod/semver
-# golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f
+# golang.org/x/net v0.0.0-20211020060615-d418f374d309
 golang.org/x/net/context
 golang.org/x/net/context/ctxhttp
 golang.org/x/net/http/httpguts
@@ -455,7 +463,7 @@ golang.org/x/oauth2/jwt
 # golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 golang.org/x/sync/errgroup
 golang.org/x/sync/semaphore
-# golang.org/x/sys v0.0.0-20211013075003-97ac67df715c
+# golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359
 golang.org/x/sys/execabs
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/plan9
@@ -508,7 +516,7 @@ google.golang.org/appengine/internal/modules
 google.golang.org/appengine/internal/remote_api
 google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/urlfetch
-# google.golang.org/genproto v0.0.0-20211016002631-37fc39342514
+# google.golang.org/genproto v0.0.0-20211027162914-98a5263abeca
 google.golang.org/genproto/googleapis/api/httpbody
 google.golang.org/genproto/googleapis/rpc/status
 google.golang.org/genproto/protobuf/field_mask
@@ -655,7 +663,7 @@ k8s.io/api/scheduling/v1beta1
 k8s.io/api/storage/v1
 k8s.io/api/storage/v1alpha1
 k8s.io/api/storage/v1beta1
-# k8s.io/apimachinery v0.22.2 => k8s.io/apimachinery v0.21.4
+# k8s.io/apimachinery v0.22.3 => k8s.io/apimachinery v0.21.4
 ## explicit
 k8s.io/apimachinery/pkg/api/equality
 k8s.io/apimachinery/pkg/api/errors
@@ -889,7 +897,7 @@ k8s.io/client-go/util/retry
 k8s.io/client-go/util/workqueue
 # k8s.io/klog v1.0.0
 k8s.io/klog
-# k8s.io/klog/v2 v2.20.0
+# k8s.io/klog/v2 v2.30.0
 k8s.io/klog/v2
 # k8s.io/kube-openapi v0.0.0-20210305001622-591a79e4bda7
 k8s.io/kube-openapi/pkg/util/proto

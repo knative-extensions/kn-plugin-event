@@ -34,7 +34,7 @@ func appendBuildVariables(args []string) []string {
 	if c.Version != nil || len(c.BuildVariables) > 0 {
 		builder := ldflags.NewBuilder()
 		if c.Version != nil {
-			builder.Add(c.Version.Path, c.Version.Resolver)
+			builder.Add(c.Version.Path, c.Version.Resolver.Version)
 		}
 		for key, resolver := range c.BuildVariables {
 			builder.Add(key, resolver)
