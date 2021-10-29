@@ -10,7 +10,9 @@ import (
 	"github.com/google/ko/pkg/commands/options"
 	"github.com/google/ko/pkg/publish"
 	"github.com/wavesoftware/go-magetasks/config"
+	pkgimage "github.com/wavesoftware/go-magetasks/pkg/image"
 	"github.com/wavesoftware/go-magetasks/pkg/output/color"
+	"github.com/wavesoftware/go-magetasks/pkg/version"
 )
 
 const (
@@ -61,6 +63,7 @@ func (kp KoPublisher) Publish(artifact config.Artifact, notifier config.Notifier
 		return resultErrKoFailed(err)
 	}
 	notifier.Notify(fmt.Sprintf("pushed image: %s", color.Blue(ref)))
+	notifier.Notify(fmt.Sprintf("image tags: %s", color.Blue(fmt.Sprintf("%+q", po.Tags))))
 	return config.Result{Info: map[string]interface{}{
 		koPublishResult: ref,
 	}}
@@ -78,8 +81,10 @@ func (kp KoPublisher) publishOptions() (*options.PublishOptions, error) {
 		BaseImportPaths: true,
 		Push:            true,
 	}
-	if version := config.Actual().Version; version != nil {
-		opts.Tags = []string{version.Resolver()}
+	if ver := config.Actual().Version; ver != nil {
+		if err := resolveTags(opts, ver.Resolver); err != nil {
+			return nil, err
+		}
 	}
 	if v, ok := os.LookupEnv(koDockerRepo); ok {
 		opts.DockerRepo = v
@@ -90,6 +95,15 @@ func (kp KoPublisher) publishOptions() (*options.PublishOptions, error) {
 		}
 	}
 	return opts, nil
+}
+
+func resolveTags(opts *options.PublishOptions, resolver version.Resolver) error {
+	tags, err := pkgimage.Tags(resolver)
+	if err != nil {
+		return err
+	}
+	opts.Tags = tags
+	return nil
 }
 
 func closePublisher(publisher publish.Interface) {

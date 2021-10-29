@@ -29,6 +29,11 @@ var ErrKoFailed = errors.New("ko failed")
 // KoBuilder builds images with Google's KO.
 type KoBuilder struct{}
 
+type imageReference struct {
+	ociName name.Reference
+	tags    []string
+}
+
 func (kb KoBuilder) Accepts(artifact config.Artifact) bool {
 	_, ok := artifact.(Image)
 	return ok
@@ -61,9 +66,10 @@ func (kb KoBuilder) Build(artifact config.Artifact, notifier config.Notifier) co
 	if err != nil {
 		return resultErrKoFailed(err)
 	}
-	notifier.Notify(fmt.Sprintf("ko built image: %s", color.Blue(ref)))
+	notifier.Notify(fmt.Sprintf("ko built image: %s", color.Blue(ref.ociName)))
+	notifier.Notify(fmt.Sprintf("image tags: %s", color.Blue(fmt.Sprintf("%+q", ref.tags))))
 	return config.Result{Info: map[string]interface{}{
-		imageReferenceKey: ref.String(),
+		imageReferenceKey: ref.ociName.String(),
 		koBuildResult:     result,
 	}}
 }
@@ -77,7 +83,7 @@ func fillInLdflags(bo *options.BuildOptions, importPath string, image Image) {
 			builder.Add(key, resolver)
 		}
 		if c.Version != nil {
-			builder.Add(c.Version.Path, c.Version.Resolver)
+			builder.Add(c.Version.Path, c.Version.Resolver.Version)
 		}
 		for key, resolver := range image.BuildVariables {
 			builder.Add(key, resolver)
@@ -97,7 +103,7 @@ func fillInLdflags(bo *options.BuildOptions, importPath string, image Image) {
 func buildLabels(image Image, importPath string) []string {
 	labels := make([]string, 0, len(image.Labels))
 	if version := config.Actual().Version; version != nil {
-		labels = append(labels, fmt.Sprintf("version=%s", version.Resolver()))
+		labels = append(labels, fmt.Sprintf("version=%s", version.Resolver.Version()))
 	}
 	labels = append(labels, fmt.Sprintf("%s=%s", koImportPath, importPath))
 	for key, resolver := range image.Labels {
@@ -114,7 +120,7 @@ func buildPlatformString(im Image) string {
 	return strings.Join(platforms, ",")
 }
 
-func calculateImageReference(result build.Result, artifact config.Artifact) (name.Reference, error) {
+func calculateImageReference(result build.Result, artifact config.Artifact) (*imageReference, error) {
 	kp := KoPublisher{}
 	po, err := kp.publishOptions()
 	if err != nil {
@@ -134,7 +140,9 @@ func calculateImageReference(result build.Result, artifact config.Artifact) (nam
 	if err != nil {
 		return nil, err
 	}
-	return ref, nil
+	return &imageReference{
+		ociName: ref, tags: po.Tags,
+	}, nil
 }
 
 func resultErrKoFailed(err error) config.Result {

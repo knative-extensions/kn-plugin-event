@@ -88,7 +88,7 @@ func (b Binary) buildForPlatform(
 			builder.Add(key, resolver)
 		}
 		if c.Version != nil {
-			builder.Add(c.Version.Path, c.Version.Resolver)
+			builder.Add(c.Version.Path, c.Version.Resolver.Version)
 		}
 		for key, resolver := range b.BuildVariables {
 			builder.Add(key, resolver)
