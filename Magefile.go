@@ -13,7 +13,7 @@ import (
 	"github.com/wavesoftware/go-magetasks/pkg/artifact"
 	"github.com/wavesoftware/go-magetasks/pkg/artifact/platform"
 	"github.com/wavesoftware/go-magetasks/pkg/checks"
-	"github.com/wavesoftware/go-magetasks/pkg/git"
+	"github.com/wavesoftware/go-magetasks/pkg/knative"
 	"knative.dev/kn-plugin-event/overrides"
 	"knative.dev/kn-plugin-event/pkg/metadata"
 )
@@ -45,7 +45,10 @@ func init() { //nolint:gochecknoinits
 		},
 	}
 	magetasks.Configure(config.Config{
-		Version:   &config.Version{Path: metadata.VersionPath(), Resolver: git.Version},
+		Version: &config.Version{
+			Path:     metadata.VersionPath(),
+			Resolver: knative.NewVersionResolver(),
+		},
 		Artifacts: []config.Artifact{sender, cli},
 		Checks:    []config.Task{checks.GolangCiLint()},
 		BuildVariables: map[string]config.Resolver{
