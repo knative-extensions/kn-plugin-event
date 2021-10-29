@@ -3,10 +3,11 @@ package cli_test
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"testing"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
 	"knative.dev/kn-plugin-event/pkg/cli"
 	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/kn-plugin-event/pkg/tests"
@@ -50,12 +51,12 @@ func assertWithOutputMode(t *testing.T, want cloudevents.Event, mode cli.OutputM
 			OutWriter: &buf,
 		},
 	)
-	assert.NoError(t, err)
+	assert.NilError(t, err)
 	out := buf.String()
 	assert.Equal(t, 1, len(sender.Sent))
 	assert.Equal(t, want.ID(), sender.Sent[0].ID())
 
-	assert.Contains(t, out,
+	assert.Check(t, strings.Contains(out,
 		fmt.Sprintf("Event (ID: %s) have been sent.", want.ID()),
-	)
+	))
 }

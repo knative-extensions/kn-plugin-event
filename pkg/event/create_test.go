@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
 	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/kn-plugin-event/pkg/tests"
 )
@@ -27,7 +27,7 @@ func TestCreateFromSpec(t *testing.T) {
 		},
 	}
 	actual, err := event.CreateFromSpec(spec)
-	assert.NoError(t, err)
+	assert.NilError(t, err)
 	assert.Equal(t, eventType, actual.Type())
 	assert.Equal(t, id, actual.ID())
 	assert.Equal(t, eventSource, actual.Source())
@@ -41,10 +41,9 @@ func TestCreateFromSpec(t *testing.T) {
 		"active": true,
 	}
 	actualData, err := tests.UnmarshalCloudEventData(actual.Data())
-	assert.NoError(t, err)
-	assert.EqualValues(t, expectedData, actualData)
-	delta := tests.UnixNanoDelta
-	assert.InDelta(t, time.Now().UnixNano(), actual.Time().UnixNano(), delta)
+	assert.NilError(t, err)
+	assert.DeepEqual(t, expectedData, actualData)
+	assert.Check(t, tests.TimesAlmostEqual(time.Now(), actual.Time()))
 }
 
 func TestCreateFromSpecWithInvalidFieldSpec(t *testing.T) {
@@ -55,7 +54,7 @@ func TestCreateFromSpecWithInvalidFieldSpec(t *testing.T) {
 		},
 	}
 	_, err := event.CreateFromSpec(spec)
-	assert.True(t, errors.Is(err, event.ErrCantSetField))
-	assert.Contains(t, err.Error(),
+	assert.Check(t, errors.Is(err, event.ErrCantSetField))
+	assert.ErrorContains(t, err,
 		"\"person.name.first\" path in conflict with value \"Chris Suszynski\"")
 }
