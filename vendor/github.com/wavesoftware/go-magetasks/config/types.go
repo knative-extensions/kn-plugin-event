@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/fatih/color"
+	"github.com/wavesoftware/go-magetasks/pkg/version"
 )
 
 // Config holds configuration information.
@@ -109,7 +110,7 @@ type ResultKey string
 // compile time.
 type Version struct {
 	Path string
-	Resolver
+	version.Resolver
 }
 
 // Metadata holds additional contextual information.
