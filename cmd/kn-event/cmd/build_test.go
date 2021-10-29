@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
 	"knative.dev/kn-plugin-event/cmd/kn-event/cmd"
 	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/kn-plugin-event/pkg/tests"
@@ -33,7 +33,7 @@ func TestBuildSubCommandWithComplexOptions(t *testing.T) {
 			e.SetType("org.example.ping")
 			e.SetID("71830")
 			e.SetSource("/api/v1/ping")
-			assert.NoError(t, e.SetData(cloudevents.ApplicationJSON, map[string]interface{}{
+			assert.NilError(t, e.SetData(cloudevents.ApplicationJSON, map[string]interface{}{
 				"person": map[string]interface{}{
 					"name":  "Chris",
 					"email": "ksuszyns@example.com",
@@ -64,7 +64,7 @@ func performTestsOnBuildSubCommand(t *testing.T, args cmdArgs, preparers ...even
 	c := cmd.TestingCmd{}
 	c.Out(buf)
 	c.Args(args.args...)
-	assert.NoError(t, c.Execute())
+	assert.NilError(t, c.Execute())
 	output := buf.Bytes()
 	ec := newEventChecks(t)
 	for _, preparer := range preparers {
@@ -77,20 +77,19 @@ func (ec eventChecks) performEventChecks(out []byte) {
 	actual := cloudevents.NewEvent()
 	expected := ec.event
 	t := ec.t
-	assert.NoError(ec.t, json.Unmarshal(out, &actual))
+	assert.NilError(ec.t, json.Unmarshal(out, &actual))
 
-	assert.NoError(t, actual.Validate())
+	assert.NilError(t, actual.Validate())
 	assert.Equal(t, expected.Type(), actual.Type())
 	assert.Equal(t, expected.DataContentType(), actual.DataContentType())
-	assert.Equal(t, ec.unmarshalData(expected.Data()), ec.unmarshalData(actual.Data()))
+	assert.DeepEqual(t, ec.unmarshalData(expected.Data()), ec.unmarshalData(actual.Data()))
 	assert.Equal(t, expected.Source(), actual.Source())
-	delta := tests.UnixNanoDelta
-	assert.InDelta(t, expected.Time().UnixNano(), actual.Time().UnixNano(), delta)
+	assert.Check(t, tests.TimesAlmostEqual(expected.Time(), actual.Time()))
 }
 
 func (ec eventChecks) unmarshalData(bytes []byte) map[string]interface{} {
 	m, err := tests.UnmarshalCloudEventData(bytes)
-	assert.NoError(ec.t, err)
+	assert.NilError(ec.t, err)
 	return m
 }
 

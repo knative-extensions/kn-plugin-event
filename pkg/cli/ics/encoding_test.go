@@ -5,7 +5,7 @@ import (
 	"time"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
 	"knative.dev/kn-plugin-event/pkg/cli/ics"
 )
 
@@ -18,14 +18,14 @@ func TestEncodeDecode(t *testing.T) {
 	err := ce.SetData("application/json", map[string]interface{}{
 		"value": 42,
 	})
-	assert.NoError(t, err)
+	assert.NilError(t, err)
 	want := &ce
 
 	repr, err := ics.Encode(ce)
-	assert.NoError(t, err)
-	assert.NotEmpty(t, repr)
+	assert.NilError(t, err)
+	assert.Check(t, repr != "")
 	got, err := ics.Decode(repr)
-	assert.NoError(t, err)
+	assert.NilError(t, err)
 
-	assert.EqualValues(t, want, got)
+	assert.DeepEqual(t, want, got)
 }
