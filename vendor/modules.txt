@@ -907,6 +907,7 @@ knative.dev/client/pkg/errors
 knative.dev/client/pkg/eventing/v1
 knative.dev/client/pkg/kn/config
 knative.dev/client/pkg/kn/flags
+knative.dev/client/pkg/kn/plugin
 knative.dev/client/pkg/messaging/v1
 knative.dev/client/pkg/serving
 knative.dev/client/pkg/serving/v1
