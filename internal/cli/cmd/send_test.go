@@ -3,9 +3,10 @@ package cmd_test
 import (
 	"bytes"
 	"net/url"
+	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
 	"knative.dev/kn-plugin-event/internal/cli/cmd"
 	"knative.dev/kn-plugin-event/pkg/tests"
 )
@@ -27,16 +28,14 @@ func TestSendToAddress(t *testing.T) {
 		tc.Out(buf)
 		return tc.Execute()
 	})
-	if !assert.NoError(t, err) {
-		return
-	}
+	assert.NilError(t, err)
 	out := buf.String()
-	assert.Contains(t, out, "Event (ID: 654321) have been sent.")
-	assert.NotNil(t, ce)
+	assert.Check(t, strings.Contains(out, "Event (ID: 654321) have been sent."))
+	assert.Check(t, ce != nil)
 	assert.Equal(t, "654321", ce.ID())
 	payload, err := tests.UnmarshalCloudEventData(ce.Data())
-	assert.NoError(t, err)
-	assert.EqualValues(t, map[string]interface{}{
+	assert.NilError(t, err)
+	assert.DeepEqual(t, map[string]interface{}{
 		"person": map[string]interface{}{
 			"name":  "Chris",
 			"email": "ksuszyns@example.com",

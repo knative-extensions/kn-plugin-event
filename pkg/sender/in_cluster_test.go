@@ -9,7 +9,7 @@ import (
 	"time"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"knative.dev/kn-plugin-event/pkg/event"
@@ -48,7 +48,7 @@ func TestInClusterSenderSend(t *testing.T) {
 				Type:           event.TargetTypeAddressable,
 				AddressableVal: tt.fields.addressable,
 			})
-			assert.NoError(t, err)
+			assert.NilError(t, err)
 			if err := s.Send(tt.args.ce); !errors.Is(err, tt.err) {
 				t.Errorf("Send() error = %v, wantErr = %v", err, tt.err)
 			}
@@ -155,7 +155,7 @@ func stubAddressResolver() *ar {
 func uri(t *testing.T, uri string) *apis.URL {
 	t.Helper()
 	u, err := apis.ParseURL(uri)
-	assert.NoError(t, err)
+	assert.NilError(t, err)
 	return u
 }
 
@@ -166,7 +166,7 @@ func exampleEvent(t *testing.T) cloudevents.Event {
 	e.SetType("testing")
 	e.SetSource("source")
 	e.SetTime(time.Unix(1_615_678_145, 0))
-	assert.NoError(t, e.SetData(cloudevents.ApplicationJSON, map[string]interface{}{
+	assert.NilError(t, e.SetData(cloudevents.ApplicationJSON, map[string]interface{}{
 		"person": map[string]interface{}{
 			"name":  "Chris",
 			"email": "ksuszyns@example.com",

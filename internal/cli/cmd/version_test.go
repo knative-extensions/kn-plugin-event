@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
+	"gotest.tools/v3/assert"
 	"knative.dev/kn-plugin-event/internal/cli/cmd"
 	"knative.dev/kn-plugin-event/pkg/cli"
 	"knative.dev/kn-plugin-event/pkg/metadata"
@@ -16,7 +16,7 @@ import (
 func TestVersionSubCommandWithHuman(t *testing.T) {
 	versionSubCommandChecks(t, "human", func(in []byte, out interface{}) (err error) {
 		pv, ok := out.(*cli.PluginVersionOutput)
-		assert.True(t, ok)
+		assert.Check(t, ok)
 		str := string(in)
 		r := regexp.MustCompile("([^ ]+) version: (.+)")
 		matches := r.FindStringSubmatch(str)
@@ -42,10 +42,10 @@ func versionSubCommandChecks(t *testing.T, format string, unmarshal unmarshalFun
 	tc.Args("version", "-o", format)
 	buf := bytes.NewBuffer([]byte{})
 	tc.Out(buf)
-	assert.NoError(t, tc.Execute())
+	assert.NilError(t, tc.Execute())
 
 	pv := cli.PluginVersionOutput{}
-	assert.NoError(t, unmarshal(buf.Bytes(), &pv))
+	assert.NilError(t, unmarshal(buf.Bytes(), &pv))
 	assert.Equal(t, metadata.PluginName, pv.Name)
 	assert.Equal(t, metadata.Version, pv.Version)
 }
@@ -56,5 +56,6 @@ func TestPresentAsWithInvalidOutput(t *testing.T) {
 	tc.Out(buf)
 	tc.Args("version", "-o", "invalid")
 	err := tc.Execute()
-	assert.IsType(t, cmd.ErrUnsupportedOutputMode, err)
+	assert.Error(t, err, "invalid argument \"invalid\" for "+
+		"\"-o, --output\" flag: must be 'human', 'json', 'yaml'")
 }
