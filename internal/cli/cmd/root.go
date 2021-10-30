@@ -71,8 +71,7 @@ func (c *Cmd) init() {
 		Use:     metadata.PluginUse,
 		Aliases: []string{fmt.Sprintf("kn %s", metadata.PluginUse)},
 		Short:   metadata.PluginDescription,
-		Long: `Manage CloudEvents from command line. Perform, easily, tasks like sending,
-building, and parsing, all from command line.`,
+		Long:    metadata.PluginLongDescription,
 	}
 	c.root.SetOut(os.Stdout)
 	c.root.SetErr(os.Stderr)
