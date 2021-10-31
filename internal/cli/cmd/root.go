@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+	"io"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -10,6 +12,7 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"knative.dev/kn-plugin-event/pkg/cli"
 	"knative.dev/kn-plugin-event/pkg/cli/retcode"
+	"knative.dev/kn-plugin-event/pkg/metadata"
 )
 
 // Cmd represents a command line application entrypoint.
@@ -26,8 +29,34 @@ func (c *Cmd) Execute() {
 	}
 }
 
-func (c *Cmd) execute() error {
+// ExecuteWithOptions will execute the application with the provided options.
+func (c *Cmd) ExecuteWithOptions(options ...CommandOption) error {
+	return c.execute(options...)
+}
+
+// WithArgs creates an option which sets args.
+func WithArgs(args ...string) CommandOption {
+	return func(command *cobra.Command) {
+		command.SetArgs(args)
+	}
+}
+
+// WithOutput creates an option witch sets os.Stdout and os.Stderr.
+func WithOutput(out io.Writer) CommandOption {
+	return func(command *cobra.Command) {
+		command.SetOut(out)
+		command.SetErr(out)
+	}
+}
+
+// CommandOption is used to configure a command in Cmd.ExecuteWithOptions.
+type CommandOption func(*cobra.Command)
+
+func (c *Cmd) execute(configs ...CommandOption) error {
 	c.init()
+	for _, config := range configs {
+		config(c.root)
+	}
 	// cobra.Command should pass our own errors, no need to wrap them.
 	return c.root.Execute() //nolint:wrapcheck
 }
@@ -39,11 +68,10 @@ func (c *Cmd) init() {
 	c.exit = os.Exit
 	c.options = &cli.Options{}
 	c.root = &cobra.Command{
-		Use:     "event",
-		Aliases: []string{"kn event"},
-		Short:   "A plugin for operating on CloudEvents",
-		Long: `Manage CloudEvents from command line. Perform, easily, tasks like sending,
-building, and parsing, all from command line.`,
+		Use:     metadata.PluginUse,
+		Aliases: []string{fmt.Sprintf("kn %s", metadata.PluginUse)},
+		Short:   metadata.PluginDescription,
+		Long:    metadata.PluginLongDescription,
 	}
 	c.root.SetOut(os.Stdout)
 	c.root.SetErr(os.Stderr)

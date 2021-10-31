@@ -8,7 +8,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 	"gotest.tools/v3/assert"
-	"knative.dev/kn-plugin-event/cmd/kn-event/cmd"
+	"knative.dev/kn-plugin-event/internal/cli/cmd"
 	"knative.dev/kn-plugin-event/pkg/cli"
 	"knative.dev/kn-plugin-event/pkg/metadata"
 )
