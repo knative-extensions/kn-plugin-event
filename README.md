@@ -1,5 +1,7 @@
 # kn-plugin-event
 
+**[This component is ALPHA](https://github.com/knative/community/tree/main/mechanics/MATURITY-LEVELS.md)**
+
 `kn-plugin-event` is a plugin of Knative Client, for managing cloud events from
 command line.
 
