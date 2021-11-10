@@ -1,10 +1,10 @@
 # kn-plugin-event
 
-![Mage](https://github.com/knative-sandbox/kn-plugin-event/actions/workflows/go.yml/badge.svg)
-![GolangCI-Lint](https://github.com/knative-sandbox/kn-plugin-event/actions/workflows/golangci-lint.yml/badge.svg)
+[![Mage](https://github.com/knative-sandbox/kn-plugin-event/actions/workflows/go.yml/badge.svg?branch=main)](https://github.com/knative-sandbox/kn-plugin-event/actions/workflows/go.yml)
 [![Go Report Card](https://goreportcard.com/badge/knative-sandbox/kn-plugin-event)](https://goreportcard.com/report/knative-sandbox/kn-plugin-event)
 [![Releases](https://img.shields.io/github/release-pre/knative-sandbox/kn-plugin-event.svg?sort=semver)](https://github.com/knative-sandbox/kn-plugin-event/releases)
 [![LICENSE](https://img.shields.io/github/license/knative-sandbox/kn-plugin-event.svg)](https://github.com/knative-sandbox/kn-plugin-event/blob/main/LICENSE)
+[![Maturity level](https://img.shields.io/badge/Maturity%20level-ALPHA-red)](https://github.com/knative/community/tree/main/mechanics/MATURITY-LEVELS.md)
 
 `kn-plugin-event` is a plugin of Knative Client, for managing cloud events from
 command line.
