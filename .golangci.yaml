@@ -25,6 +25,8 @@ linters:
     - maligned
     - interfacer
     - golint
+    - ireturn
+    - varnamelen
 
 issues:
   exclude-rules:
