@@ -3,6 +3,8 @@ module knative.dev/kn-plugin-event
 go 1.16
 
 require (
+	github.com/Azure/go-autorest/autorest v0.11.17 // indirect
+	github.com/Azure/go-autorest/autorest/adal v0.9.10 // indirect
 	github.com/cloudevents/sdk-go/v2 v2.4.1
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/uuid v1.3.0
@@ -19,12 +21,12 @@ require (
 	k8s.io/api v0.21.4
 	k8s.io/apimachinery v0.22.3
 	k8s.io/client-go v0.21.4
-	knative.dev/client v0.27.1-0.20211130150609-972eec204349
-	knative.dev/eventing v0.27.1-0.20211130054408-e73a69b875eb
-	knative.dev/hack v0.0.0-20211122162614-813559cefdda
-	knative.dev/networking v0.0.0-20211130182409-2731debe4463
-	knative.dev/pkg v0.0.0-20211129195804-438776b3c87c
-	knative.dev/serving v0.27.1-0.20211130192509-281338fe55ab
+	knative.dev/client v0.27.1-0.20211202165345-85489ab8390a
+	knative.dev/eventing v0.27.1-0.20211207100957-43aa7963d8c6
+	knative.dev/hack v0.0.0-20211203062838-e11ac125e707
+	knative.dev/networking v0.0.0-20211207005157-1c6e5ff34dfb
+	knative.dev/pkg v0.0.0-20211206113427-18589ac7627e
+	knative.dev/serving v0.27.1-0.20211207020356-8f36565cbae6
 	sigs.k8s.io/yaml v1.3.0
 )
 
