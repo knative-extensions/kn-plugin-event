@@ -25,6 +25,8 @@ linters:
     - maligned
     - interfacer
     - golint
+    - ireturn
+    - varnamelen
 
 issues:
   exclude-rules:
@@ -32,4 +34,10 @@ issues:
       linters:
         - wrapcheck
 
+linters-settings:
+  gomoddirectives:
+    # List of allowed `replace` directives. Default is empty.
+    replace-allow-list:
+      # FIXME: google/ko requires 0.22, remove when knative will work with 0.22+
+      - k8s.io/apimachinery
 

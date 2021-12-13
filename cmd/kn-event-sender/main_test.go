@@ -6,7 +6,7 @@ import (
 	"time"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
 	kes "knative.dev/kn-plugin-event/cmd/kn-event-sender"
 	"knative.dev/kn-plugin-event/pkg/cli/ics"
 	"knative.dev/kn-plugin-event/pkg/tests"
@@ -19,7 +19,7 @@ func TestMainSender(t *testing.T) {
 	want.SetType("example")
 	want.SetSource("tests://example")
 	kevent, err := ics.Encode(want)
-	assert.NoError(t, err)
+	assert.NilError(t, err)
 
 	got, err := tests.WithCloudEventsServer(func(serverURL url.URL) error {
 		env := map[string]string{
@@ -31,7 +31,7 @@ func TestMainSender(t *testing.T) {
 			return nil
 		})
 	})
-	assert.NoError(t, err)
+	assert.NilError(t, err)
 
-	assert.EqualValues(t, want, *got)
+	assert.DeepEqual(t, want, *got)
 }

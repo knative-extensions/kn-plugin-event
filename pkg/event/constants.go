@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"knative.dev/kn-plugin-event/pkg"
+	"knative.dev/kn-plugin-event/pkg/metadata"
 )
 
 const (
@@ -18,7 +18,7 @@ var ErrUnexpected = errors.New("unexpected")
 
 // DefaultSource holds a default source of an event.
 func DefaultSource() string {
-	return fmt.Sprintf("%s/%s", pkg.PluginName, pkg.Version)
+	return fmt.Sprintf("%s/%s", metadata.PluginName, metadata.Version)
 }
 
 // NewID creates a new ID for an event.

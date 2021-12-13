@@ -2,13 +2,14 @@ package event_test
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest"
+	"gotest.tools/v3/assert"
 	"knative.dev/kn-plugin-event/pkg/event"
 )
 
@@ -56,7 +57,8 @@ func passingCase() testCase {
 	return testCase{
 		bufTest: func(t *testing.T) {
 			t.Helper()
-			assert.Contains(t, buf.String(), "Event (ID: 123456) have been sent.")
+			text := buf.String()
+			assert.Check(t, strings.Contains(text, "Event (ID: 123456) have been sent."))
 		},
 		name:         "passing",
 		ce:           ce,

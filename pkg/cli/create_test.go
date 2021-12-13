@@ -7,7 +7,7 @@ import (
 	"time"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
 	"knative.dev/kn-plugin-event/pkg/cli"
 	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/kn-plugin-event/pkg/tests"
@@ -150,7 +150,7 @@ func TestCreateWithArgs(t *testing.T) {
 	}
 	app := cli.App{}
 	actual, err := app.CreateWithArgs(args)
-	assert.NoError(t, err)
+	assert.NilError(t, err)
 	assert.Equal(t, eventType, actual.Type())
 	assert.Equal(t, id, actual.ID())
 	assert.Equal(t, eventSource, actual.Source())
@@ -164,10 +164,9 @@ func TestCreateWithArgs(t *testing.T) {
 		"active": true,
 	}
 	actualData, err := tests.UnmarshalCloudEventData(actual.Data())
-	assert.NoError(t, err)
-	assert.EqualValues(t, expectedData, actualData)
-	delta := 1_000_000.
-	assert.InDelta(t, time.Now().UnixNano(), actual.Time().UnixNano(), delta)
+	assert.NilError(t, err)
+	assert.DeepEqual(t, expectedData, actualData)
+	assert.Check(t, tests.TimesAlmostEqual(time.Now(), actual.Time()))
 }
 
 func exampleEvent(t *testing.T) *cloudevents.Event {
@@ -175,7 +174,7 @@ func exampleEvent(t *testing.T) *cloudevents.Event {
 	e := event.NewDefault()
 	e.SetTime(time.Unix(1598277672, 601161))
 	e.SetID("99e4f4f6-08ff-4bff-acf1-47f61ded68c9")
-	assert.NoError(t, e.SetData(cloudevents.ApplicationJSON, map[string]interface{}{
+	assert.NilError(t, e.SetData(cloudevents.ApplicationJSON, map[string]interface{}{
 		"person": map[string]interface{}{
 			"name":  "Chris",
 			"email": "ksuszyns@example.org",

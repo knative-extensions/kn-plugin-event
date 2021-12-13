@@ -32,6 +32,7 @@ type PodSpecFlags struct {
 	Env          []string
 	EnvFrom      []string
 	EnvValueFrom []string
+	EnvFile      string
 	Mount        []string
 	Volume       []string
 
@@ -71,14 +72,9 @@ func (s *uniqueStringArg) Type() string {
 
 func (s *uniqueStringArg) String() string { return string(*s) }
 
-//AddFlags will add PodSpec related flags to FlagSet
-func (p *PodSpecFlags) AddFlags(flagset *pflag.FlagSet) []string {
-
+//AddUpdateFlags will add PodSpec flags related to environment variable to FlagSet of update command
+func (p *PodSpecFlags) AddUpdateFlags(flagset *pflag.FlagSet) []string {
 	flagNames := []string{}
-
-	flagset.VarP(&p.Image, "image", "", "Image to run.")
-	flagNames = append(flagNames, "image")
-
 	flagset.StringArrayVarP(&p.Env, "env", "e", []string{},
 		"Environment variable to set. NAME=value; you may provide this flag "+
 			"any number of times to set multiple environment variables. "+
@@ -98,6 +94,43 @@ func (p *PodSpecFlags) AddFlags(flagset *pflag.FlagSet) []string {
 			"You can use this flag multiple times. "+
 			"To unset a ConfigMap/Secret reference, append \"-\" to the name, e.g. --env-from cm:myconfigmap-.")
 	flagNames = append(flagNames, "env-from")
+
+	return flagNames
+}
+
+//AddCreateFlags will add PodSpec flags related to environment variable to FlagSet of create command
+func (p *PodSpecFlags) AddCreateFlags(flagset *pflag.FlagSet) []string {
+	flagNames := []string{}
+	flagset.StringArrayVarP(&p.Env, "env", "e", []string{},
+		"Environment variable to set. NAME=value; you may provide this flag "+
+			"any number of times to set multiple environment variables.")
+	flagNames = append(flagNames, "env")
+
+	flagset.StringArrayVarP(&p.EnvValueFrom, "env-value-from", "", []string{},
+		"Add environment variable from a value of key in ConfigMap (prefix cm: or config-map:) or a Secret (prefix sc: or secret:). "+
+			"Example: --env-value-from NAME=cm:myconfigmap:key or --env-value-from NAME=secret:mysecret:key. "+
+			"You can use this flag multiple times.")
+	flagNames = append(flagNames, "env-value-from")
+
+	flagset.StringArrayVarP(&p.EnvFrom, "env-from", "", []string{},
+		"Add environment variables from a ConfigMap (prefix cm: or config-map:) or a Secret (prefix secret:). "+
+			"Example: --env-from cm:myconfigmap or --env-from secret:mysecret. "+
+			"You can use this flag multiple times.")
+	flagNames = append(flagNames, "env-from")
+
+	return flagNames
+}
+
+//AddFlags will add PodSpec related flags to FlagSet
+func (p *PodSpecFlags) AddFlags(flagset *pflag.FlagSet) []string {
+
+	flagNames := []string{}
+
+	flagset.VarP(&p.Image, "image", "", "Image to run.")
+	flagNames = append(flagNames, "image")
+
+	flagset.StringVarP(&p.EnvFile, "env-file", "", "", "Path to a file containing environment variables (e.g. --env-file=/home/knative/service1/env).")
+	flagNames = append(flagNames, "env-file")
 
 	flagset.StringArrayVarP(&p.Mount, "mount", "", []string{},
 		"Mount a ConfigMap (prefix cm: or config-map:), a Secret (prefix secret: or sc:), or an existing Volume (without any prefix) on the specified directory. "+
@@ -125,9 +158,15 @@ func (p *PodSpecFlags) AddFlags(flagset *pflag.FlagSet) []string {
 			"You can use this flag multiple times.")
 	flagNames = append(flagNames, "arg")
 
+	// DEPRECATED since 1.0
 	flagset.StringVarP(&p.ExtraContainers, "extra-containers", "", "",
+		"Deprecated, use --containers instead.")
+	flagset.MarkHidden("extra-containers")
+	flagNames = append(flagNames, "containers")
+
+	flagset.StringVarP(&p.ExtraContainers, "containers", "", "",
 		"Specify path to file including definition for additional containers, alternatively use '-' to read from stdin. "+
-			"Example: --extra-containers ./containers.yaml or --extra-containers -.")
+			"Example: --containers ./containers.yaml or --containers -.")
 	flagNames = append(flagNames, "containers")
 
 	flagset.StringSliceVar(&p.Resources.Limits,
@@ -169,7 +208,7 @@ func (p *PodSpecFlags) AddFlags(flagset *pflag.FlagSet) []string {
 func (p *PodSpecFlags) ResolvePodSpec(podSpec *corev1.PodSpec, flags *pflag.FlagSet, allArgs []string) error {
 	var err error
 
-	if flags.Changed("env") || flags.Changed("env-value-from") {
+	if flags.Changed("env") || flags.Changed("env-value-from") || flags.Changed("env-file") {
 		envToUpdate, envToRemove, err := util.OrderedMapAndRemovalListFromArray(p.Env, "=")
 		if err != nil {
 			return fmt.Errorf("Invalid --env: %w", err)
@@ -180,7 +219,24 @@ func (p *PodSpecFlags) ResolvePodSpec(podSpec *corev1.PodSpec, flags *pflag.Flag
 			return fmt.Errorf("Invalid --env-value-from: %w", err)
 		}
 
-		err = UpdateEnvVars(podSpec, allArgs, envToUpdate, envToRemove, envValueFromToUpdate, envValueFromToRemove)
+		envsFileToUpdate := util.NewOrderedMap()
+		envsFileToRemove := []string{}
+		if p.EnvFile != "" {
+			envsFromFile, err := util.GetEnvsFromFile(p.EnvFile, "=")
+			if err != nil {
+				return fmt.Errorf("Invalid --env-file: %w", err)
+			}
+			envsFileToUpdate, envsFileToRemove, err = util.OrderedMapAndRemovalListFromArray(envsFromFile, "=")
+			if err != nil {
+				return fmt.Errorf("Invalid --env: %w", err)
+			}
+		}
+
+		err = UpdateEnvVars(
+			podSpec, allArgs, envToUpdate, envToRemove,
+			envValueFromToUpdate, envValueFromToRemove,
+			p.EnvFile, envsFileToUpdate, envsFileToRemove,
+		)
 		if err != nil {
 			return err
 		}
@@ -275,7 +331,7 @@ func (p *PodSpecFlags) ResolvePodSpec(podSpec *corev1.PodSpec, flags *pflag.Flag
 		}
 	}
 
-	if flags.Changed("extra-containers") || p.ExtraContainers == "-" {
+	if flags.Changed("containers") || flags.Changed("extra-containers") || p.ExtraContainers == "-" {
 		var fromFile *corev1.PodSpec
 		fromFile, err = decodeContainersFromFile(p.ExtraContainers)
 		if err != nil {

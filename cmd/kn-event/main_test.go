@@ -3,10 +3,11 @@ package main // nolint:testpackage
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"knative.dev/kn-plugin-event/cmd/kn-event/cmd"
+	"gotest.tools/v3/assert"
+	"knative.dev/kn-plugin-event/internal/cli/cmd"
 )
 
 func TestMainFunc(t *testing.T) {
@@ -23,5 +24,5 @@ func TestMainFunc(t *testing.T) {
 	main()
 
 	out := buf.String()
-	assert.Contains(t, out, "Manage CloudEvents from command line")
+	assert.Check(t, strings.Contains(out, "Manage CloudEvents from command line"))
 }
