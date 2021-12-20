@@ -26,6 +26,6 @@ initialize "$@"
 
 set -u
 
-go_test_e2e -v ./...
+go_test_e2e ./test/...
 
 success

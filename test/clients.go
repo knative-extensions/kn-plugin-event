@@ -21,6 +21,8 @@ type ClientsContext struct {
 }
 
 func WithClients(tb testing.TB, handler func(c ClientsContext)) {
+	tb.Helper()
+	maybeSkip(tb, "clients")
 	clients, err := k8s.CreateKubeClient(&event.Properties{})
 	if err != nil && errors.Is(err, k8s.ErrNoKubernetesConnection) {
 		tb.Skip("AUTO-SKIP:", err)
@@ -35,6 +37,8 @@ func WithClients(tb testing.TB, handler func(c ClientsContext)) {
 }
 
 func WithKnTest(tb testing.TB, handler func(c *Context)) {
+	tb.Helper()
+	maybeSkip(tb, "kn")
 	it, err := clienttest.NewKnTest()
 	assert.NilError(tb, err)
 	tb.Cleanup(func() {
@@ -43,4 +47,10 @@ func WithKnTest(tb testing.TB, handler func(c *Context)) {
 	handler(&Context{
 		TB: tb, KnTest: it,
 	})
+}
+
+func maybeSkip(tb testing.TB, thing string) {
+	if testing.Short() {
+		tb.Skipf("Short flag is set. Skipping %s-test.", thing)
+	}
 }

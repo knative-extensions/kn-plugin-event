@@ -1,3 +1,6 @@
+//go:build e2e
+// +build e2e
+
 package e2e_test
 
 import (
@@ -7,7 +10,6 @@ import (
 
 	// ref.: https://github.com/kubernetes/client-go/issues/242
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
-
 	"knative.dev/pkg/injection"
 	"knative.dev/reconciler-test/pkg/environment"
 )
@@ -15,6 +17,7 @@ import (
 // global is the singleton instance of GlobalEnvironment. It is used to parse
 // the testing config for the test run. The config will specify the cluster
 // config as well as the parsing level and state flags.
+// nolint:gochecknoglobals
 var global environment.GlobalEnvironment
 
 func init() {
@@ -32,7 +35,7 @@ func TestMain(m *testing.M) {
 	// testing framework for namespace management, and could be leveraged by
 	// features to pull Kubernetes clients or the test environment out of the
 	// context passed in the features.
-	ctx, startInformers := injection.EnableInjectionOrDie(nil, nil) //nolint
+	ctx, startInformers := injection.EnableInjectionOrDie(nil, nil) // nolint
 	startInformers()
 
 	// global is used to make instances of Environments, NewGlobalEnvironment

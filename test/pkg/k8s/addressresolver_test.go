@@ -23,6 +23,7 @@ import (
 	eventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
 	messagingv1 "knative.dev/eventing/pkg/apis/messaging/v1"
 	"knative.dev/kn-plugin-event/pkg/k8s"
+	k8stest "knative.dev/kn-plugin-event/pkg/k8s/test"
 	plugintest "knative.dev/kn-plugin-event/test"
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
@@ -30,12 +31,12 @@ import (
 	servingv1 "knative.dev/serving/pkg/apis/serving/v1"
 )
 
-func TestResolveAddressE2E(t *testing.T) {
+func TestResolveAddress(t *testing.T) {
 	plugintest.WithClients(t, func(c plugintest.ClientsContext) {
-		resolveAddressTestCases(c.KnTest.Namespace(), func(tc resolveAddressTestCase) {
-			t.Run(tc.name, func(t *testing.T) {
+		k8stest.ResolveAddressTestCases(c.KnTest.Namespace(), func(tc k8stest.ResolveAddressTestCase) {
+			t.Run(tc.Name, func(t *testing.T) {
 				t.Parallel()
-				performResolveAddressTest(t, tc, func() (k8s.Clients, func(tb testing.TB)) {
+				k8stest.EnsureResolveAddress(t, tc, func() (k8s.Clients, func(tb testing.TB)) {
 					deploy(t, tc, c.Clients)
 					cleanup := func(tb testing.TB) {
 						tb.Helper()
@@ -48,9 +49,9 @@ func TestResolveAddressE2E(t *testing.T) {
 	})
 }
 
-func deploy(tb testing.TB, tc resolveAddressTestCase, clients k8s.Clients) {
+func deploy(tb testing.TB, tc k8stest.ResolveAddressTestCase, clients k8s.Clients) {
 	tb.Helper()
-	for _, object := range tc.objects {
+	for _, object := range tc.Objects {
 		switch v := object.(type) {
 		case *servingv1.Service:
 			deployKnService(tb, clients, *(v))
@@ -66,9 +67,9 @@ func deploy(tb testing.TB, tc resolveAddressTestCase, clients k8s.Clients) {
 	}
 }
 
-func undeploy(tb testing.TB, tc resolveAddressTestCase, clients k8s.Clients) {
+func undeploy(tb testing.TB, tc k8stest.ResolveAddressTestCase, clients k8s.Clients) {
 	tb.Helper()
-	for _, object := range tc.objects {
+	for _, object := range tc.Objects {
 		switch v := object.(type) {
 		case *servingv1.Service:
 			undeployKnService(tb, clients, *(v))
