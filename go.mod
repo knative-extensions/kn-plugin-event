@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/Azure/go-autorest/autorest v0.11.17 // indirect
 	github.com/Azure/go-autorest/autorest/adal v0.9.10 // indirect
-	github.com/cloudevents/sdk-go/v2 v2.4.1
+	github.com/cloudevents/sdk-go/v2 v2.7.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/uuid v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
@@ -21,12 +21,12 @@ require (
 	k8s.io/api v0.21.4
 	k8s.io/apimachinery v0.22.3
 	k8s.io/client-go v0.21.4
-	knative.dev/client v0.28.0
-	knative.dev/eventing v0.28.0
-	knative.dev/hack v0.0.0-20211203062838-e11ac125e707
-	knative.dev/networking v0.0.0-20211209101835-8ef631418fc0
-	knative.dev/pkg v0.0.0-20211206113427-18589ac7627e
-	knative.dev/serving v0.28.0
+	knative.dev/client v0.28.1-0.20211216162817-6bf09bfb36ee
+	knative.dev/eventing v0.28.1-0.20211217092418-fede720191d3
+	knative.dev/hack v0.0.0-20211216134818-6fc030496333
+	knative.dev/networking v0.0.0-20211216134818-62aefa409453
+	knative.dev/pkg v0.0.0-20211216142117-79271798f696
+	knative.dev/serving v0.28.1-0.20211221064617-c69f92cdfce7
 	sigs.k8s.io/yaml v1.3.0
 )
 
