@@ -50,6 +50,7 @@ func WithKnTest(tb testing.TB, handler func(c *Context)) {
 }
 
 func maybeSkip(tb testing.TB, thing string) {
+	tb.Helper()
 	if testing.Short() {
 		tb.Skipf("Short flag is set. Skipping %s-test.", thing)
 	}

@@ -11,7 +11,6 @@ import (
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	cetest "github.com/cloudevents/sdk-go/v2/test"
 	"gotest.tools/v3/icmd"
-	plugintest "knative.dev/kn-plugin-event/test"
 	"knative.dev/reconciler-test/pkg/environment"
 	"knative.dev/reconciler-test/pkg/eventshub"
 	"knative.dev/reconciler-test/pkg/eventshub/assert"
@@ -21,17 +20,15 @@ import (
 )
 
 func TestInClusterSender(t *testing.T) {
-	plugintest.WithKnTest(t, func(c *plugintest.Context) {
-		ctx, env := global.Environment(
-			knative.WithKnativeNamespace(c.KnTest.Namespace()),
-			knative.WithLoggingConfig,
-			knative.WithTracingConfig,
-			reconcilertestk8s.WithEventListener,
-			environment.Managed(t),
-		)
+	ctx, env := global.Environment(
+		knative.WithKnativeNamespace("knative-eventing"),
+		knative.WithLoggingConfig,
+		knative.WithTracingConfig,
+		reconcilertestk8s.WithEventListener,
+		environment.Managed(t),
+	)
 
-		env.Test(ctx, t, SendEventToClusterLocal())
-	})
+	env.Test(ctx, t, SendEventToClusterLocal())
 }
 
 func SendEventToClusterLocal() *feature.Feature {
@@ -40,8 +37,7 @@ func SendEventToClusterLocal() *feature.Feature {
 	ev := cetest.FullEvent()
 
 	f.Setup("install sink", eventshub.Install(
-		sinkName,
-		eventshub.StartReceiver,
+		sinkName, eventshub.StartReceiver,
 	))
 
 	f.Setup("send event", sendEvent(ev, sinkName))

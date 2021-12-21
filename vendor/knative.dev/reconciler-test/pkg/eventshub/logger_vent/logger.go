@@ -1,8 +1,5 @@
-//go:build tools
-// +build tools
-
 /*
-Copyright 2021 The Knative Authors
+Copyright 2020 The Knative Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,14 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tools
+package logger_vent
 
 import (
-	_ "knative.dev/hack"
-
-	// For Mage stuff
-	_ "github.com/magefile/mage/mage"
-
-	// Test images
-	_ "knative.dev/reconciler-test/cmd/eventshub"
+	"knative.dev/reconciler-test/pkg/eventshub"
 )
+
+type Logger func(string, ...interface{})
+
+func (l Logger) Vent(observed eventshub.EventInfo) error {
+	l("Event: \n%s", observed.String())
+
+	return nil
+}
