@@ -25,6 +25,14 @@ import (
 	servingv1 "knative.dev/serving/pkg/apis/serving/v1"
 )
 
+const (
+	// HTTPPort is 80.
+	HTTPPort = 80
+
+	// AlternativeHTTPPort is 8080.
+	AlternativeHTTPPort = 8080
+)
+
 var (
 	ErrNotEqual       = errors.New("not equal")
 	ErrDontContain    = errors.New("don't contain")
@@ -81,10 +89,10 @@ func k8sService(namespace string) ResolveAddressTestCase {
 		Spec: corev1.ServiceSpec{
 			Ports: []corev1.ServicePort{{
 				Name: "http",
-				Port: 80,
+				Port: HTTPPort,
 				TargetPort: intstr.IntOrString{
 					Type:   intstr.Int,
-					IntVal: 8080,
+					IntVal: AlternativeHTTPPort,
 				},
 			}},
 			Type: corev1.ServiceTypeClusterIP,
