@@ -20,6 +20,6 @@ func TestInClusterSender(t *testing.T) {
 		reconcilertestk8s.WithEventListener,
 		environment.Managed(t),
 	)
-
+	defer env.Finish()
 	env.Test(ctx, t, e2e.SendEventToClusterLocal())
 }

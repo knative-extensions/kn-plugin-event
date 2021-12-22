@@ -24,7 +24,7 @@ import (
 	messagingv1 "knative.dev/eventing/pkg/apis/messaging/v1"
 	"knative.dev/kn-plugin-event/pkg/k8s"
 	k8stest "knative.dev/kn-plugin-event/pkg/k8s/test"
-	plugintest "knative.dev/kn-plugin-event/test"
+	plugintestpkg "knative.dev/kn-plugin-event/test/pkg"
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 	"knative.dev/pkg/kmeta"
@@ -32,7 +32,7 @@ import (
 )
 
 func TestResolveAddress(t *testing.T) {
-	plugintest.WithClients(t, func(c plugintest.ClientsContext) {
+	plugintestpkg.WithClients(t, func(c plugintestpkg.ClientsContext) {
 		k8stest.ResolveAddressTestCases(c.KnTest.Namespace(), func(tc k8stest.ResolveAddressTestCase) {
 			t.Run(tc.Name, func(t *testing.T) {
 				t.Parallel()

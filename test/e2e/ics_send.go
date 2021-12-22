@@ -6,12 +6,12 @@ package e2e
 import (
 	"context"
 	"fmt"
-	"runtime"
 	"time"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	cetest "github.com/cloudevents/sdk-go/v2/test"
 	"gotest.tools/v3/icmd"
+	"knative.dev/kn-plugin-event/test"
 	"knative.dev/pkg/logging"
 	"knative.dev/reconciler-test/pkg/environment"
 	"knative.dev/reconciler-test/pkg/eventshub"
@@ -46,8 +46,6 @@ func SendEventToClusterLocal() *feature.Feature {
 func sendEvent(ev cloudevents.Event, sinkName string) feature.StepFn {
 	return func(ctx context.Context, t feature.T) {
 		log := logging.FromContext(ctx)
-		command := fmt.Sprintf("build/_output/bin/kn-event-%s-%s",
-			runtime.GOOS, runtime.GOARCH)
 		ns := environment.FromContext(ctx).Namespace()
 		args := []string{
 			"send",
@@ -58,8 +56,8 @@ func sendEvent(ev cloudevents.Event, sinkName string) feature.StepFn {
 			"--field", fmt.Sprintf("data=%s", ev.Data()),
 			"--to", fmt.Sprintf("Service:v1:%s", sinkName),
 		}
-		cmd := icmd.Command(command, args...)
-		log.Infof("Running command: %#v with args: %#v", command, args)
+		cmd := test.ResolveKnEventCommand(t).ToIcmd(args...)
+		log.Infof("Running command: %v", cmd)
 		result := icmd.RunCmd(cmd)
 		result.Assert(t, icmd.Expected{
 			ExitCode: 0,
