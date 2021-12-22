@@ -13,6 +13,8 @@ import (
 )
 
 func TestInClusterSender(t *testing.T) {
+	t.Parallel()
+
 	ctx, env := global.Environment(
 		knative.WithKnativeNamespace("knative-eventing"),
 		knative.WithLoggingConfig,
@@ -20,6 +22,6 @@ func TestInClusterSender(t *testing.T) {
 		reconcilertestk8s.WithEventListener,
 		environment.Managed(t),
 	)
-	defer env.Finish()
+
 	env.Test(ctx, t, e2e.SendEventToClusterLocal())
 }
