@@ -33,8 +33,6 @@ github.com/PuerkitoBio/purell
 github.com/PuerkitoBio/urlesc
 # github.com/alessio/shellescape v1.4.1
 github.com/alessio/shellescape
-# github.com/antlr/antlr4 v0.0.0-20210105192202-5c2b686f95e1
-github.com/antlr/antlr4/runtime/Go/antlr
 # github.com/beorn7/perks v1.0.1
 github.com/beorn7/perks/quantile
 # github.com/blang/semver/v4 v4.0.0
@@ -53,14 +51,6 @@ github.com/cespare/xxhash/v2
 # github.com/cloudevents/conformance v0.2.0
 github.com/cloudevents/conformance/pkg/event
 github.com/cloudevents/conformance/pkg/http
-# github.com/cloudevents/sdk-go/sql/v2 v2.7.0
-github.com/cloudevents/sdk-go/sql/v2
-github.com/cloudevents/sdk-go/sql/v2/expression
-github.com/cloudevents/sdk-go/sql/v2/function
-github.com/cloudevents/sdk-go/sql/v2/gen
-github.com/cloudevents/sdk-go/sql/v2/parser
-github.com/cloudevents/sdk-go/sql/v2/runtime
-github.com/cloudevents/sdk-go/sql/v2/utils
 # github.com/cloudevents/sdk-go/v2 v2.7.0
 ## explicit
 github.com/cloudevents/sdk-go/v2
@@ -1027,7 +1017,7 @@ k8s.io/kube-openapi/pkg/util/proto
 k8s.io/utils/buffer
 k8s.io/utils/integer
 k8s.io/utils/trace
-# knative.dev/client v0.28.1-0.20211216162817-6bf09bfb36ee
+# knative.dev/client v0.28.1-0.20211222151818-2c9a236917da
 ## explicit
 knative.dev/client/lib/test
 knative.dev/client/pkg/apis/client
@@ -1044,7 +1034,7 @@ knative.dev/client/pkg/serving/v1
 knative.dev/client/pkg/util
 knative.dev/client/pkg/util/mock
 knative.dev/client/pkg/wait
-# knative.dev/eventing v0.28.1-0.20211217092418-fede720191d3
+# knative.dev/eventing v0.28.1-0.20211222204918-d8297456d455
 ## explicit
 knative.dev/eventing/pkg/apis/config
 knative.dev/eventing/pkg/apis/duck
@@ -1077,10 +1067,10 @@ knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1
 knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1/fake
 knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1beta2
 knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1beta2/fake
-# knative.dev/hack v0.0.0-20211216134818-6fc030496333
+# knative.dev/hack v0.0.0-20211222071919-abd085fc43de
 ## explicit
 knative.dev/hack
-# knative.dev/networking v0.0.0-20211216134818-62aefa409453
+# knative.dev/networking v0.0.0-20211223013028-62388a5f2853
 ## explicit
 knative.dev/networking/pkg
 knative.dev/networking/pkg/apis/networking
@@ -1128,7 +1118,7 @@ knative.dev/pkg/tracing/config
 knative.dev/pkg/tracing/propagation
 knative.dev/pkg/tracing/propagation/tracecontextb3
 knative.dev/pkg/tracker
-# knative.dev/reconciler-test v0.0.0-20211213105719-9cdcfcc2f3fd
+# knative.dev/reconciler-test v0.0.0-20211222120418-816f2192fec9
 ## explicit
 knative.dev/reconciler-test/cmd/eventshub
 knative.dev/reconciler-test/pkg/environment
