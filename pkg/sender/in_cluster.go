@@ -2,7 +2,6 @@ package sender
 
 import (
 	"fmt"
-	"regexp"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	batchv1 "k8s.io/api/batch/v1"
@@ -11,6 +10,7 @@ import (
 	"knative.dev/kn-plugin-event/pkg/cli/ics"
 	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/kn-plugin-event/pkg/k8s"
+	"knative.dev/kn-plugin-event/pkg/metadata"
 )
 
 type inClusterSender struct {
@@ -44,7 +44,7 @@ func (i *inClusterSender) Send(ce cloudevents.Event) error {
 					RestartPolicy: corev1.RestartPolicyNever,
 					Containers: []corev1.Container{{
 						Name:  "kn-event-sender",
-						Image: imageFor("kn-event-sender"),
+						Image: metadata.ResolveImage(),
 						Env: []corev1.EnvVar{{
 							Name:  "K_SINK",
 							Value: url.String(),
@@ -62,13 +62,4 @@ func (i *inClusterSender) Send(ce cloudevents.Event) error {
 		return fmt.Errorf("%w: %v", ics.ErrCantSendWithICS, err)
 	}
 	return nil
-}
-
-func imageFor(artifact string) string {
-	basename := ics.ContainerBasename
-	r := regexp.MustCompile(".+[A-Za-z0-9]$")
-	if r.MatchString(basename) {
-		basename += "/"
-	}
-	return basename + artifact
 }
