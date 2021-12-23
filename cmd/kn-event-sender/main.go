@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 
+	"go.uber.org/zap"
 	"knative.dev/kn-plugin-event/pkg/cli/retcode"
 	"knative.dev/kn-plugin-event/pkg/configuration"
 )
@@ -12,9 +13,10 @@ import (
 var ExitFunc = os.Exit // nolint:gochecknoglobals
 
 func main() {
+	logger := createLogger()
 	app := configuration.CreateIcs()
 	if err := app.SendFromEnv(); err != nil {
-		_, _ = fmt.Fprint(os.Stderr, err)
+		logger.Error(err)
 		ExitFunc(retcode.Calc(err))
 	}
 }
@@ -23,4 +25,14 @@ func main() {
 //goland:noinspection GoUnusedExportedFunction
 func TestMain() { //nolint:deadcode
 	main()
+}
+
+func createLogger() *zap.SugaredLogger {
+	zapl, err := zap.NewProduction()
+	if err != nil {
+		log.Println(err)
+		ExitFunc(retcode.Calc(err))
+		return nil
+	}
+	return zapl.Sugar().With("env", os.Environ())
 }

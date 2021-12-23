@@ -32,6 +32,10 @@ func SendEventToClusterLocal() *feature.Feature {
 
 	f.Setup("deploy sink", eventshub.Install(sinkName, eventshub.StartReceiver))
 
+	// f.Setup("await", func(ctx context.Context, t feature.T) {
+	// 	time.Sleep(5 * time.Second)
+	// })
+
 	f.Alpha("Event").
 		Must("send", sendEvent(ev, sinkName)).
 		Must("receive", receiveEvent(ev, sinkName))
@@ -82,6 +86,7 @@ func handleSendErr(ctx context.Context, t feature.T, err error, ev cloudevents.E
 	log := logging.FromContext(ctx)
 	jobs := kube.BatchV1().Jobs(ns)
 	pods := kube.CoreV1().Pods(ns)
+	events := kube.CoreV1().Events(ns)
 	jlist, kerr := jobs.List(ctx, metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("event-id=%s", ev.ID()),
 	})
@@ -108,7 +113,15 @@ func handleSendErr(ctx context.Context, t feature.T, err error, ev cloudevents.E
 	if merr != nil {
 		log.Error(merr)
 	}
+	elist, eerr := events.List(ctx, metav1.ListOptions{})
+	if eerr != nil {
+		log.Error(eerr)
+	}
+	eventsYaml, eerr := yaml.Marshal(elist.Items)
+	if eerr != nil {
+		log.Error(eerr)
+	}
 	t.Fatal(err, "\n\nJob logs (", len(plist.Items), "):\n",
 		strings.Join(podLogs, "\n---\n"), "\n\nPods:\n",
-		string(podsYaml))
+		string(podsYaml), "\n\nEvents:\n", string(eventsYaml))
 }
