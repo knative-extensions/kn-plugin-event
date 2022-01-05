@@ -27,6 +27,3 @@ require (
 	knative.dev/serving v0.28.1-0.20220104122631-278af32f24ce
 	sigs.k8s.io/yaml v1.3.0
 )
-
-// FIXME: google/ko requires 0.22, remove when knative will work with 0.22+
-replace k8s.io/apimachinery => k8s.io/apimachinery v0.21.4
