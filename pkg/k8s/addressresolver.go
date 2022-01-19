@@ -17,7 +17,6 @@ import (
 	"knative.dev/pkg/kmeta"
 	"knative.dev/pkg/resolver"
 	"knative.dev/pkg/tracker"
-	servingv1 "knative.dev/serving/pkg/apis/serving/v1"
 )
 
 // ReferenceAddressResolver will resolve the tracker.Reference to an url.URL, or
@@ -45,10 +44,6 @@ func (a *addressResolver) ResolveAddress(
 	ref *tracker.Reference,
 	uri *apis.URL,
 ) (*url.URL, error) {
-	if isKsvc(ref) {
-		// knative.dev/pkg/resolver doesn't resolve proper URL for knative service
-		return a.resolveKsvcAddress(ref, uri)
-	}
 	gvr := a.toGVR(ref)
 	dest, err := a.toDestination(gvr, ref, uri)
 	if err != nil {
@@ -63,18 +58,6 @@ func (a *addressResolver) ResolveAddress(
 	}
 	resolved := u.URL()
 	return resolved, nil
-}
-
-func (a *addressResolver) resolveKsvcAddress(
-	ref *tracker.Reference,
-	uri *apis.URL,
-) (*url.URL, error) {
-	ksvc, err := a.kube.Serving().Services(ref.Namespace).
-		Get(a.ctx, ref.Name, metav1.GetOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrNotFound, err)
-	}
-	return ksvc.Status.URL.ResolveReference(uri).URL(), nil
 }
 
 func (a *addressResolver) toDestination(
@@ -115,11 +98,6 @@ func (a *addressResolver) toGVR(ref *tracker.Reference) schema.GroupVersionResou
 	gvk := ref.GroupVersionKind()
 	gvr := apis.KindToResource(gvk)
 	return gvr
-}
-
-func isKsvc(ref *tracker.Reference) bool {
-	return ref.Kind == "Service" &&
-		ref.APIVersion == servingv1.SchemeGroupVersion.String()
 }
 
 func toAccessor(ref *tracker.Reference) kmeta.Accessor {
