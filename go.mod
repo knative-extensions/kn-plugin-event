@@ -9,7 +9,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/magefile/mage v1.11.0
 	github.com/phayes/freeport v0.0.0-20180830031419-95f893ade6f2
-	github.com/spf13/cobra v1.2.1
+	github.com/spf13/cobra v1.3.0
 	github.com/thediveo/enumflag v0.10.0
 	github.com/wavesoftware/go-ensure v1.0.0
 	github.com/wavesoftware/go-magetasks v0.6.0
@@ -19,12 +19,12 @@ require (
 	k8s.io/api v0.22.5
 	k8s.io/apimachinery v0.22.5
 	k8s.io/client-go v0.22.5
-	knative.dev/client v0.28.1-0.20220110123359-c6997da944bd
-	knative.dev/eventing v0.28.1-0.20220107145225-eb4c06c8009d
-	knative.dev/hack v0.0.0-20211222071919-abd085fc43de
-	knative.dev/networking v0.0.0-20220107020122-0dbedcd88acf
-	knative.dev/pkg v0.0.0-20220105211333-96f18522d78d
-	knative.dev/reconciler-test v0.0.0-20220110135859-3c6666fd9a62
-	knative.dev/serving v0.28.1-0.20220107170125-03091748d279
+	knative.dev/client v0.29.1-0.20220128135446-9ee52ba85302
+	knative.dev/eventing v0.29.1-0.20220128133147-7a44b07f299d
+	knative.dev/hack v0.0.0-20220201013531-82bfca153560
+	knative.dev/networking v0.0.0-20220120043934-ec785540a732
+	knative.dev/pkg v0.0.0-20220131144930-f4b57aef0006
+	knative.dev/reconciler-test v0.0.0-20220118183433-c8bfbe66bada
+	knative.dev/serving v0.29.1-0.20220131194631-770b91180d43
 	sigs.k8s.io/yaml v1.3.0
 )

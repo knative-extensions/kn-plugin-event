@@ -16,12 +16,10 @@ import (
 	eventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
 	messagingv1 "knative.dev/eventing/pkg/apis/messaging/v1"
 	"knative.dev/kn-plugin-event/pkg/k8s"
-	netpkg "knative.dev/networking/pkg"
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 	"knative.dev/pkg/kmeta"
 	"knative.dev/pkg/tracker"
-	"knative.dev/serving/pkg/apis/serving"
 	servingv1 "knative.dev/serving/pkg/apis/serving/v1"
 )
 
@@ -34,16 +32,14 @@ const (
 )
 
 var (
-	ErrNotEqual       = errors.New("not equal")
-	ErrDontContain    = errors.New("don't contain")
-	ErrNotDomainLocal = errors.New("not a cluster local URL")
+	ErrNotEqual    = errors.New("not equal")
+	ErrDontContain = errors.New("don't contain")
 )
 
 func ResolveAddressTestCases(namespace string, casefn func(tc ResolveAddressTestCase)) {
 	tcs := []ResolveAddressTestCase{
 		k8sService(namespace),
-		knService(namespace, true),
-		knService(namespace, false),
+		knService(namespace),
 		mtBroker(namespace),
 		channel(namespace),
 	}
@@ -109,26 +105,18 @@ func k8sService(namespace string) ResolveAddressTestCase {
 	}
 }
 
-func knService(namespace string, clusterLocal bool) ResolveAddressTestCase {
+func knService(namespace string) ResolveAddressTestCase {
 	m := matcher{
-		isClusterLocal: clusterLocal,
-		name:           "kn-hello",
-		namespace:      namespace,
+		name:      "kn-hello",
+		namespace: namespace,
 	}
 	labels := map[string]string{}
-	if clusterLocal {
-		m.name = fmt.Sprintf("%s-cl", m.name)
-		labels[netpkg.VisibilityLabelKey] = serving.VisibilityClusterLocal
-	}
 	clusterLocalURL := apis.HTTP(fmt.Sprintf(
 		"%s.%s.svc.cluster.local", m.name, namespace))
-	m.clusterLocalURL = clusterLocalURL
+	m.url = clusterLocalURL
 	publicURL := apis.HTTP(fmt.Sprintf(
 		"%s-%s.apps.cloud.example.org", m.name, namespace))
 	serviceURL := publicURL
-	if clusterLocal {
-		serviceURL = clusterLocalURL
-	}
 	ksvc := servingv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: m.name, Namespace: namespace, Labels: labels,
@@ -213,19 +201,12 @@ func toTrackerRef(accessor kmeta.Accessor) *tracker.Reference {
 }
 
 type matcher struct {
-	clusterLocalURL *apis.URL
-	isClusterLocal  bool
-	name            string
-	namespace       string
+	url       *apis.URL
+	name      string
+	namespace string
 }
 
 func (m matcher) matches(u *url.URL) error {
-	if m.isClusterLocal {
-		if u.String() != m.clusterLocalURL.String() {
-			return fmt.Errorf("%w: got: %v, want: %v", ErrNotEqual, u, m.clusterLocalURL)
-		}
-		return nil
-	}
 	if !strings.Contains(u.Host, m.name) {
 		return fmt.Errorf("%w: expect %v to contain %v", ErrDontContain, u, m.name)
 	}
@@ -235,7 +216,6 @@ func (m matcher) matches(u *url.URL) error {
 	return check(u,
 		m.containsName,
 		m.containsNamespace,
-		m.differsFromClusterLocalURL,
 	)
 }
 
@@ -251,14 +231,6 @@ func hostContains(u *url.URL, needle string) error {
 	if !strings.Contains(u.Host, needle) {
 		return fmt.Errorf("%w: expect %v to contain %#v",
 			ErrDontContain, u, needle)
-	}
-	return nil
-}
-
-func (m matcher) differsFromClusterLocalURL(u *url.URL) error {
-	if u.String() == m.clusterLocalURL.String() {
-		return fmt.Errorf("%w: expect %v to differ from cluster local URL %v",
-			ErrNotDomainLocal, u, m.clusterLocalURL)
 	}
 	return nil
 }
