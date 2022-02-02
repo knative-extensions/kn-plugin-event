@@ -22,19 +22,15 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-// SendEventToClusterLocal returns a feature.Feature that can be reused in other
-// test suites.
-func SendEventToClusterLocal() *feature.Feature {
+// SendEventToKubeService returns a feature.Feature that verifies the kn-event
+// can send to Kubernetes service.
+func SendEventToKubeService() *feature.Feature {
 	f := feature.NewFeature()
 	sinkName := feature.MakeRandomK8sName("sink")
 	ev := cetest.FullEvent()
 	ev.SetID(feature.MakeRandomK8sName("test-event"))
 
 	f.Setup("deploy sink", eventshub.Install(sinkName, eventshub.StartReceiver))
-
-	// f.Setup("await", func(ctx context.Context, t feature.T) {
-	// 	time.Sleep(5 * time.Second)
-	// })
 
 	f.Alpha("Event").
 		Must("send", sendEvent(ev, sinkName)).

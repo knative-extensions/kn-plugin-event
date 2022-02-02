@@ -16,12 +16,12 @@ func TestInClusterSender(t *testing.T) {
 	t.Parallel()
 
 	ctx, env := global.Environment(
+		environment.Managed(t),
+		reconcilertestk8s.WithEventListener,
 		knative.WithKnativeNamespace("knative-eventing"),
 		knative.WithLoggingConfig,
 		knative.WithTracingConfig,
-		reconcilertestk8s.WithEventListener,
-		environment.Managed(t),
 	)
 
-	env.Test(ctx, t, e2e.SendEventToClusterLocal())
+	env.Test(ctx, t, e2e.SendEventToKubeService())
 }
