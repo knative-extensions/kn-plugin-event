@@ -1081,7 +1081,6 @@ knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1beta2/fake
 ## explicit
 knative.dev/hack
 # knative.dev/networking v0.0.0-20220120043934-ec785540a732
-## explicit
 knative.dev/networking/pkg
 knative.dev/networking/pkg/apis/networking
 knative.dev/networking/pkg/apis/networking/v1alpha1
@@ -1128,7 +1127,7 @@ knative.dev/pkg/tracing/config
 knative.dev/pkg/tracing/propagation
 knative.dev/pkg/tracing/propagation/tracecontextb3
 knative.dev/pkg/tracker
-# knative.dev/reconciler-test v0.0.0-20220118183433-c8bfbe66bada
+# knative.dev/reconciler-test v0.0.0-20220202155955-6e47083645cf
 ## explicit
 knative.dev/reconciler-test/cmd/eventshub
 knative.dev/reconciler-test/pkg/environment
