@@ -6,6 +6,7 @@ package e2e_test
 import (
 	"testing"
 
+	"knative.dev/kn-plugin-event/test"
 	"knative.dev/kn-plugin-event/test/e2e"
 	"knative.dev/reconciler-test/pkg/environment"
 	reconcilertestk8s "knative.dev/reconciler-test/pkg/k8s"
@@ -13,6 +14,7 @@ import (
 )
 
 func TestInClusterSender(t *testing.T) {
+	test.MaybeSkip(t)
 	e2e.RegisterPackages()
 
 	t.Parallel()
