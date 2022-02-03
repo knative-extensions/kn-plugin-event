@@ -322,12 +322,18 @@ github.com/openzipkin/zipkin-go/reporter
 github.com/openzipkin/zipkin-go/reporter/http
 # github.com/pelletier/go-toml v1.9.4
 github.com/pelletier/go-toml
+# github.com/pelletier/go-toml/v2 v2.0.0-beta.2
+github.com/pelletier/go-toml/v2
+github.com/pelletier/go-toml/v2/internal/ast
+github.com/pelletier/go-toml/v2/internal/tracker
+github.com/pelletier/go-toml/v2/internal/unsafe
 # github.com/peterbourgon/diskv v2.0.1+incompatible
 github.com/peterbourgon/diskv
 # github.com/phayes/freeport v0.0.0-20180830031419-95f893ade6f2
 ## explicit
 github.com/phayes/freeport
 # github.com/pkg/errors v0.9.1
+## explicit
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
@@ -1077,6 +1083,12 @@ knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1
 knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1/fake
 knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1beta2
 knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1beta2/fake
+knative.dev/eventing/test/test_images/wathola-forwarder
+knative.dev/eventing/test/upgrade/prober/wathola/client
+knative.dev/eventing/test/upgrade/prober/wathola/config
+knative.dev/eventing/test/upgrade/prober/wathola/event
+knative.dev/eventing/test/upgrade/prober/wathola/forwarder
+knative.dev/eventing/test/upgrade/prober/wathola/sender
 # knative.dev/hack v0.0.0-20220201013531-82bfca153560
 ## explicit
 knative.dev/hack

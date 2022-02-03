@@ -22,10 +22,8 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-// SendEventToKubeService returns a feature.Feature that verifies the kn-event
-// can send to Kubernetes service.
-func SendEventToKubeService() *feature.Feature {
-	f := feature.NewFeature()
+func sendEventFeature(featureName string, opts sendEventOptions) *feature.Feature {
+	f := feature.NewFeatureNamed(featureName)
 	sinkName := feature.MakeRandomK8sName("sink")
 	ev := cetest.FullEvent()
 	ev.SetID(feature.MakeRandomK8sName("test-event"))
@@ -33,13 +31,33 @@ func SendEventToKubeService() *feature.Feature {
 	f.Setup("deploy sink", eventshub.Install(sinkName, eventshub.StartReceiver))
 
 	f.Alpha("Event").
-		Must("send", sendEvent(ev, sinkName)).
+		Must("send", sendEvent(ev, opts.sink(sinkName))).
 		Must("receive", receiveEvent(ev, sinkName))
+
+	for _, st := range opts.steps {
+		f = st(f, sinkName)
+	}
 
 	return f
 }
 
-func sendEvent(ev cloudevents.Event, sinkName string) feature.StepFn {
+type (
+	sinkProducer func(string) string
+	step         func(*feature.Feature, string) *feature.Feature
+)
+
+type sendEventOptions struct {
+	sink  sinkProducer
+	steps []step
+}
+
+func sinkFormat(format string) sinkProducer {
+	return func(sinkName string) string {
+		return fmt.Sprintf(format, sinkName)
+	}
+}
+
+func sendEvent(ev cloudevents.Event, sink string) feature.StepFn {
 	return func(ctx context.Context, t feature.T) {
 		log := logging.FromContext(ctx)
 		ns := environment.FromContext(ctx).Namespace()
@@ -51,7 +69,7 @@ func sendEvent(ev cloudevents.Event, sinkName string) feature.StepFn {
 			"--namespace", ns,
 			"--sender-namespace", ns,
 			"--field", fmt.Sprintf("data=%s", ev.Data()),
-			"--to", fmt.Sprintf("Service:v1:%s", sinkName),
+			"--to", sink,
 		}
 		cmd := test.ResolveKnEventCommand(t).ToIcmd(args...)
 		log.Infof("Running command: %v", cmd)

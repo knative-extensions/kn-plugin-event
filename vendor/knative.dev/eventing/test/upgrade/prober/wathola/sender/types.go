@@ -1,6 +1,3 @@
-//go:build tools
-// +build tools
-
 /*
 Copyright 2021 The Knative Authors
 
@@ -17,15 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tools
+package sender
 
-import (
-	_ "knative.dev/hack"
+import cloudevents "github.com/cloudevents/sdk-go/v2"
 
-	// For Mage stuff
-	_ "github.com/magefile/mage/mage"
+// Sender will send messages continuously until process receives a SIGINT
+type Sender interface {
+	SendContinually()
+}
 
-	// Test images
-	_ "knative.dev/eventing/test/test_images/wathola-forwarder"
-	_ "knative.dev/reconciler-test/cmd/eventshub"
-)
+// EventSender will be used to send events to configured endpoint.
+type EventSender interface {
+	// Supports will check given endpoint definition and decide if it's valid for
+	// this sender.
+	Supports(endpoint interface{}) bool
+	// SendEvent will send event to given endpoint.
+	SendEvent(ce cloudevents.Event, endpoint interface{}) error
+}
