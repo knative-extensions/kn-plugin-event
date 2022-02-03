@@ -1,12 +1,13 @@
 package main
 
 import (
-	"log"
+	"context"
 	"os"
 
 	"go.uber.org/zap"
 	"knative.dev/kn-plugin-event/pkg/cli/retcode"
 	"knative.dev/kn-plugin-event/pkg/configuration"
+	"knative.dev/pkg/logging"
 )
 
 // ExitFunc will be used to exit Go process in case of error.
@@ -28,11 +29,7 @@ func TestMain() { //nolint:deadcode
 }
 
 func createLogger() *zap.SugaredLogger {
-	zapl, err := zap.NewProduction()
-	if err != nil {
-		log.Println(err)
-		ExitFunc(retcode.Calc(err))
-		return nil
-	}
-	return zapl.Sugar().With("env", os.Environ())
+	return logging.
+		FromContext(context.TODO()).
+		With("env", os.Environ())
 }
