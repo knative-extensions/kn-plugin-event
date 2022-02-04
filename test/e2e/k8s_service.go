@@ -4,6 +4,9 @@
 package e2e
 
 import (
+	"fmt"
+
+	corev1 "k8s.io/api/core/v1"
 	"knative.dev/reconciler-test/pkg/feature"
 )
 
@@ -19,9 +22,9 @@ func (k kubeServiceSut) Name() string {
 	return "KubeService"
 }
 
-func (k kubeServiceSut) Deploy(f *feature.Feature, sinkName string) Sink {
-	return sinkFormat{
-		name:   sinkName,
-		format: "Service:v1:%s",
-	}
+func (k kubeServiceSut) Deploy(_ *feature.Feature, sinkName string) Sink {
+	return sinkFn(func() string {
+		return fmt.Sprintf("Service:%s:%s",
+			corev1.SchemeGroupVersion, sinkName)
+	})
 }

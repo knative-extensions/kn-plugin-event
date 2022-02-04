@@ -51,6 +51,7 @@ func sendEvent(ev cloudevents.Event, sink Sink) feature.StepFn {
 			"--source", ev.Source(),
 			"--type", ev.Type(),
 			"--namespace", ns,
+			// TODO: remove --sender-namespace after fixing issue #160
 			"--sender-namespace", ns,
 			"--field", fmt.Sprintf("data=%s", ev.Data()),
 			"--to", sink.String(),

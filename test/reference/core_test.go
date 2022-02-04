@@ -14,7 +14,7 @@ func TestConfigMap(t *testing.T) {
 		ObjectMeta: meta("config-map", "bar"),
 	}
 
-	got := reference.ConfigMap(ctx, cm)
+	got := reference.FromConfigMap(ctx, cm)
 	want := corev1.ObjectReference{
 		Kind:       "ConfigMap",
 		Namespace:  cm.Namespace,

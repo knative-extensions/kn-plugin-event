@@ -9,6 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	eventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
+	messagingv1 "knative.dev/eventing/pkg/apis/messaging/v1"
 	"knative.dev/pkg/logging"
 	servingv1 "knative.dev/serving/pkg/apis/serving/v1"
 )
@@ -26,6 +27,7 @@ func groupVersionKind(ctx context.Context, obj runtime.Object) schema.GroupVersi
 		builders := []runtime.SchemeBuilder{
 			servingv1.SchemeBuilder,
 			eventingv1.SchemeBuilder,
+			messagingv1.SchemeBuilder,
 			corev1.SchemeBuilder,
 		}
 		for _, builder := range builders {

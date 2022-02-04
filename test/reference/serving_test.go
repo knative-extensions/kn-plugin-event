@@ -15,12 +15,12 @@ func TestKnativeService(t *testing.T) {
 		ObjectMeta: meta("ksvc", "foo"),
 	}
 
-	got := reference.KnativeService(ctx, service)
+	got := reference.FromKnativeService(ctx, service)
 	want := corev1.ObjectReference{
 		Kind:       "Service",
 		Namespace:  service.Namespace,
 		Name:       service.Name,
-		APIVersion: "serving.knative.dev/v1",
+		APIVersion: servingv1.SchemeGroupVersion.String(),
 	}
 	assert.Equal(t, want, got)
 }

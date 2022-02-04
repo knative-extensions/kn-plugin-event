@@ -21,11 +21,8 @@ type Sink interface {
 	fmt.Stringer
 }
 
-type sinkFormat struct {
-	name   string
-	format string
-}
+type sinkFn func() string
 
-func (s sinkFormat) String() string {
-	return fmt.Sprintf(s.format, s.name)
+func (s sinkFn) String() string {
+	return s()
 }

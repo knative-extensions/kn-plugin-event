@@ -47,7 +47,7 @@ func (k knServiceSut) Name() string {
 
 func (k knServiceSut) Deploy(f *feature.Feature, sinkName string) Sink {
 	wf := watholaForwarder{sinkName}
-	f.Setup("deploy wathola-forwarder", wf.step)
+	f.Setup("deploy kn service", wf.step)
 	return wf.sink()
 }
 
@@ -90,7 +90,7 @@ func (wf watholaForwarder) deployConfigMap(ctx context.Context, t feature.T) {
 	if _, err = configMaps.Create(ctx, cm, metav1.CreateOptions{}); err != nil {
 		t.Fatal(errors.WithStack(err))
 	}
-	env.Reference(reference.ConfigMap(ctx, cm))
+	env.Reference(reference.FromConfigMap(ctx, cm))
 }
 
 func (wf watholaForwarder) deployKnService(ctx context.Context, t feature.T) {
@@ -144,20 +144,20 @@ func (wf watholaForwarder) deployKnService(ctx context.Context, t feature.T) {
 	if _, err := ksvcs.Create(ctx, ksvc, metav1.CreateOptions{}); err != nil {
 		t.Fatal(errors.WithStack(err))
 	}
-	ref := reference.KnativeService(ctx, ksvc)
+	ref := reference.FromKnativeService(ctx, ksvc)
 	env.Reference(ref)
 	k8s.WaitForReadyOrDoneOrFail(ctx, t, ref)
 }
 
 func (wf watholaForwarder) name() string {
-	return wf.sinkName + "-wathola-forwarder"
+	return wf.sinkName + "-ksvc"
 }
 
 func (wf watholaForwarder) sink() Sink {
-	return sinkFormat{
-		name:   wf.name(),
-		format: "Service:serving.knative.dev/v1:%s",
-	}
+	return sinkFn(func() string {
+		return fmt.Sprintf("Service:%s:%s",
+			servingv1.SchemeGroupVersion, wf.name())
+	})
 }
 
 func (wf watholaForwarder) configPath() string {
