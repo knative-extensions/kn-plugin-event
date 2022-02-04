@@ -29,4 +29,5 @@ func TestInClusterSender(t *testing.T) {
 
 	env.Test(ctx, t, e2e.SendEventToKubeService())
 	env.Test(ctx, t, e2e.SendEventToKnService())
+	env.Test(ctx, t, e2e.SendEventToBroker())
 }

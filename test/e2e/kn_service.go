@@ -15,10 +15,10 @@ import (
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"knative.dev/kn-plugin-event/test/reference"
 	"knative.dev/pkg/apis"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
 	"knative.dev/pkg/injection"
-	"knative.dev/pkg/kmeta"
 	"knative.dev/reconciler-test/pkg/environment"
 	"knative.dev/reconciler-test/pkg/feature"
 	"knative.dev/reconciler-test/pkg/k8s"
@@ -36,18 +36,19 @@ func RegisterPackages() {
 // SendEventToKnService returns a feature.Feature that verifies the kn-event
 // can send to Knative service.
 func SendEventToKnService() *feature.Feature {
-	return sendEventFeature("ToKnativeService", sendEventOptions{
-		sink: func(sinkName string) string {
-			return watholaForwarder{sinkName}.sinkSpec()
-		},
-		steps: []step{
-			func(f *feature.Feature, sinkName string) *feature.Feature {
-				f.Setup("deploy wathola-forwarder",
-					watholaForwarder{sinkName}.step)
-				return f
-			},
-		},
-	})
+	return SendEventFeature(knServiceSut{})
+}
+
+type knServiceSut struct{}
+
+func (k knServiceSut) Name() string {
+	return "KnativeService"
+}
+
+func (k knServiceSut) Deploy(f *feature.Feature, sinkName string) Sink {
+	wf := watholaForwarder{sinkName}
+	f.Setup("deploy wathola-forwarder", wf.step)
+	return wf.sink()
 }
 
 type watholaForwarder struct {
@@ -86,11 +87,10 @@ func (wf watholaForwarder) deployConfigMap(ctx context.Context, t feature.T) {
 			path.Base(wf.configPath()): buff.String(),
 		},
 	}
-	created, err := configMaps.Create(ctx, cm, metav1.CreateOptions{})
-	if err != nil {
+	if _, err = configMaps.Create(ctx, cm, metav1.CreateOptions{}); err != nil {
 		t.Fatal(errors.WithStack(err))
 	}
-	env.Reference(kmeta.ObjectReference(created))
+	env.Reference(reference.ConfigMap(ctx, cm))
 }
 
 func (wf watholaForwarder) deployKnService(ctx context.Context, t feature.T) {
@@ -141,23 +141,23 @@ func (wf watholaForwarder) deployKnService(ctx context.Context, t feature.T) {
 			},
 		},
 	}
-	created, err := ksvcs.Create(ctx, ksvc, metav1.CreateOptions{})
-	if err != nil {
+	if _, err := ksvcs.Create(ctx, ksvc, metav1.CreateOptions{}); err != nil {
 		t.Fatal(errors.WithStack(err))
 	}
-	ref := kmeta.ObjectReference(created)
+	ref := reference.KnativeService(ctx, ksvc)
 	env.Reference(ref)
-	if err = k8s.WaitForServiceReady(ctx, t, wf.name(), readyPath); err != nil {
-		t.Fatal(errors.WithStack(err))
-	}
+	k8s.WaitForReadyOrDoneOrFail(ctx, t, ref)
 }
 
 func (wf watholaForwarder) name() string {
 	return wf.sinkName + "-wathola-forwarder"
 }
 
-func (wf watholaForwarder) sinkSpec() string {
-	return fmt.Sprintf("Service:serving.knative.dev/v1:%s", wf.name())
+func (wf watholaForwarder) sink() Sink {
+	return sinkFormat{
+		name:   wf.name(),
+		format: "Service:serving.knative.dev/v1:%s",
+	}
 }
 
 func (wf watholaForwarder) configPath() string {
