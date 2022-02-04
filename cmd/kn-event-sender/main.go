@@ -1,20 +1,23 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"os"
 
+	"go.uber.org/zap"
 	"knative.dev/kn-plugin-event/pkg/cli/retcode"
 	"knative.dev/kn-plugin-event/pkg/configuration"
+	"knative.dev/pkg/logging"
 )
 
 // ExitFunc will be used to exit Go process in case of error.
 var ExitFunc = os.Exit // nolint:gochecknoglobals
 
 func main() {
+	logger := createLogger()
 	app := configuration.CreateIcs()
 	if err := app.SendFromEnv(); err != nil {
-		_, _ = fmt.Fprint(os.Stderr, err)
+		logger.Error(err)
 		ExitFunc(retcode.Calc(err))
 	}
 }
@@ -23,4 +26,10 @@ func main() {
 //goland:noinspection GoUnusedExportedFunction
 func TestMain() { //nolint:deadcode
 	main()
+}
+
+func createLogger() *zap.SugaredLogger {
+	return logging.
+		FromContext(context.TODO()).
+		With("env", os.Environ())
 }

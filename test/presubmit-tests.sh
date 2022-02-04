@@ -14,9 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# FIXME: add unset flag after fixing https://github.com/knative/hack/issues/81
-set -Eeo pipefail
+set -Eeuo pipefail
 
-source "$(dirname "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")")/vendor/knative.dev/hack/presubmit-tests.sh"
+source "$(dirname "$(dirname "$(readlink -f "${BASH_SOURCE[0]:-$0}")")")/vendor/knative.dev/hack/presubmit-tests.sh"
 
 main "$@"
