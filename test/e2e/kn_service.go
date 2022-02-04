@@ -15,10 +15,11 @@ import (
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"knative.dev/kn-plugin-event/test/reference"
+	"knative.dev/kn-plugin-event/pkg/tests/reference"
 	"knative.dev/pkg/apis"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
 	"knative.dev/pkg/injection"
+	"knative.dev/pkg/logging"
 	"knative.dev/reconciler-test/pkg/environment"
 	"knative.dev/reconciler-test/pkg/feature"
 	"knative.dev/reconciler-test/pkg/k8s"
@@ -47,7 +48,7 @@ func (k knServiceSut) Name() string {
 
 func (k knServiceSut) Deploy(f *feature.Feature, sinkName string) Sink {
 	wf := watholaForwarder{sinkName}
-	f.Setup("deploy kn service", wf.step)
+	f.Setup("Deploy KnService", wf.step)
 	return wf.sink()
 }
 
@@ -81,16 +82,21 @@ func (wf watholaForwarder) deployConfigMap(ctx context.Context, t feature.T) {
 	}
 	kube := kubeclient.Get(ctx)
 	configMaps := kube.CoreV1().ConfigMaps(ns)
+	content := buff.String()
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{Name: wf.name(), Namespace: ns},
 		Data: map[string]string{
-			path.Base(wf.configPath()): buff.String(),
+			path.Base(wf.configPath()): content,
 		},
 	}
+	log := logging.FromContext(ctx).
+		With(json("meta", cm.ObjectMeta))
+	log.Info("Deploying ConfigMap")
 	if _, err = configMaps.Create(ctx, cm, metav1.CreateOptions{}); err != nil {
 		t.Fatal(errors.WithStack(err))
 	}
 	env.Reference(reference.FromConfigMap(ctx, cm))
+	log.With(json("content", content)).Info("ConfigMap is deployed")
 }
 
 func (wf watholaForwarder) deployKnService(ctx context.Context, t feature.T) {
@@ -141,12 +147,17 @@ func (wf watholaForwarder) deployKnService(ctx context.Context, t feature.T) {
 			},
 		},
 	}
+	log := logging.FromContext(ctx).
+		With(json("meta", ksvc.ObjectMeta))
+	log.With(json("spec", ksvc.Spec.Template.Spec.PodSpec)).
+		Info("Deploying KnService")
 	if _, err := ksvcs.Create(ctx, ksvc, metav1.CreateOptions{}); err != nil {
 		t.Fatal(errors.WithStack(err))
 	}
 	ref := reference.FromKnativeService(ctx, ksvc)
 	env.Reference(ref)
 	k8s.WaitForReadyOrDoneOrFail(ctx, t, ref)
+	log.Info("KnService is ready")
 }
 
 func (wf watholaForwarder) name() string {

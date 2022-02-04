@@ -6,6 +6,7 @@ package e2e_test
 import (
 	"testing"
 
+	"knative.dev/kn-plugin-event/pkg/tests/logging"
 	"knative.dev/kn-plugin-event/test"
 	"knative.dev/kn-plugin-event/test/e2e"
 	"knative.dev/reconciler-test/pkg/environment"
@@ -20,6 +21,7 @@ func TestInClusterSender(t *testing.T) {
 	t.Parallel()
 
 	ctx, env := global.Environment(
+		logging.EnvironmentTestLogger(t),
 		environment.Managed(t),
 		reconcilertestk8s.WithEventListener,
 		knative.WithKnativeNamespace("knative-eventing"),

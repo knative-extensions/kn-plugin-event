@@ -12,8 +12,9 @@ import (
 	eventingduckv1 "knative.dev/eventing/pkg/apis/duck/v1"
 	eventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
 	eventingv1clientset "knative.dev/eventing/pkg/client/clientset/versioned/typed/eventing/v1"
-	"knative.dev/kn-plugin-event/test/reference"
+	"knative.dev/kn-plugin-event/pkg/tests/reference"
 	"knative.dev/pkg/injection"
+	"knative.dev/pkg/logging"
 	"knative.dev/reconciler-test/pkg/environment"
 	"knative.dev/reconciler-test/pkg/feature"
 	"knative.dev/reconciler-test/pkg/k8s"
@@ -34,7 +35,7 @@ func (bs brokerSut) Name() string {
 
 func (bs brokerSut) Deploy(f *feature.Feature, sinkName string) Sink {
 	b := brokerSutImpl{sinkName}
-	f.Setup("deploy Broker", b.step)
+	f.Setup("Deploy Broker", b.step)
 	return b.sink()
 }
 
@@ -69,12 +70,16 @@ func (b brokerSutImpl) deployBroker(ctx context.Context, t feature.T) {
 			Delivery: deliverySpec(),
 		},
 	}
+	log := logging.FromContext(ctx).
+		With(json("meta", broker.ObjectMeta))
+	log.Info("Deploying Broker")
 	if _, err := brokers.Create(ctx, broker, metav1.CreateOptions{}); err != nil {
 		t.Fatal(errors.WithStack(err))
 	}
 	ref := reference.FromBroker(ctx, broker)
 	env.Reference(ref)
 	k8s.WaitForReadyOrDoneOrFail(ctx, t, ref)
+	log.Info("Broker is ready")
 }
 
 func (b brokerSutImpl) deployTrigger(ctx context.Context, t feature.T) {
@@ -91,12 +96,17 @@ func (b brokerSutImpl) deployTrigger(ctx context.Context, t feature.T) {
 			Subscriber: *sinkRef,
 		},
 	}
+	log := logging.FromContext(ctx).
+		With(json("meta", trigger.ObjectMeta))
+	log.With(json("spec", trigger.Spec)).
+		Info("Deploying Trigger")
 	if _, err := triggers.Create(ctx, trigger, metav1.CreateOptions{}); err != nil {
 		t.Fatal(errors.WithStack(err))
 	}
 	ref := reference.FromTrigger(ctx, trigger)
 	env.Reference(ref)
 	k8s.WaitForReadyOrDoneOrFail(ctx, t, ref)
+	log.Info("Trigger is ready")
 }
 
 func deliverySpec() *eventingduckv1.DeliverySpec {

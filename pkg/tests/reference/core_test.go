@@ -5,7 +5,7 @@ import (
 
 	"gotest.tools/v3/assert"
 	corev1 "k8s.io/api/core/v1"
-	"knative.dev/kn-plugin-event/test/reference"
+	"knative.dev/kn-plugin-event/pkg/tests/reference"
 )
 
 func TestConfigMap(t *testing.T) {

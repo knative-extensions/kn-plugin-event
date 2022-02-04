@@ -13,9 +13,10 @@ import (
 	eventingduckv1 "knative.dev/eventing/pkg/apis/duck/v1"
 	messagingv1 "knative.dev/eventing/pkg/apis/messaging/v1"
 	messagingv1clientset "knative.dev/eventing/pkg/client/clientset/versioned/typed/messaging/v1"
-	"knative.dev/kn-plugin-event/test/reference"
+	"knative.dev/kn-plugin-event/pkg/tests/reference"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 	"knative.dev/pkg/injection"
+	"knative.dev/pkg/logging"
 	"knative.dev/reconciler-test/pkg/environment"
 	"knative.dev/reconciler-test/pkg/feature"
 	"knative.dev/reconciler-test/pkg/k8s"
@@ -36,7 +37,7 @@ func (cs channelSut) Name() string {
 func (cs channelSut) Deploy(f *feature.Feature, sinkName string) Sink {
 	ch := channelSutImpl{sinkName}
 
-	f.Setup("deploy Channel", ch.step)
+	f.Setup("Deploy Channel", ch.step)
 
 	return ch.sink()
 }
@@ -74,12 +75,16 @@ func (c channelSutImpl) deployChannel(ctx context.Context, t feature.T) {
 			},
 		},
 	}
+	log := logging.FromContext(ctx).
+		With(json("meta", channel.ObjectMeta))
+	log.Info("Deploying Channel")
 	if _, err := channels.Create(ctx, channel, metav1.CreateOptions{}); err != nil {
 		t.Fatal(errors.WithStack(err))
 	}
 	ref := reference.FromChannel(ctx, channel)
 	env.Reference(ref)
 	k8s.WaitForReadyOrDoneOrFail(ctx, t, ref)
+	log.Info("Channel is ready")
 }
 
 func (c channelSutImpl) deploySubscription(ctx context.Context, t feature.T) {
@@ -100,10 +105,15 @@ func (c channelSutImpl) deploySubscription(ctx context.Context, t feature.T) {
 			},
 		},
 	}
+	log := logging.FromContext(ctx).
+		With(json("meta", subscription.ObjectMeta))
+	log.With(json("spec", subscription.Spec)).
+		Info("Deploying Subscription")
 	if _, err := subscriptions.Create(ctx, subscription, metav1.CreateOptions{}); err != nil {
 		t.Fatal(errors.WithStack(err))
 	}
 	ref := reference.FromSubscription(ctx, subscription)
 	env.Reference(ref)
 	k8s.WaitForReadyOrDoneOrFail(ctx, t, ref)
+	log.Info("Subscription is ready")
 }
