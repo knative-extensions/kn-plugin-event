@@ -33,7 +33,7 @@ func TestJobRunnerRun(t *testing.T) {
 	}()
 	ev := <-watcher.ResultChan()
 	assert.Equal(t, ev.Type, watch.Added)
-	assert.Equal(t, ev.Object.(*batchv1.Job).Name, job.GetName())
+	assert.Equal(t, ev.Object.(*batchv1.Job).Name, job.GetName()) // nolint:forcetypeassert
 	watcher.Stop()
 	sucJob := jobSuccess(job)
 	_, err = jobs.Update(ctx, &sucJob, metav1.UpdateOptions{})

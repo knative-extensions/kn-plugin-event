@@ -1,6 +1,7 @@
 package checks
 
 import (
+	"fmt"
 	"path"
 
 	"github.com/magefile/mage/sh"
@@ -14,7 +15,7 @@ func Staticcheck() config.Task {
 		Name:      "staticcheck",
 		Operation: staticcheck,
 		Overrides: []config.Configurator{
-			config.NewDependencies("honnef.co/go/tools/cmd/staticcheck"),
+			config.NewDependencies("honnef.co/go/tools/cmd/staticcheck@latest"),
 		},
 	}
 }
@@ -26,5 +27,6 @@ func staticcheck(notifier config.Notifier) error {
 		skipBecauseOfMissingConfig(notifier, configFile)
 		return nil
 	}
-	return sh.RunV("staticcheck", "-f", "stylish", "./...")
+	cmd := fmt.Sprintf("%s/tools/staticcheck", files.BuildDir())
+	return sh.RunV(cmd, "-f", "stylish", "./...")
 }

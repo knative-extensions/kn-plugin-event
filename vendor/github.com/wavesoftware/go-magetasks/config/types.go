@@ -50,7 +50,7 @@ type Config struct {
 	Overrides []Configurator
 
 	// context.Context is standard Golang context.
-	context.Context
+	context.Context //nolint:containedctx
 }
 
 // Notifier can notify of a pending status of long task.

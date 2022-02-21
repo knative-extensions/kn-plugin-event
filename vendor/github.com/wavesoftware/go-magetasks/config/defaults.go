@@ -26,7 +26,7 @@ func FillInDefaultValues(cfg Config) Config {
 		}
 	}
 	if cfg.Dependencies == nil {
-		cfg.Dependencies = NewDependencies("github.com/kyoh86/richgo")
+		cfg.Dependencies = NewDependencies("gotest.tools/gotestsum@latest")
 	}
 	if cfg.Context == nil {
 		cfg.Context = context.TODO()

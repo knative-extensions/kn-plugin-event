@@ -4,16 +4,16 @@
 package main
 
 import (
-	"os"
-	"strings"
-
 	// mage:import
 	"github.com/wavesoftware/go-magetasks"
 	"github.com/wavesoftware/go-magetasks/config"
+	"github.com/wavesoftware/go-magetasks/config/buildvars"
 	"github.com/wavesoftware/go-magetasks/pkg/artifact"
+	artifactimage "github.com/wavesoftware/go-magetasks/pkg/artifact/image"
 	"github.com/wavesoftware/go-magetasks/pkg/artifact/platform"
 	"github.com/wavesoftware/go-magetasks/pkg/checks"
 	"github.com/wavesoftware/go-magetasks/pkg/git"
+	"github.com/wavesoftware/go-magetasks/pkg/image"
 	"github.com/wavesoftware/go-magetasks/pkg/knative"
 	"knative.dev/kn-plugin-event/overrides"
 	"knative.dev/kn-plugin-event/pkg/metadata"
@@ -59,41 +59,19 @@ func init() { //nolint:gochecknoinits
 		Artifacts: []config.Artifact{sender, cli},
 		Checks:    []config.Task{checks.GolangCiLint()},
 		BuildVariables: map[string]config.Resolver{
-			metadata.ImageBasenamePath(): imageBasenameFromEnv,
+			metadata.ImageBasenamePath():          artifactimage.BaseName,
+			metadata.ImageBasenameSeparatorPath(): artifactimage.BaseNameSeparator,
 		},
 		Overrides: overrides.List,
 	})
 }
 
 func cliBuildVariables(sender artifact.Image) config.BuildVariables {
-	return config.NewBuildVariablesBuilder().
-		ConditionallyAdd(
-			referenceImageByDigest,
-			metadata.ImagePath(),
-			artifact.ImageReferenceOf(sender),
-		).Build()
-}
-
-func imageBasenameFromEnv() string {
-	return env("KO_DOCKER_REPO", "IMAGE_BASENAME")
-}
-
-func env(keys ...string) string {
-	for _, key := range keys {
-		if val, ok := os.LookupEnv(key); ok {
-			return val
-		}
-	}
-	return ""
-}
-
-func skipImageReference() bool {
-	if val, ok := os.LookupEnv("SKIP_IMAGE_REFERENCE"); ok {
-		return strings.ToLower(val) == "true"
-	}
-	return false
-}
-
-func referenceImageByDigest() bool {
-	return !skipImageReference()
+	return buildvars.Assemble([]buildvars.Operator{
+		image.InfluenceableReference{
+			Path:        metadata.ImagePath(),
+			EnvVariable: "KN_PLUGIN_EVENT_IMAGE_SENDER",
+			Image:       sender,
+		},
+	})
 }

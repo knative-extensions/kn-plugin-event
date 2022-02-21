@@ -16,15 +16,22 @@ import (
 func Test() {
 	mg.Deps(Check, files.EnsureBuildDir)
 	t := tasks.Start("✅", "Testing", true)
-	cmd := "richgo"
-	if color.NoColor {
-		cmd = "go"
-	}
 	args := []string{
-		"test", "-v", "-covermode=count",
-		fmt.Sprintf("-coverprofile=%s/coverage.out", files.BuildDir()),
+		"--format", "testname",
+		"--jsonfile", fmt.Sprintf("%s/tests-output.json", files.BuildDir()),
+		"--junitfile", fmt.Sprintf("%s/tests-results.junit.xml", files.BuildDir()),
 	}
+	if color.NoColor {
+		args = append(args, "--no-color")
+	}
+	args = append(args, "--",
+		"-covermode=atomic", fmt.Sprintf("-coverprofile=%s/coverage.out", files.BuildDir()),
+		"-race",
+		"-count=1",
+		"-short",
+	)
 	args = append(appendBuildVariables(args), "./...")
+	cmd := fmt.Sprintf("%s/tools/gotestsum", files.BuildDir())
 	err := sh.RunV(cmd, args...)
 	t.End(err)
 }

@@ -70,27 +70,25 @@ func addCreate(topLevel *cobra.Command) {
 			if !isKubectlAvailable() {
 				return errors.New("error: kubectl is not available. kubectl must be installed to use ko create")
 			}
-
-			// Cancel on signals.
-			ctx := createCancellableContext()
+			ctx := cmd.Context()
 
 			bo.InsecureRegistry = po.InsecureRegistry
 			builder, err := makeBuilder(ctx, bo)
 			if err != nil {
-				return fmt.Errorf("error creating builder: %v", err)
+				return fmt.Errorf("error creating builder: %w", err)
 			}
 			publisher, err := makePublisher(po)
 			if err != nil {
-				return fmt.Errorf("error creating publisher: %v", err)
+				return fmt.Errorf("error creating publisher: %w", err)
 			}
 			defer publisher.Close()
 
 			// Issue a "kubectl create" command reading from stdin,
 			// to which we will pipe the resolved files, and any
 			// remaining flags passed after '--'.
-			argv := []string{"apply", "-f", "-"}
+			argv := []string{"create", "-f", "-"}
 			if kflags := kf.Values(); len(kflags) != 0 {
-				skflags := strings.Join(kflags, " ")
+				skflags := strings.Join(stripPassword(kflags), " ")
 				log.Printf(kubectlFlagsWarningTemplate,
 					"create", skflags,
 					"create", skflags)
@@ -108,7 +106,7 @@ func addCreate(topLevel *cobra.Command) {
 			// Wire up kubectl stdin to resolveFilesToWriter.
 			stdin, err := kubectlCmd.StdinPipe()
 			if err != nil {
-				return fmt.Errorf("error piping to 'kubectl create': %v", err)
+				return fmt.Errorf("error piping to 'kubectl create': %w", err)
 			}
 
 			// Make sure builds are cancelled if kubectl create fails.
@@ -131,7 +129,7 @@ func addCreate(topLevel *cobra.Command) {
 			g.Go(func() error {
 				// Run it.
 				if err := kubectlCmd.Run(); err != nil {
-					return fmt.Errorf("error executing 'kubectl create': %v", err)
+					return fmt.Errorf("error executing 'kubectl create': %w", err)
 				}
 				return nil
 			})
@@ -146,4 +144,15 @@ func addCreate(topLevel *cobra.Command) {
 	internal.AddFlags(&kf, create.Flags())
 
 	topLevel.AddCommand(create)
+}
+
+func stripPassword(flags []string) []string {
+	cp := make([]string, len(flags))
+	for _, f := range flags {
+		if strings.HasPrefix(f, "--password=") {
+			f = "--password=REDACTED"
+		}
+		cp = append(cp, f)
+	}
+	return cp
 }

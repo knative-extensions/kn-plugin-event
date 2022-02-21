@@ -7,9 +7,7 @@ import (
 
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
-
-	// see: https://github.com/kubernetes/client-go/issues/242
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	_ "k8s.io/client-go/plugin/pkg/client/auth" // see: https://github.com/kubernetes/client-go/issues/242
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	eventingv1 "knative.dev/eventing/pkg/client/clientset/versioned/typed/eventing/v1"

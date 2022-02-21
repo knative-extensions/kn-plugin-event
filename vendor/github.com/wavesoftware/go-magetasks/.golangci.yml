@@ -28,6 +28,8 @@ linters:
     - deadcode
     - gochecknoglobals
     - wrapcheck
+    - ireturn
+    - varnamelen
 
 issues:
   exclude-rules:

@@ -3,13 +3,12 @@ package knative
 import (
 	"github.com/wavesoftware/go-magetasks/pkg/environment"
 	"github.com/wavesoftware/go-magetasks/pkg/git"
-	"github.com/wavesoftware/go-magetasks/pkg/version"
 )
 
 // NewVersionResolver creates a version.Resolver implementation directly
 // targeting Knative project CI.
-func NewVersionResolver(options ...VersionResolverOption) version.Resolver {
-	r := versionResolver{
+func NewVersionResolver(options ...VersionResolverOption) VersionResolver {
+	r := VersionResolver{
 		env: environment.VersionResolver{
 			VersionKey: "TAG",
 			IsApplicable: []environment.Check{
@@ -26,11 +25,11 @@ func NewVersionResolver(options ...VersionResolverOption) version.Resolver {
 }
 
 // VersionResolverOption id option to customize version resolution.
-type VersionResolverOption func(*versionResolver)
+type VersionResolverOption func(*VersionResolver)
 
 // WithGit allows passing options for git.VersionResolver.
 func WithGit(options ...git.VersionResolverOption) VersionResolverOption {
-	return func(resolver *versionResolver) {
+	return func(resolver *VersionResolver) {
 		for _, option := range options {
 			option(&resolver.git)
 		}
@@ -39,25 +38,26 @@ func WithGit(options ...git.VersionResolverOption) VersionResolverOption {
 
 // WithEnvironmental allows passing options for environment.VersionResolver.
 func WithEnvironmental(options ...environment.VersionResolverOption) VersionResolverOption {
-	return func(resolver *versionResolver) {
+	return func(resolver *VersionResolver) {
 		for _, option := range options {
 			option(&resolver.env)
 		}
 	}
 }
 
-type versionResolver struct {
+// VersionResolver is a knative compatible version resolver.
+type VersionResolver struct {
 	git git.VersionResolver
 	env environment.VersionResolver
 }
 
-func (v versionResolver) Version() string {
+func (v VersionResolver) Version() string {
 	if ver := v.env.Version(); ver != "" {
 		return ver
 	}
 	return v.git.Version()
 }
 
-func (v versionResolver) IsLatest(versionRange string) (bool, error) {
+func (v VersionResolver) IsLatest(versionRange string) (bool, error) {
 	return git.ResolveIsLatest(v.git, v, versionRange)
 }

@@ -85,18 +85,16 @@ func addApply(topLevel *cobra.Command) {
 			if !isKubectlAvailable() {
 				return errors.New("error: kubectl is not available. kubectl must be installed to use ko apply")
 			}
-
-			// Cancel on signals.
-			ctx := createCancellableContext()
+			ctx := cmd.Context()
 
 			bo.InsecureRegistry = po.InsecureRegistry
 			builder, err := makeBuilder(ctx, bo)
 			if err != nil {
-				return fmt.Errorf("error creating builder: %v", err)
+				return fmt.Errorf("error creating builder: %w", err)
 			}
 			publisher, err := makePublisher(po)
 			if err != nil {
-				return fmt.Errorf("error creating publisher: %v", err)
+				return fmt.Errorf("error creating publisher: %w", err)
 			}
 			defer publisher.Close()
 
@@ -123,7 +121,7 @@ func addApply(topLevel *cobra.Command) {
 			// Wire up kubectl stdin to resolveFilesToWriter.
 			stdin, err := kubectlCmd.StdinPipe()
 			if err != nil {
-				return fmt.Errorf("error piping to 'kubectl apply': %v", err)
+				return fmt.Errorf("error piping to 'kubectl apply': %w", err)
 			}
 
 			// Make sure builds are cancelled if kubectl apply fails.
@@ -146,7 +144,7 @@ func addApply(topLevel *cobra.Command) {
 			g.Go(func() error {
 				// Run it.
 				if err := kubectlCmd.Run(); err != nil {
-					return fmt.Errorf("error executing 'kubectl apply': %v", err)
+					return fmt.Errorf("error executing 'kubectl apply': %w", err)
 				}
 				return nil
 			})
