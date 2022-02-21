@@ -1451,7 +1451,7 @@ k8s.io/kube-openapi/pkg/validation/spec
 k8s.io/utils/buffer
 k8s.io/utils/integer
 k8s.io/utils/trace
-# knative.dev/client v0.29.1-0.20220128135446-9ee52ba85302
+# knative.dev/client v0.29.1-0.20220217100713-af052088caa5
 ## explicit; go 1.16
 knative.dev/client/lib/test
 knative.dev/client/pkg/apis/client
@@ -1468,7 +1468,7 @@ knative.dev/client/pkg/serving/v1
 knative.dev/client/pkg/util
 knative.dev/client/pkg/util/mock
 knative.dev/client/pkg/wait
-# knative.dev/eventing v0.29.1-0.20220128133147-7a44b07f299d
+# knative.dev/eventing v0.29.1-0.20220217054812-7a48f4269b6f
 ## explicit; go 1.16
 knative.dev/eventing/pkg/apis/config
 knative.dev/eventing/pkg/apis/duck
@@ -1507,15 +1507,15 @@ knative.dev/eventing/test/upgrade/prober/wathola/config
 knative.dev/eventing/test/upgrade/prober/wathola/event
 knative.dev/eventing/test/upgrade/prober/wathola/forwarder
 knative.dev/eventing/test/upgrade/prober/wathola/sender
-# knative.dev/hack v0.0.0-20220201013531-82bfca153560
+# knative.dev/hack v0.0.0-20220218190734-a8ef7b67feec
 ## explicit; go 1.14
 knative.dev/hack
-# knative.dev/networking v0.0.0-20220120043934-ec785540a732
+# knative.dev/networking v0.0.0-20220217013411-48ac02ff5975
 ## explicit; go 1.16
 knative.dev/networking/pkg
 knative.dev/networking/pkg/apis/networking
 knative.dev/networking/pkg/apis/networking/v1alpha1
-# knative.dev/pkg v0.0.0-20220131144930-f4b57aef0006
+# knative.dev/pkg v0.0.0-20220217155112-d48172451966
 ## explicit; go 1.17
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
@@ -1558,7 +1558,7 @@ knative.dev/pkg/tracing/config
 knative.dev/pkg/tracing/propagation
 knative.dev/pkg/tracing/propagation/tracecontextb3
 knative.dev/pkg/tracker
-# knative.dev/reconciler-test v0.0.0-20220202155955-6e47083645cf
+# knative.dev/reconciler-test v0.0.0-20220216192840-2c3291f210ce
 ## explicit; go 1.16
 knative.dev/reconciler-test/cmd/eventshub
 knative.dev/reconciler-test/pkg/environment
@@ -1580,7 +1580,7 @@ knative.dev/reconciler-test/pkg/manifest
 knative.dev/reconciler-test/pkg/milestone
 knative.dev/reconciler-test/pkg/state
 knative.dev/reconciler-test/resources/svc
-# knative.dev/serving v0.29.1-0.20220131194631-770b91180d43
+# knative.dev/serving v0.29.1-0.20220217223834-b28062cdc4c7
 ## explicit; go 1.16
 knative.dev/serving/pkg/apis/autoscaling
 knative.dev/serving/pkg/apis/autoscaling/v1alpha1

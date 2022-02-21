@@ -22,44 +22,30 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-func sendEventFeature(featureName string, opts sendEventOptions) *feature.Feature {
-	f := feature.NewFeatureNamed(featureName)
+// SendEventFeature will create a feature.Feature that will test sending an
+// event using in cluster sender to SystemUnderTest.
+func SendEventFeature(sut SystemUnderTest) *feature.Feature {
+	f := feature.NewFeatureNamed(sut.Name())
 	sinkName := feature.MakeRandomK8sName("sink")
 	ev := cetest.FullEvent()
 	ev.SetID(feature.MakeRandomK8sName("test-event"))
 
-	f.Setup("deploy sink", eventshub.Install(sinkName, eventshub.StartReceiver))
+	f.Setup("Deploy EventsHub Sink", eventshub.Install(sinkName, eventshub.StartReceiver))
+
+	sink := sut.Deploy(f, sinkName)
 
 	f.Alpha("Event").
-		Must("send", sendEvent(ev, opts.sink(sinkName))).
+		Must("send", sendEvent(ev, sink)).
 		Must("receive", receiveEvent(ev, sinkName))
-
-	for _, st := range opts.steps {
-		f = st(f, sinkName)
-	}
 
 	return f
 }
 
-type (
-	sinkProducer func(string) string
-	step         func(*feature.Feature, string) *feature.Feature
-)
-
-type sendEventOptions struct {
-	sink  sinkProducer
-	steps []step
-}
-
-func sinkFormat(format string) sinkProducer {
-	return func(sinkName string) string {
-		return fmt.Sprintf(format, sinkName)
-	}
-}
-
-func sendEvent(ev cloudevents.Event, sink string) feature.StepFn {
+func sendEvent(ev cloudevents.Event, sink Sink) feature.StepFn {
 	return func(ctx context.Context, t feature.T) {
-		log := logging.FromContext(ctx)
+		log := logging.FromContext(ctx).
+			With(json("event-id", ev.ID()))
+
 		ns := environment.FromContext(ctx).Namespace()
 		args := []string{
 			"send",
@@ -67,18 +53,25 @@ func sendEvent(ev cloudevents.Event, sink string) feature.StepFn {
 			"--source", ev.Source(),
 			"--type", ev.Type(),
 			"--namespace", ns,
-			"--sender-namespace", ns,
 			"--field", fmt.Sprintf("data=%s", ev.Data()),
-			"--to", sink,
+			"--to", sink.String(),
 		}
+		// FIXME: remove --sender-namespace after fixing issue
+		//        knative-sandbox/kn-plugin-event#160
+		log.Warn("FIXME: knative-sandbox/kn-plugin-event#160")
+		args = append(args, "--sender-namespace", ns)
+
 		cmd := test.ResolveKnEventCommand(t).ToIcmd(args...)
-		log.Infof("Running command: %v", cmd)
+		log = log.With(json("cmd", cmd))
+		log.Info("Running")
 		result := icmd.RunCmd(cmd)
-		err := result.Compare(icmd.Expected{
+		if err := result.Compare(icmd.Expected{
 			ExitCode: 0,
 			Out:      fmt.Sprintf("Event (ID: %s) have been sent.", ev.ID()),
-		})
-		handleSendErr(ctx, t, err, ev)
+		}); err != nil {
+			handleSendErr(ctx, t, err, ev)
+		}
+		log.Info("Succeeded")
 	}
 }
 

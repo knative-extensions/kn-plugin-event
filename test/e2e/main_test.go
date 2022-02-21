@@ -10,6 +10,7 @@ import (
 
 	// ref.: https://github.com/kubernetes/client-go/issues/242
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"knative.dev/kn-plugin-event/pkg/tests/logging"
 	"knative.dev/pkg/injection"
 	"knative.dev/reconciler-test/pkg/environment"
 )
@@ -33,7 +34,8 @@ func TestMain(m *testing.M) {
 	// testing framework for namespace management, and could be leveraged by
 	// features to pull Kubernetes clients or the test environment out of the
 	// context passed in the features.
-	ctx, startInformers := injection.EnableInjectionOrDie(nil, nil) // nolint
+	ctx, startInformers := injection.EnableInjectionOrDie(
+		logging.NewContext(), nil)
 	startInformers()
 
 	// global is used to make instances of Environments, NewGlobalEnvironment
