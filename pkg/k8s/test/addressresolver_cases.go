@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/url"
@@ -53,13 +54,14 @@ func ResolveAddressTestCases(namespace string, casefn func(tc ResolveAddressTest
 func EnsureResolveAddress( //nolint:thelper
 	tb testing.TB,
 	tc ResolveAddressTestCase,
-	clientsFn func() (k8s.Clients, func(tb testing.TB)),
+	clientsFn func(context.Context) (k8s.Clients, func(tb testing.TB)),
 ) {
 	uri := &apis.URL{}
-	clients, cleanup := clientsFn()
+	ctx := context.TODO()
+	clients, cleanup := clientsFn(ctx)
 	defer cleanup(tb)
 	resolver := k8s.CreateAddressResolver(clients)
-	u, err := resolver.ResolveAddress(tc.ref, uri)
+	u, err := resolver.ResolveAddress(ctx, tc.ref, uri)
 	if tc.err != nil {
 		assert.ErrorType(tb, err, tc.err)
 	} else {

@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -32,8 +33,9 @@ func createExampleEvent() cloudevents.Event {
 	return ce
 }
 
-func assertWithOutputMode(t *testing.T, want cloudevents.Event, mode cli.OutputMode) {
-	t.Helper()
+func assertWithOutputMode(tb testing.TB, want cloudevents.Event, mode cli.OutputMode) {
+	tb.Helper()
+	ctx := context.TODO()
 	var buf bytes.Buffer
 	sender := &tests.Sender{}
 	app := cli.App{
@@ -43,20 +45,16 @@ func assertWithOutputMode(t *testing.T, want cloudevents.Event, mode cli.OutputM
 			},
 		},
 	}
-	err := app.Send(
-		want,
-		cli.TargetArgs{URL: "http://example.org"},
-		&cli.Options{
-			Output:    mode,
-			OutWriter: &buf,
-		},
-	)
-	assert.NilError(t, err)
+	err := app.Send(ctx, want, cli.TargetArgs{URL: "http://example.org"}, &cli.Options{
+		Output:    mode,
+		OutWriter: &buf,
+	})
+	assert.NilError(tb, err)
 	out := buf.String()
-	assert.Equal(t, 1, len(sender.Sent))
-	assert.Equal(t, want.ID(), sender.Sent[0].ID())
+	assert.Equal(tb, 1, len(sender.Sent))
+	assert.Equal(tb, want.ID(), sender.Sent[0].ID())
 
-	assert.Check(t, strings.Contains(out,
+	assert.Check(tb, strings.Contains(out,
 		fmt.Sprintf("Event (ID: %s) have been sent.", want.ID()),
 	))
 }

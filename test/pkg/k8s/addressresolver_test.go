@@ -36,11 +36,11 @@ func TestResolveAddress(t *testing.T) {
 		k8stest.ResolveAddressTestCases(c.KnTest.Namespace(), func(tc k8stest.ResolveAddressTestCase) {
 			t.Run(tc.Name, func(t *testing.T) {
 				t.Parallel()
-				k8stest.EnsureResolveAddress(t, tc, func() (k8s.Clients, func(tb testing.TB)) {
-					deploy(t, tc, c.Clients)
+				k8stest.EnsureResolveAddress(t, tc, func(ctx context.Context) (k8s.Clients, func(tb testing.TB)) {
+					deploy(ctx, t, tc, c.Clients)
 					cleanup := func(tb testing.TB) {
 						tb.Helper()
-						undeploy(tb, tc, c.Clients)
+						undeploy(ctx, tb, tc, c.Clients)
 					}
 					return c.Clients, cleanup
 				})
@@ -49,61 +49,70 @@ func TestResolveAddress(t *testing.T) {
 	})
 }
 
-func deploy(tb testing.TB, tc k8stest.ResolveAddressTestCase, clients k8s.Clients) {
+func deploy(
+	ctx context.Context,
+	tb testing.TB,
+	tc k8stest.ResolveAddressTestCase,
+	clients k8s.Clients,
+) {
 	tb.Helper()
 	for _, object := range tc.Objects {
 		switch v := object.(type) {
 		case *servingv1.Service:
-			deployKnService(tb, clients, *(v))
+			deployKnService(ctx, tb, clients, *(v))
 		case *corev1.Service:
-			deployK8sService(tb, clients, *(v))
+			deployK8sService(ctx, tb, clients, *(v))
 		case *eventingv1.Broker:
-			deployBroker(tb, clients, *(v))
+			deployBroker(ctx, tb, clients, *(v))
 		case *messagingv1.Channel:
-			deployChannel(tb, clients, *(v))
+			deployChannel(ctx, tb, clients, *(v))
 		default:
 			tb.Fatalf("unsupported type: %#v", v)
 		}
 	}
 }
 
-func undeploy(tb testing.TB, tc k8stest.ResolveAddressTestCase, clients k8s.Clients) {
+func undeploy(
+	ctx context.Context,
+	tb testing.TB,
+	tc k8stest.ResolveAddressTestCase,
+	clients k8s.Clients,
+) {
 	tb.Helper()
 	for _, object := range tc.Objects {
 		switch v := object.(type) {
 		case *servingv1.Service:
-			undeployKnService(tb, clients, *(v))
+			undeployKnService(ctx, tb, clients, *(v))
 		case *corev1.Service:
-			undeployK8sService(tb, clients, *(v))
+			undeployK8sService(ctx, tb, clients, *(v))
 		case *eventingv1.Broker:
-			undeployBroker(tb, clients, *(v))
+			undeployBroker(ctx, tb, clients, *(v))
 		case *messagingv1.Channel:
-			undeployChannel(tb, clients, *(v))
+			undeployChannel(ctx, tb, clients, *(v))
 		default:
 			tb.Fatalf("unsupported type: %#v", v)
 		}
 	}
 }
 
-func deployK8sService(tb testing.TB, clients k8s.Clients, service corev1.Service) {
+func deployK8sService(ctx context.Context, tb testing.TB, clients k8s.Clients, service corev1.Service) {
 	tb.Helper()
 	service.Status = corev1.ServiceStatus{}
 	_, err := clients.Typed().CoreV1().Services(service.Namespace).
-		Create(clients.Context(), &service, metav1.CreateOptions{})
+		Create(ctx, &service, metav1.CreateOptions{})
 	assert.NilError(tb, err)
 }
 
-func undeployK8sService(tb testing.TB, clients k8s.Clients, service corev1.Service) {
+func undeployK8sService(ctx context.Context, tb testing.TB, clients k8s.Clients, service corev1.Service) {
 	tb.Helper()
 	err := clients.Typed().CoreV1().Services(service.Namespace).
-		Delete(clients.Context(), service.Name, metav1.DeleteOptions{})
+		Delete(ctx, service.Name, metav1.DeleteOptions{})
 	assert.NilError(tb, err)
 }
 
-func deployKnService(tb testing.TB, clients k8s.Clients, service servingv1.Service) {
+func deployKnService(ctx context.Context, tb testing.TB, clients k8s.Clients, service servingv1.Service) {
 	tb.Helper()
 	service.Status = servingv1.ServiceStatus{}
-	ctx := clients.Context()
 	knclient := clientservingv1.NewKnServingClient(clients.Serving(), service.Namespace)
 	err := knclient.CreateService(ctx, &service)
 	assert.NilError(tb, err)
@@ -112,44 +121,43 @@ func deployKnService(tb testing.TB, clients k8s.Clients, service servingv1.Servi
 	assert.NilError(tb, err)
 }
 
-func undeployKnService(tb testing.TB, clients k8s.Clients, service servingv1.Service) {
+func undeployKnService(ctx context.Context, tb testing.TB, clients k8s.Clients, service servingv1.Service) {
 	tb.Helper()
 	err := clientservingv1.
 		NewKnServingClient(clients.Serving(), service.Namespace).
-		DeleteService(clients.Context(), service.GetName(), time.Minute)
+		DeleteService(ctx, service.GetName(), time.Minute)
 	assert.NilError(tb, err)
 }
 
-func deployBroker(tb testing.TB, clients k8s.Clients, broker eventingv1.Broker) {
+func deployBroker(ctx context.Context, tb testing.TB, clients k8s.Clients, broker eventingv1.Broker) {
 	tb.Helper()
 	broker.Status = eventingv1.BrokerStatus{}
-	ctx := clients.Context()
 	knclient := clienteventingv1.NewKnEventingClient(clients.Eventing(),
 		broker.Namespace)
 	assert.NilError(tb, knclient.CreateBroker(ctx, &broker))
-	assert.NilError(tb, waitForReady(clients, &broker, 30*time.Second))
+	assert.NilError(tb, waitForReady(ctx, clients, &broker, 30*time.Second))
 }
 
-func undeployBroker(tb testing.TB, clients k8s.Clients, broker eventingv1.Broker) {
+func undeployBroker(ctx context.Context, tb testing.TB, clients k8s.Clients, broker eventingv1.Broker) {
 	tb.Helper()
 	err := clients.Eventing().Brokers(broker.Namespace).
-		Delete(clients.Context(), broker.Name, metav1.DeleteOptions{})
+		Delete(ctx, broker.Name, metav1.DeleteOptions{})
 	assert.NilError(tb, err)
 }
 
-func deployChannel(tb testing.TB, clients k8s.Clients, channel messagingv1.Channel) {
+func deployChannel(ctx context.Context, tb testing.TB, clients k8s.Clients, channel messagingv1.Channel) {
 	tb.Helper()
 	channel.Status = messagingv1.ChannelStatus{}
 	knclient := clientmessagingv1.NewKnMessagingClient(clients.Messaging(),
 		channel.Namespace).ChannelsClient()
-	assert.NilError(tb, knclient.CreateChannel(clients.Context(), &channel))
-	assert.NilError(tb, waitForReady(clients, &channel, 30*time.Second))
+	assert.NilError(tb, knclient.CreateChannel(ctx, &channel))
+	assert.NilError(tb, waitForReady(ctx, clients, &channel, 30*time.Second))
 }
 
-func undeployChannel(tb testing.TB, clients k8s.Clients, channel messagingv1.Channel) {
+func undeployChannel(ctx context.Context, tb testing.TB, clients k8s.Clients, channel messagingv1.Channel) {
 	tb.Helper()
 	err := clients.Messaging().Channels(channel.Namespace).
-		Delete(clients.Context(), channel.Name, metav1.DeleteOptions{})
+		Delete(ctx, channel.Name, metav1.DeleteOptions{})
 	assert.NilError(tb, err)
 }
 
@@ -173,11 +181,11 @@ func (a accessorWatchMaker) gvr() schema.GroupVersionResource {
 	return apis.KindToResource(gvk)
 }
 
-func waitForReady(clients k8s.Clients, acccessor kmeta.Accessor, timeout time.Duration) error {
+func waitForReady(ctx context.Context, clients k8s.Clients, acccessor kmeta.Accessor, timeout time.Duration) error {
 	awm := accessorWatchMaker{clients: clients, acccessor: acccessor}
 	ready := clientwait.NewWaitForReady(awm.gvr().Resource, awm.watchMaker, dynamicConditionExtractor)
 	err, _ := ready.Wait(
-		clients.Context(),
+		ctx,
 		acccessor.GetName(),
 		"0",
 		clientwait.Options{Timeout: &timeout},

@@ -1,6 +1,7 @@
 package k8s_test
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -22,14 +23,14 @@ func TestJobRunnerRun(t *testing.T) {
 	runner := k8s.CreateJobRunner(clients)
 	job := examplePiJob()
 	jobs := clients.Typed().BatchV1().Jobs(job.Namespace)
-	ctx := clients.Context()
+	ctx := context.TODO()
 	watcher, err := jobs.Watch(ctx, metav1.ListOptions{})
 	assert.NilError(t, err)
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		assert.NilError(t, runner.Run(&job))
+		assert.NilError(t, runner.Run(ctx, &job))
 	}()
 	ev := <-watcher.ResultChan()
 	assert.Equal(t, ev.Type, watch.Added)

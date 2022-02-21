@@ -1,7 +1,6 @@
 package k8s
 
 import (
-	"context"
 	"errors"
 	"fmt"
 
@@ -47,7 +46,6 @@ func CreateKubeClient(props *event.Properties) (Clients, error) {
 		return nil, fmt.Errorf("%w: %v", ErrUnexcpected, err)
 	}
 	return &clients{
-		ctx:       context.Background(),
 		namespace: cc.namespace,
 		typed:     typed,
 		dynamic:   dyn,
@@ -62,7 +60,6 @@ type Clients interface {
 	Namespace() string
 	Typed() kubernetes.Interface
 	Dynamic() dynamic.Interface
-	Context() context.Context
 	Serving() servingv1.ServingV1Interface
 	Eventing() eventingv1.EventingV1Interface
 	Messaging() messagingv1.MessagingV1Interface
@@ -102,7 +99,6 @@ type clientConfig struct {
 
 type clients struct {
 	namespace string
-	ctx       context.Context
 	typed     kubernetes.Interface
 	dynamic   dynamic.Interface
 	serving   servingv1.ServingV1Interface
@@ -116,10 +112,6 @@ func (c *clients) Typed() kubernetes.Interface {
 
 func (c *clients) Dynamic() dynamic.Interface {
 	return c.dynamic
-}
-
-func (c *clients) Context() context.Context {
-	return c.ctx
 }
 
 func (c *clients) Serving() servingv1.ServingV1Interface {

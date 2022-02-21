@@ -74,13 +74,14 @@ isn't specified target URL will not be changed. This option can't be used with
 	return c
 }
 
-func (s *sendCommand) run(_ *cobra.Command, _ []string) error {
+func (s *sendCommand) run(cmd *cobra.Command, _ []string) error {
 	c := configuration.CreateCli()
 	ce, err := c.CreateWithArgs(s.event)
 	if err != nil {
 		return cantBuildEventError(err)
 	}
-	err = c.Send(*ce, *s.target, s.options)
+	ctx := cmd.Context()
+	err = c.Send(ctx, *ce, *s.target, s.options)
 	if err != nil {
 		return cantSentEvent(err)
 	}

@@ -22,37 +22,37 @@ import (
 // ReferenceAddressResolver will resolve the tracker.Reference to an url.URL, or
 // return an error.
 type ReferenceAddressResolver interface {
-	ResolveAddress(ref *tracker.Reference, uri *apis.URL) (*url.URL, error)
+	ResolveAddress(ctx context.Context, ref *tracker.Reference, uri *apis.URL) (*url.URL, error)
 }
 
 // CreateAddressResolver will create ReferenceAddressResolver, or return an
 // error.
 func CreateAddressResolver(kube Clients) ReferenceAddressResolver {
-	ctx := ctxWithDynamic(kube)
 	return &addressResolver{
-		kube: kube, ctx: addressable.WithDuck(ctx),
+		kube: kube,
 	}
 }
 
 type addressResolver struct {
 	kube Clients
-	ctx  context.Context
 }
 
 // ResolveAddress of a tracker.Reference with given uri (as apis.URL).
 func (a *addressResolver) ResolveAddress(
+	ctx context.Context,
 	ref *tracker.Reference,
 	uri *apis.URL,
 ) (*url.URL, error) {
+	ctx = a.configureContext(ctx)
 	gvr := a.toGVR(ref)
-	dest, err := a.toDestination(gvr, ref, uri)
+	dest, err := a.toDestination(ctx, gvr, ref, uri)
 	if err != nil {
 		return nil, err
 	}
 	parent := toAccessor(ref)
-	tr := tracker.New(noopCallback, controller.GetTrackerLease(a.ctx))
-	r := resolver.NewURIResolverFromTracker(a.ctx, tr)
-	u, err := r.URIFromDestinationV1(a.ctx, *dest, parent)
+	tr := tracker.New(noopCallback, controller.GetTrackerLease(ctx))
+	r := resolver.NewURIResolverFromTracker(ctx, tr)
+	u, err := r.URIFromDestinationV1(ctx, *dest, parent)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrNotAddressable, err)
 	}
@@ -61,6 +61,7 @@ func (a *addressResolver) ResolveAddress(
 }
 
 func (a *addressResolver) toDestination(
+	ctx context.Context,
 	gvr schema.GroupVersionResource,
 	ref *tracker.Reference,
 	uri *apis.URL,
@@ -76,7 +77,7 @@ func (a *addressResolver) toDestination(
 	}
 	if ref.Selector != nil {
 		list, err := a.kube.Dynamic().Resource(gvr).
-			Namespace(ref.Namespace).List(a.ctx, metav1.ListOptions{
+			Namespace(ref.Namespace).List(ctx, metav1.ListOptions{
 			LabelSelector: ref.Selector.String(),
 		})
 		if err != nil {
@@ -92,6 +93,11 @@ func (a *addressResolver) toDestination(
 		dest.Ref.Name = list.Items[0].GetName()
 	}
 	return dest, nil
+}
+
+func (a *addressResolver) configureContext(ctx context.Context) context.Context {
+	ctx = ctxWithDynamic(ctx, a.kube)
+	return addressable.WithDuck(ctx)
 }
 
 func (a *addressResolver) toGVR(ref *tracker.Reference) schema.GroupVersionResource {
@@ -111,8 +117,8 @@ func toAccessor(ref *tracker.Reference) kmeta.Accessor {
 	}}
 }
 
-func ctxWithDynamic(kube Clients) context.Context {
-	return context.WithValue(kube.Context(), dynamicclient.Key{}, kube.Dynamic())
+func ctxWithDynamic(ctx context.Context, kube Clients) context.Context {
+	return context.WithValue(ctx, dynamicclient.Key{}, kube.Dynamic())
 }
 
 func noopCallback(_ types.NamespacedName) {

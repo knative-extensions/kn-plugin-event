@@ -27,7 +27,6 @@ linters:
     - golint
     - ireturn
     - varnamelen
-    - containedctx
 
 issues:
   exclude-rules:

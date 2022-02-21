@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"knative.dev/kn-plugin-event/pkg/cli"
 	"knative.dev/kn-plugin-event/pkg/cli/retcode"
 	"knative.dev/kn-plugin-event/pkg/metadata"
+	"knative.dev/pkg/signals"
 )
 
 // Cmd represents a command line application entrypoint.
@@ -22,14 +24,14 @@ type Cmd struct {
 
 // Execute will execute the application.
 func (c *Cmd) Execute() {
-	if err := c.execute(); err != nil {
+	if err := c.execute(signals.NewContext()); err != nil {
 		c.exit(retcode.Calc(err))
 	}
 }
 
 // ExecuteWithOptions will execute the application with the provided options.
-func (c *Cmd) ExecuteWithOptions(options ...CommandOption) error {
-	return c.execute(options...)
+func (c *Cmd) ExecuteWithOptions(ctx context.Context, options ...CommandOption) error {
+	return c.execute(ctx, options...)
 }
 
 // WithArgs creates an option which sets args.
@@ -50,13 +52,13 @@ func WithOutput(out io.Writer) CommandOption {
 // CommandOption is used to configure a command in Cmd.ExecuteWithOptions.
 type CommandOption func(*cobra.Command)
 
-func (c *Cmd) execute(configs ...CommandOption) error {
+func (c *Cmd) execute(ctx context.Context, configs ...CommandOption) error {
 	c.init()
 	for _, config := range configs {
 		config(c.root)
 	}
 	// cobra.Command should pass our own errors, no need to wrap them.
-	return c.root.Execute() //nolint:wrapcheck
+	return c.root.ExecuteContext(ctx) //nolint:wrapcheck
 }
 
 func (c *Cmd) init() {

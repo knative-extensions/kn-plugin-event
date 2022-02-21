@@ -1,6 +1,7 @@
 package event
 
 import (
+	"context"
 	"net/url"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -75,7 +76,7 @@ type Properties struct {
 type Sender interface {
 	// Send will send cloudevents.Event to configured target, or return an error
 	// if one occur.
-	Send(ce cloudevents.Event) error
+	Send(ctx context.Context, ce cloudevents.Event) error
 }
 
 // CreateSender creates a Sender.

@@ -1,6 +1,7 @@
 package sender_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/url"
@@ -30,6 +31,7 @@ func TestInClusterSenderSend(t *testing.T) {
 	for i := range testCases {
 		tt := testCases[i]
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.TODO()
 			createKubeClient := func(_ *event.Properties) (k8s.Clients, error) {
 				return &tests.FakeClients{}, nil
 			}
@@ -49,7 +51,7 @@ func TestInClusterSenderSend(t *testing.T) {
 				AddressableVal: tt.fields.addressable,
 			})
 			assert.NilError(t, err)
-			if err := s.Send(tt.args.ce); !errors.Is(err, tt.err) {
+			if err := s.Send(ctx, tt.args.ce); !errors.Is(err, tt.err) {
 				t.Errorf("Send() error = %v, wantErr = %v", err, tt.err)
 			}
 		})
@@ -62,7 +64,7 @@ func passingInClusterSenderSend(t *testing.T) inClusterTestCase {
 		name: "passing",
 		fields: fields{
 			addressable: exampleBrokerAddressableSpec(t),
-			jobRunner: stubJobRunner(func(job *batchv1.Job) bool {
+			jobRunner: stubJobRunner(func(ctx context.Context, job *batchv1.Job) bool {
 				if sink, ok := envof(job.Spec.Template.Spec.Containers[0].Env, "K_SINK"); ok {
 					if sink != "default.demo.broker.eventing.dev.cluster.local" {
 						return false
@@ -95,7 +97,7 @@ func couldResolveAddress(t *testing.T) inClusterTestCase {
 		fields: fields{
 			addressable:     exampleBrokerAddressableSpec(t),
 			addressResolver: ar,
-			jobRunner: stubJobRunner(func(job *batchv1.Job) bool {
+			jobRunner: stubJobRunner(func(_ context.Context, _ *batchv1.Job) bool {
 				return true
 			}),
 		},
@@ -116,11 +118,11 @@ func envof(envs []corev1.EnvVar, name string) (string, bool) {
 }
 
 type jr struct {
-	isValid func(job *batchv1.Job) bool
+	isValid func(context.Context, *batchv1.Job) bool
 }
 
-func (j *jr) Run(job *batchv1.Job) error {
-	if !j.isValid(job) {
+func (j *jr) Run(ctx context.Context, job *batchv1.Job) error {
+	if !j.isValid(ctx, job) {
 		return event.ErrCantSentEvent
 	}
 	return nil
@@ -130,7 +132,7 @@ type ar struct {
 	isValid func(ref *tracker.Reference) error
 }
 
-func (a *ar) ResolveAddress(ref *tracker.Reference, uri *apis.URL) (*url.URL, error) {
+func (a *ar) ResolveAddress(_ context.Context, ref *tracker.Reference, uri *apis.URL) (*url.URL, error) {
 	if a.isValid != nil {
 		if err := a.isValid(ref); err != nil {
 			return nil, err
@@ -144,7 +146,7 @@ func (a *ar) ResolveAddress(ref *tracker.Reference, uri *apis.URL) (*url.URL, er
 	return u, nil
 }
 
-func stubJobRunner(isValid func(job *batchv1.Job) bool) *jr {
+func stubJobRunner(isValid func(context.Context, *batchv1.Job) bool) *jr {
 	return &jr{isValid: isValid}
 }
 

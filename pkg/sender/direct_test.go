@@ -2,6 +2,7 @@ package sender_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -25,6 +26,7 @@ func TestDirectSenderSend(t *testing.T) {
 		tt := testsCases[i]
 		t.Run(tt.name, func(t *testing.T) {
 			tt.context(func(u url.URL) {
+				ctx := context.TODO()
 				binding := sender.Binding{}
 				s, err := binding.New(&event.Target{
 					Type:   event.TargetTypeReachable,
@@ -40,7 +42,7 @@ func TestDirectSenderSend(t *testing.T) {
 				if tt.validateErr != nil {
 					validateErr = tt.validateErr
 				}
-				validateErr(s.Send(tt.ce))
+				validateErr(s.Send(ctx, tt.ce))
 			})
 		})
 	}

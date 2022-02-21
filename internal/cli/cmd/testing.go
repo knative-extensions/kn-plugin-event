@@ -1,6 +1,9 @@
 package cmd
 
-import "io"
+import (
+	"context"
+	"io"
+)
 
 // TestingCmd a wrapper for Cmd to ease of testing.
 type TestingCmd struct {
@@ -16,7 +19,8 @@ func (c *TestingCmd) ExecuteOrFail() {
 // Execute the command and return error if any.
 func (c *TestingCmd) Execute() error {
 	c.init()
-	return c.execute()
+	ctx := context.TODO()
+	return c.execute(ctx)
 }
 
 // Exit sets the exit command that accepts retcode.

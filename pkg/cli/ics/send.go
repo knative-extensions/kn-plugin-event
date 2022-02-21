@@ -7,6 +7,7 @@ import (
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/kelseyhightower/envconfig"
 	"knative.dev/kn-plugin-event/pkg/event"
+	"knative.dev/pkg/signals"
 )
 
 // SendFromEnv will send an event based on a values stored in environmental
@@ -16,7 +17,8 @@ func (app *App) SendFromEnv() error {
 	if err != nil {
 		return err
 	}
-	err = c.sender.Send(*c.ce)
+	ctx := signals.NewContext()
+	err = c.sender.Send(ctx, *c.ce)
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrCantSendWithICS, err)
 	}

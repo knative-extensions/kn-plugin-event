@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"testing"
 
 	"gotest.tools/v3/assert"
@@ -30,7 +29,6 @@ type FakeClients struct {
 	serving   servingv1client.ServingV1Interface
 	eventing  eventingv1client.EventingV1Interface
 	messaging messagingv1client.MessagingV1Interface
-	ctx       context.Context
 }
 
 func (c *FakeClients) Typed() kubernetes.Interface {
@@ -71,13 +69,6 @@ func (c *FakeClients) Messaging() messagingv1client.MessagingV1Interface {
 		c.messaging = eventingv1fakeclient.NewSimpleClientset(c.Objects...).MessagingV1()
 	}
 	return c.messaging
-}
-
-func (c *FakeClients) Context() context.Context {
-	if c.ctx == nil {
-		c.ctx = context.Background()
-	}
-	return c.ctx
 }
 
 func (c *FakeClients) Namespace() string {

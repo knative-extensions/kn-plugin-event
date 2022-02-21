@@ -1,6 +1,7 @@
 package event_test
 
 import (
+	"context"
 	"errors"
 	"strings"
 	"testing"
@@ -23,6 +24,7 @@ func TestSendingAnEvent(t *testing.T) {
 	for i := range tests {
 		tt := tests[i]
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.TODO()
 			binding := event.Binding{CreateSender: tt.CreateSender}
 			s, err := binding.NewSender(tt.target)
 			if err != nil {
@@ -31,7 +33,7 @@ func TestSendingAnEvent(t *testing.T) {
 				}
 				return
 			}
-			got := s.Send(tt.ce)
+			got := s.Send(ctx, tt.ce)
 			if !errors.Is(got, tt.want) {
 				t.Errorf("want: %#v\n got: %#v", tt.want, got)
 			}
@@ -79,7 +81,7 @@ func failingSend() testCase {
 
 type stubSender struct{}
 
-func (m *stubSender) Send(_ cloudevents.Event) error {
+func (m *stubSender) Send(_ context.Context, _ cloudevents.Event) error {
 	return nil
 }
 

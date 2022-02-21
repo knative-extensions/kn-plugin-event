@@ -6,6 +6,7 @@ import (
 	knplugin "knative.dev/client/pkg/kn/plugin"
 	"knative.dev/kn-plugin-event/internal/cli/cmd"
 	"knative.dev/kn-plugin-event/pkg/metadata"
+	"knative.dev/pkg/signals"
 )
 
 // init makes sure to register plugin as internal one, after import of
@@ -30,7 +31,7 @@ func (p plugin) Execute(args []string) error {
 	if p.Writer != nil {
 		opts = append(opts, cmd.WithOutput(p.Writer))
 	}
-	return new(cmd.Cmd).ExecuteWithOptions(opts...) //nolint:wrapcheck
+	return new(cmd.Cmd).ExecuteWithOptions(signals.NewContext(), opts...) //nolint:wrapcheck
 }
 
 func (p plugin) Description() (string, error) {

@@ -1,6 +1,7 @@
 package k8s_test
 
 import (
+	"context"
 	"testing"
 
 	clienttest "knative.dev/client/lib/test"
@@ -13,7 +14,7 @@ func TestResolveAddress(t *testing.T) {
 	ns := clienttest.NextNamespace()
 	k8stest.ResolveAddressTestCases(ns, func(tc k8stest.ResolveAddressTestCase) {
 		t.Run(tc.Name, func(t *testing.T) {
-			k8stest.EnsureResolveAddress(t, tc, func() (k8s.Clients, func(tb testing.TB)) {
+			k8stest.EnsureResolveAddress(t, tc, func(_ context.Context) (k8s.Clients, func(tb testing.TB)) {
 				return fakeClients(t, tc), noCleanup
 			})
 		})

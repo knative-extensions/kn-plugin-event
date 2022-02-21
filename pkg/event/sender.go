@@ -1,6 +1,7 @@
 package event
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -24,8 +25,8 @@ type sendLogic struct {
 	*Properties
 }
 
-func (l *sendLogic) Send(ce cloudevents.Event) error {
-	err := l.Sender.Send(ce)
+func (l *sendLogic) Send(ctx context.Context, ce cloudevents.Event) error {
+	err := l.Sender.Send(ctx, ce)
 	if err == nil {
 		l.Log.Infof("Event (ID: %s) have been sent.", ce.ID())
 		return nil

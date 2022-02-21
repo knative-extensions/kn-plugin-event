@@ -1,6 +1,7 @@
 package sender
 
 import (
+	"context"
 	"fmt"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -19,9 +20,9 @@ type inClusterSender struct {
 	addressResolver k8s.ReferenceAddressResolver
 }
 
-func (i *inClusterSender) Send(ce cloudevents.Event) error {
+func (i *inClusterSender) Send(ctx context.Context, ce cloudevents.Event) error {
 	url, err := i.addressResolver.ResolveAddress(
-		i.addressable.Reference, i.addressable.URI,
+		ctx, i.addressable.Reference, i.addressable.URI,
 	)
 	if err != nil {
 		return fmt.Errorf("%w: %v", k8s.ErrInvalidReference, err)
@@ -57,7 +58,7 @@ func (i *inClusterSender) Send(ce cloudevents.Event) error {
 			},
 		},
 	}
-	err = i.jobRunner.Run(job)
+	err = i.jobRunner.Run(ctx, job)
 	if err != nil {
 		return fmt.Errorf("%w: %v", ics.ErrCantSendWithICS, err)
 	}
