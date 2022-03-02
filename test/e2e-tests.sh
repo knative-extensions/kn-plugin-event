@@ -28,6 +28,6 @@ set -Eeuo pipefail
 
 ./mage publish
 
-go_test_e2e ./test/...
+go_test_e2e -timeout 10m ./test/... || fail_test 'kn-event e2e tests'
 
 success

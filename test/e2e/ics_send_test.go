@@ -16,7 +16,7 @@ import (
 
 func TestInClusterSender(t *testing.T) {
 	test.MaybeSkip(t)
-	e2e.RegisterPackages()
+	e2e.ConfigureImages(t)
 
 	t.Parallel()
 

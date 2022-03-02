@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/cloudevents/sdk-go/v2 v2.8.0
 	github.com/ghodss/yaml v1.0.0
+	github.com/google/go-containerregistry v0.8.1-0.20220120151853-ac864e57b117
 	github.com/google/uuid v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/magefile/mage v1.11.0

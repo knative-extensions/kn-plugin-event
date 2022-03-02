@@ -5,17 +5,17 @@ package k8s_test
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
 	"gotest.tools/v3/assert"
+	"gotest.tools/v3/poll"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/dynamic"
 	clienteventingv1 "knative.dev/client/pkg/eventing/v1"
 	clientmessagingv1 "knative.dev/client/pkg/messaging/v1"
 	clientservingv1 "knative.dev/client/pkg/serving/v1"
@@ -38,8 +38,11 @@ func TestResolveAddress(t *testing.T) {
 				t.Parallel()
 				k8stest.EnsureResolveAddress(t, tc, func() (k8s.Clients, func(tb testing.TB)) {
 					deploy(t, tc, c.Clients)
-					cleanup := func(tb testing.TB) {
-						tb.Helper()
+					cleanup := func(tb testing.TB) { // nolint:thelper
+						if tb.Failed() {
+							tb.Logf("Skipping undeploy, because test '%s' failed", tb.Name())
+							return
+						}
 						undeploy(tb, tc, c.Clients)
 					}
 					return c.Clients, cleanup
@@ -49,8 +52,7 @@ func TestResolveAddress(t *testing.T) {
 	})
 }
 
-func deploy(tb testing.TB, tc k8stest.ResolveAddressTestCase, clients k8s.Clients) {
-	tb.Helper()
+func deploy(tb testing.TB, tc k8stest.ResolveAddressTestCase, clients k8s.Clients) { // nolint:thelper
 	for _, object := range tc.Objects {
 		switch v := object.(type) {
 		case *servingv1.Service:
@@ -67,8 +69,7 @@ func deploy(tb testing.TB, tc k8stest.ResolveAddressTestCase, clients k8s.Client
 	}
 }
 
-func undeploy(tb testing.TB, tc k8stest.ResolveAddressTestCase, clients k8s.Clients) {
-	tb.Helper()
+func undeploy(tb testing.TB, tc k8stest.ResolveAddressTestCase, clients k8s.Clients) { // nolint:thelper
 	for _, object := range tc.Objects {
 		switch v := object.(type) {
 		case *servingv1.Service:
@@ -85,23 +86,20 @@ func undeploy(tb testing.TB, tc k8stest.ResolveAddressTestCase, clients k8s.Clie
 	}
 }
 
-func deployK8sService(tb testing.TB, clients k8s.Clients, service corev1.Service) {
-	tb.Helper()
+func deployK8sService(tb testing.TB, clients k8s.Clients, service corev1.Service) { // nolint:thelper
 	service.Status = corev1.ServiceStatus{}
 	_, err := clients.Typed().CoreV1().Services(service.Namespace).
 		Create(clients.Context(), &service, metav1.CreateOptions{})
 	assert.NilError(tb, err)
 }
 
-func undeployK8sService(tb testing.TB, clients k8s.Clients, service corev1.Service) {
-	tb.Helper()
+func undeployK8sService(tb testing.TB, clients k8s.Clients, service corev1.Service) { // nolint:thelper
 	err := clients.Typed().CoreV1().Services(service.Namespace).
 		Delete(clients.Context(), service.Name, metav1.DeleteOptions{})
 	assert.NilError(tb, err)
 }
 
-func deployKnService(tb testing.TB, clients k8s.Clients, service servingv1.Service) {
-	tb.Helper()
+func deployKnService(tb testing.TB, clients k8s.Clients, service servingv1.Service) { // nolint:thelper
 	service.Status = servingv1.ServiceStatus{}
 	ctx := clients.Context()
 	knclient := clientservingv1.NewKnServingClient(clients.Serving(), service.Namespace)
@@ -112,81 +110,85 @@ func deployKnService(tb testing.TB, clients k8s.Clients, service servingv1.Servi
 	assert.NilError(tb, err)
 }
 
-func undeployKnService(tb testing.TB, clients k8s.Clients, service servingv1.Service) {
-	tb.Helper()
+func undeployKnService(tb testing.TB, clients k8s.Clients, service servingv1.Service) { // nolint:thelper
 	err := clientservingv1.
 		NewKnServingClient(clients.Serving(), service.Namespace).
 		DeleteService(clients.Context(), service.GetName(), time.Minute)
 	assert.NilError(tb, err)
 }
 
-func deployBroker(tb testing.TB, clients k8s.Clients, broker eventingv1.Broker) {
-	tb.Helper()
+func deployBroker(tb testing.TB, clients k8s.Clients, broker eventingv1.Broker) { // nolint:thelper
 	broker.Status = eventingv1.BrokerStatus{}
 	ctx := clients.Context()
 	knclient := clienteventingv1.NewKnEventingClient(clients.Eventing(),
 		broker.Namespace)
 	assert.NilError(tb, knclient.CreateBroker(ctx, &broker))
-	assert.NilError(tb, waitForReady(clients, &broker, 30*time.Second))
+	waitForReady(tb, clients, &broker, time.Minute)
 }
 
-func undeployBroker(tb testing.TB, clients k8s.Clients, broker eventingv1.Broker) {
-	tb.Helper()
+func undeployBroker(tb testing.TB, clients k8s.Clients, broker eventingv1.Broker) { // nolint:thelper
 	err := clients.Eventing().Brokers(broker.Namespace).
 		Delete(clients.Context(), broker.Name, metav1.DeleteOptions{})
 	assert.NilError(tb, err)
 }
 
-func deployChannel(tb testing.TB, clients k8s.Clients, channel messagingv1.Channel) {
-	tb.Helper()
+func deployChannel(tb testing.TB, clients k8s.Clients, channel messagingv1.Channel) { // nolint:thelper
 	channel.Status = messagingv1.ChannelStatus{}
 	knclient := clientmessagingv1.NewKnMessagingClient(clients.Messaging(),
 		channel.Namespace).ChannelsClient()
 	assert.NilError(tb, knclient.CreateChannel(clients.Context(), &channel))
-	assert.NilError(tb, waitForReady(clients, &channel, 30*time.Second))
+	waitForReady(tb, clients, &channel, time.Minute)
 }
 
-func undeployChannel(tb testing.TB, clients k8s.Clients, channel messagingv1.Channel) {
-	tb.Helper()
+func undeployChannel(tb testing.TB, clients k8s.Clients, channel messagingv1.Channel) { // nolint:thelper
 	err := clients.Messaging().Channels(channel.Namespace).
 		Delete(clients.Context(), channel.Name, metav1.DeleteOptions{})
 	assert.NilError(tb, err)
 }
 
-type accessorWatchMaker struct {
-	clients   k8s.Clients
-	acccessor kmeta.Accessor
-}
-
-func (a accessorWatchMaker) watchMaker(
-	ctx context.Context, name, _ string, _ time.Duration,
-) (watch.Interface, error) {
-	dynclient := a.clients.Dynamic().Resource(a.gvr()).
-		Namespace(a.acccessor.GetNamespace())
-	return dynclient.Watch(ctx, metav1.ListOptions{
-		FieldSelector: fmt.Sprintf("metadata.name=%s", name),
-	})
-}
-
-func (a accessorWatchMaker) gvr() schema.GroupVersionResource {
-	gvk := a.acccessor.GroupVersionKind()
+func gvr(accessor kmeta.Accessor) schema.GroupVersionResource {
+	gvk := accessor.GroupVersionKind()
 	return apis.KindToResource(gvk)
 }
 
-func waitForReady(clients k8s.Clients, acccessor kmeta.Accessor, timeout time.Duration) error {
-	awm := accessorWatchMaker{clients: clients, acccessor: acccessor}
-	ready := clientwait.NewWaitForReady(awm.gvr().Resource, awm.watchMaker, dynamicConditionExtractor)
-	err, _ := ready.Wait(
-		clients.Context(),
-		acccessor.GetName(),
-		"0",
-		clientwait.Options{Timeout: &timeout},
-		clientwait.NoopMessageCallback(),
-	)
-	return err
+func waitForReady(t poll.TestingT, clients k8s.Clients, accessor kmeta.Accessor, timeout time.Duration) {
+	ctx := clients.Context()
+	dynclient := clients.Dynamic()
+	poll.WaitOn(t, isReady(ctx, dynclient, accessor),
+		poll.WithTimeout(timeout), poll.WithDelay(time.Second))
 }
 
-func dynamicConditionExtractor(obj runtime.Object) (apis.Conditions, error) {
+func isReady(ctx context.Context, dynclient dynamic.Interface, accessor kmeta.Accessor) poll.Check {
+	resources := dynclient.Resource(gvr(accessor)).
+		Namespace(accessor.GetNamespace())
+	return func(t poll.LogT) poll.Result {
+		res, err := resources.Get(ctx, accessor.GetName(), metav1.GetOptions{})
+		if err != nil {
+			return poll.Error(err)
+		}
+		kres, err := toKResource(res)
+		if err != nil {
+			return poll.Error(err)
+		}
+		for _, cond := range kres.Status.Conditions {
+			if cond.Type == apis.ConditionReady {
+				if cond.Status == corev1.ConditionTrue {
+					return poll.Success()
+				}
+				return poll.Continue(
+					"%s named '%s' in namespace '%s' is not ready '%s', reason '%s'",
+					accessor.GroupVersionKind(), accessor.GetName(),
+					accessor.GetNamespace(), cond.Status, cond.Reason)
+			}
+		}
+		return poll.Continue(
+			"%s named '%s' in namespace '%s' does not have ready condition",
+			accessor.GroupVersionKind(), accessor.GetName(),
+			accessor.GetNamespace())
+	}
+}
+
+func toKResource(obj runtime.Object) (*duckv1.KResource, error) {
 	un, ok := obj.(*unstructured.Unstructured)
 	if !ok {
 		return nil, k8s.ErrUnexcpected
@@ -197,5 +199,5 @@ func dynamicConditionExtractor(obj runtime.Object) (apis.Conditions, error) {
 	if err != nil {
 		return nil, err
 	}
-	return kresource.GetStatus().GetConditions(), nil
+	return &kresource, nil
 }

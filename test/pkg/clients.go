@@ -49,6 +49,11 @@ func WithKnTest(tb testing.TB, handler func(c *TestContext)) {
 	it, err := clienttest.NewKnTest()
 	assert.NilError(tb, err)
 	tb.Cleanup(func() {
+		if tb.Failed() {
+			tb.Logf("Skipping '%s' namespace teardown because '%s' test is failing",
+				it.Namespace(), tb.Name())
+			return
+		}
 		assert.NilError(tb, it.Teardown())
 	})
 	handler(&TestContext{
