@@ -29,11 +29,6 @@ import (
 
 const watholaForwarderPackage = "knative.dev/eventing/test/test_images/wathola-forwarder"
 
-// RegisterPackages will register packages to be built into test images.
-func RegisterPackages() {
-	environment.RegisterPackage(watholaForwarderPackage)
-}
-
 // SendEventToKnService returns a feature.Feature that verifies the kn-event
 // can send to Knative service.
 func SendEventToKnService() *feature.Feature {
