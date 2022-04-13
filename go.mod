@@ -18,15 +18,15 @@ require (
 	github.com/wavesoftware/go-magetasks v0.6.0
 	go.uber.org/zap v1.19.1
 	gopkg.in/yaml.v2 v2.4.0
-	gotest.tools/v3 v3.0.3
-	k8s.io/api v0.22.5
-	k8s.io/apimachinery v0.22.5
-	k8s.io/client-go v0.22.5
-	knative.dev/client v0.30.0
-	knative.dev/eventing v0.30.0
-	knative.dev/hack v0.0.0-20220224013837-e1785985d364
-	knative.dev/pkg v0.0.0-20220301181942-2fdd5f232e77
-	knative.dev/reconciler-test v0.0.0-20220303141206-84821d26ed1f
-	knative.dev/serving v0.30.0
+	gotest.tools/v3 v3.1.0
+	k8s.io/api v0.23.5
+	k8s.io/apimachinery v0.23.5
+	k8s.io/client-go v0.23.5
+	knative.dev/client v0.30.2-0.20220413081508-bb7fd738212c
+	knative.dev/eventing v0.30.1-0.20220413070808-1b90ef335226
+	knative.dev/hack v0.0.0-20220411131823-6ffd8417de7c
+	knative.dev/pkg v0.0.0-20220412134708-e325df66cb51
+	knative.dev/reconciler-test v0.0.0-20220412165608-994f0c3fab62
+	knative.dev/serving v0.30.1-0.20220413003907-2de1474b55ba
 	sigs.k8s.io/yaml v1.3.0
 )
