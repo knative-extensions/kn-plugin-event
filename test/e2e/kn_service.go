@@ -114,7 +114,7 @@ func (wf watholaForwarder) deployKnService(ctx context.Context, t feature.T) {
 							Containers: []corev1.Container{{
 								Image: image,
 								ReadinessProbe: &corev1.Probe{
-									Handler: corev1.Handler{
+									ProbeHandler: corev1.ProbeHandler{
 										HTTPGet: &corev1.HTTPGetAction{
 											Path: readyPath,
 										},
