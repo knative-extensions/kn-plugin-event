@@ -105,7 +105,10 @@ func deployKnService(tb testing.TB, clients k8s.Clients, service servingv1.Servi
 	knclient := clientservingv1.NewKnServingClient(clients.Serving(), service.Namespace)
 	err := knclient.CreateService(ctx, &service)
 	assert.NilError(tb, err)
-	err, _ = knclient.WaitForService(ctx, service.Name, 2*time.Minute,
+	err, _ = knclient.WaitForService(ctx, service.Name, clientservingv1.WaitConfig{
+		Timeout:     time.Duration(2) * time.Minute,
+		ErrorWindow: time.Duration(2) * time.Second,
+	},
 		clientwait.NoopMessageCallback())
 	assert.NilError(tb, err)
 }
