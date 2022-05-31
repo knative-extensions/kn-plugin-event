@@ -114,8 +114,8 @@ $ kn event send \
 
 ## Install
 
-You can download a pre-built version of `kn-plugin-event`
-from [our release page](https://github.com/knative-sandbox/kn-plugin-event/releases)
+You can download a pre-built version of `kn-plugin-event` from
+[our release page](https://github.com/knative-sandbox/kn-plugin-event/releases)
 . Choose the one that fits your platform.
 
 When the download is ready, you should be ready to use `kn-plugin-event` as a
@@ -151,8 +151,8 @@ $ kn event -h
 ## Building
 
 If you'd like to build the plugin yourself, you will need to have
-[Golang](https://golang.org/) installed on your machine. Check the `go.mod`
-file for current minimum version.
+[Golang](https://golang.org/) installed on your machine. Check the `go.mod` file
+for current minimum version.
 
 To build the plugin, just invoke the following script:
 
@@ -174,5 +174,5 @@ $ ./mage -l
 
 To update dependencies, please utilize the standard `hack/update-deps.sh`
 script. It's also needed to run this script if you are doing any changes to Go
-libraries. Read more about it at
-[knative/hack](https://github.com/knative/hack) repository.
+libraries. Read more about it at [knative/hack](https://github.com/knative/hack)
+repository.
