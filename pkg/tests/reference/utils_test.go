@@ -5,12 +5,12 @@ import (
 
 	"go.uber.org/zap/zaptest"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"knative.dev/kn-plugin-event/pkg/tests/logging"
 	"knative.dev/reconciler-test/pkg/feature"
+	"knative.dev/reconciler-test/pkg/logging"
 )
 
 func testContext(t zaptest.TestingT) context.Context {
-	return logging.WithTestLogger(context.TODO(), t)
+	return logging.WithTestLogger(logging.NewContext(context.TODO()), t)
 }
 
 func meta(name, ns string) metav1.ObjectMeta {

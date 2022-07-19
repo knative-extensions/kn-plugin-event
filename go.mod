@@ -161,7 +161,6 @@ require (
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/cli-runtime v0.23.4 // indirect
-	k8s.io/klog v1.0.0 // indirect
 	k8s.io/klog/v2 v2.60.1-0.20220317184644-43cc75f9ae89 // indirect
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf // indirect
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
@@ -171,4 +170,11 @@ require (
 	sigs.k8s.io/kustomize/api v0.10.1 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.13.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
+)
+
+replace (
+	// FIXME: remove this pin when knative/eventing#6451 is merged
+	knative.dev/eventing => github.com/cardil/knative-eventing v0.11.1-0.20220718191420-28d8469b82bf
+	// FIXME: remove this pin when knative-sandbox/reconciler-test#294 is merged
+	knative.dev/reconciler-test => github.com/cardil/knative-reconciler-test v0.0.0-20220715181934-169264f8ba23
 )

@@ -14,7 +14,7 @@ import (
 )
 
 func TestVersionSubCommandWithHuman(t *testing.T) {
-	versionSubCommandChecks(t, "human", func(in []byte, out interface{}) (err error) {
+	versionSubCommandChecks(t, "human", func(in []byte, out interface{}) error {
 		pv, ok := out.(*cli.PluginVersionOutput)
 		assert.Check(t, ok)
 		str := string(in)
@@ -34,7 +34,7 @@ func TestVersionSubCommandWithYaml(t *testing.T) {
 	versionSubCommandChecks(t, "yaml", yaml.Unmarshal)
 }
 
-type unmarshalFunc func(in []byte, out interface{}) (err error)
+type unmarshalFunc func(in []byte, out interface{}) error
 
 func versionSubCommandChecks(t *testing.T, format string, unmarshal unmarshalFunc) {
 	t.Helper()

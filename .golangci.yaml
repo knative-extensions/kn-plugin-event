@@ -27,6 +27,9 @@ linters:
     - golint
     - ireturn
     - varnamelen
+    - exhaustruct
+    # FIXME: remove `containedctx` exclude after fixing knative-sandbox/kn-plugin-event#202
+    - containedctx
 
 issues:
   exclude-rules:
@@ -38,6 +41,8 @@ linters-settings:
   gomoddirectives:
     # List of allowed `replace` directives. Default is empty.
     replace-allow-list:
-      # FIXME: google/ko requires 0.22, remove when knative will work with 0.22+
-      - k8s.io/apimachinery
+      # FIXME: remove this pin when knative/eventing#6451 is merged
+      - knative.dev/eventing
+      # FIXME: remove this pin when knative-sandbox/reconciler-test#294 is merged
+      - knative.dev/reconciler-test
 

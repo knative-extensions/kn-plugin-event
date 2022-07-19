@@ -27,8 +27,6 @@ import (
 	servingv1clientset "knative.dev/serving/pkg/client/clientset/versioned/typed/serving/v1"
 )
 
-const watholaForwarderPackage = "knative.dev/eventing/test/test_images/wathola-forwarder"
-
 // SendEventToKnService returns a feature.Feature that verifies the kn-event
 // can send to Knative service.
 func SendEventToKnService() *feature.Feature {
@@ -99,10 +97,7 @@ func (wf watholaForwarder) deployKnService(ctx context.Context, t feature.T) {
 	ns := env.Namespace()
 	rest := injection.GetConfig(ctx)
 	ksvcs := servingv1clientset.NewForConfigOrDie(rest).Services(ns)
-	image := fmt.Sprintf("ko://%s", watholaForwarderPackage)
-	if replaced, found := env.Images()[image]; found {
-		image = replaced
-	}
+	image := wf.image(ctx, t)
 	const readyPath = "/healthz"
 	ksvc := &servingv1.Service{
 		ObjectMeta: metav1.ObjectMeta{Name: wf.name(), Namespace: ns},
@@ -153,6 +148,18 @@ func (wf watholaForwarder) deployKnService(ctx context.Context, t feature.T) {
 	env.Reference(ref)
 	k8s.WaitForReadyOrDoneOrFail(ctx, t, ref)
 	log.Info("KnService is ready")
+}
+
+func (wf watholaForwarder) image(ctx context.Context, t feature.T) string {
+	image := WatholaForwarderImageFromContext(ctx)
+	if images, err := environment.ProduceImages(ctx); err != nil {
+		t.Fatal(errors.WithStack(err))
+	} else {
+		if replaced, found := images[image]; found {
+			image = replaced
+		}
+	}
+	return image
 }
 
 func (wf watholaForwarder) name() string {
