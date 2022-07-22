@@ -15,7 +15,6 @@ jobs:
       matrix:
         go-version:
           - '1.18'
-          - '1.17'
     steps:
 
     - name: Set up Go ${{ matrix.go-version }}
@@ -25,7 +24,7 @@ jobs:
       id: go
 
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Build & Test
       run: ./mage
