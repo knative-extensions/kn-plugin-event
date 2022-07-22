@@ -40,9 +40,4 @@ issues:
 linters-settings:
   gomoddirectives:
     # List of allowed `replace` directives. Default is empty.
-    replace-allow-list:
-      # FIXME: remove this pin when knative/eventing#6451 is merged
-      - knative.dev/eventing
-      # FIXME: remove this pin when knative-sandbox/reconciler-test#294 is merged
-      - knative.dev/reconciler-test
-
+    replace-allow-list: []
