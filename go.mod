@@ -1,6 +1,6 @@
 module knative.dev/kn-plugin-event
 
-go 1.17
+go 1.18
 
 require (
 	github.com/cloudevents/sdk-go/v2 v2.10.1
@@ -22,12 +22,12 @@ require (
 	k8s.io/api v0.23.8
 	k8s.io/apimachinery v0.23.8
 	k8s.io/client-go v0.23.8
-	knative.dev/client v0.33.0
-	knative.dev/eventing v0.33.0
-	knative.dev/hack v0.0.0-20220701014203-65c463ac8c98
-	knative.dev/pkg v0.0.0-20220705130606-e60d250dc637
-	knative.dev/reconciler-test v0.0.0-20220705155206-f05db88effbe
-	knative.dev/serving v0.33.0
+	knative.dev/client v0.33.1-0.20220721162119-2f1eefe6f1dc
+	knative.dev/eventing v0.33.1-0.20220722122720-c8435ed74ba8
+	knative.dev/hack v0.0.0-20220721014222-a6450400b5f1
+	knative.dev/pkg v0.0.0-20220721014205-1a5e1682be3a
+	knative.dev/reconciler-test v0.0.0-20220722111920-0cfde63b455a
+	knative.dev/serving v0.33.1-0.20220722053120-d1f8e8d93026
 	sigs.k8s.io/yaml v1.3.0
 )
 
@@ -161,7 +161,6 @@ require (
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/cli-runtime v0.23.4 // indirect
-	k8s.io/klog v1.0.0 // indirect
 	k8s.io/klog/v2 v2.60.1-0.20220317184644-43cc75f9ae89 // indirect
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf // indirect
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect

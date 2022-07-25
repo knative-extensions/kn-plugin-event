@@ -13,6 +13,6 @@ func importPath(variable string) string {
 	return fmt.Sprintf("%s.%s", p, variable)
 }
 
-func findPackageForType(any interface{}) string {
-	return reflect.TypeOf(any).PkgPath()
+func findPackageForType(iface interface{}) string {
+	return reflect.TypeOf(iface).PkgPath()
 }

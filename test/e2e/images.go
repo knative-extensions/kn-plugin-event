@@ -6,13 +6,16 @@ package e2e
 import (
 	"knative.dev/kn-plugin-event/test/images"
 	"knative.dev/reconciler-test/pkg/environment"
+	"knative.dev/reconciler-test/pkg/eventshub"
 )
 
 // ConfigureImages will register packages to be built into test images.
-func ConfigureImages(t images.TestingT) {
-	environment.RegisterPackage(watholaForwarderPackage)
-	images.ResolveImages(t, []string{
-		"knative.dev/reconciler-test/cmd/eventshub",
-		watholaForwarderPackage,
-	})
+func ConfigureImages() environment.EnvOpts {
+	return environment.UnionOpts(
+		registerWatholaForwarderImage,
+		images.ResolveImages([]images.PackageResolver{
+			WatholaForwarderImageFromContext,
+			eventshub.ImageFromContext,
+		}),
+	)
 }

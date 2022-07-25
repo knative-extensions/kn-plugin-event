@@ -1,10 +1,19 @@
 package images
 
 import (
+	"context"
+	"fmt"
+	"strings"
+
 	"github.com/google/go-containerregistry/pkg/name"
+	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/json"
+	"knative.dev/pkg/logging"
 	"knative.dev/reconciler-test/pkg/environment"
 )
+
+// ErrCouldNotResolve is returned when image couldn't be resolved.
+var ErrCouldNotResolve = errors.New("could not resolve image with registered resolvers")
 
 // Resolver will resolve given KO package paths into real OCI images references.
 // This interface probably should be moved into reconciler-test framework. See:
@@ -17,40 +26,55 @@ type Resolver interface {
 	Applicable() bool
 }
 
-// TestingT a subset of testing.T.
-type TestingT interface {
-	Logf(fmt string, args ...interface{})
-	Fatal(args ...interface{})
-	Fatalf(fmt string, args ...interface{})
+// PackageResolver is a function that will return package name for given context.
+type PackageResolver func(ctx context.Context) string
+
+// ExplicitPackage will return given package.
+func ExplicitPackage(pack string) PackageResolver {
+	return func(ctx context.Context) string {
+		return pack
+	}
 }
 
 // ResolveImages will try to resolve the images, using given resolver(s).
-func ResolveImages(t TestingT, packages []string) {
-	for _, resolver := range Resolvers {
-		if resolver.Applicable() {
-			resolveImagesWithResolver(t, packages, resolver)
-			return
+func ResolveImages(packages []PackageResolver) environment.EnvOpts {
+	return func(ctx context.Context, _ environment.Environment) (context.Context, error) {
+		for _, resolver := range Resolvers {
+			if resolver.Applicable() {
+				return resolveImagesWithResolver(ctx, resolver, packages)
+			}
 		}
-	}
-	if len(Resolvers) > 0 {
-		t.Fatalf("Couldn't resolve images with registered resolvers: %+q", Resolvers)
+		if len(Resolvers) > 0 {
+			return nil, fmt.Errorf("%w: %+q", ErrCouldNotResolve, Resolvers)
+		}
+		return ctx, nil
 	}
 }
 
-func resolveImagesWithResolver(t TestingT, packages []string, resolver Resolver) {
+func resolveImagesWithResolver(
+	ctx context.Context,
+	resolver Resolver,
+	packages []PackageResolver,
+) (context.Context, error) {
+	log := logging.FromContext(ctx)
 	resolved := make(map[string]string)
-	for _, pack := range packages {
-		kopath := "ko://" + pack
-		image, err := resolver.Resolve(kopath)
-		if err != nil {
-			t.Fatal(err)
+	for _, packResolver := range packages {
+		pack := packResolver(ctx)
+		kopack := pack
+		if !strings.HasPrefix(kopack, "ko://") {
+			kopack = "ko://" + kopack
 		}
-		resolved[kopath] = image.String()
+		image, err := resolver.Resolve(kopack)
+		if err != nil {
+			log.Fatal(errors.WithStack(err))
+		}
+		resolved[kopack] = image.String()
 	}
 	repr, err := json.Marshal(resolved)
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(errors.WithStack(err))
 	}
-	t.Logf("Images resolved to: %s", string(repr))
-	environment.WithImages(resolved)
+	log.Infof("Images resolved to: %s", string(repr))
+	opt := environment.WithImages(resolved)
+	return opt(ctx, nil)
 }

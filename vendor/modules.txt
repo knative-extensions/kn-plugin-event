@@ -1169,9 +1169,6 @@ k8s.io/client-go/util/jsonpath
 k8s.io/client-go/util/keyutil
 k8s.io/client-go/util/retry
 k8s.io/client-go/util/workqueue
-# k8s.io/klog v1.0.0
-## explicit; go 1.12
-k8s.io/klog
 # k8s.io/klog/v2 v2.60.1-0.20220317184644-43cc75f9ae89
 ## explicit; go 1.13
 k8s.io/klog/v2
@@ -1194,7 +1191,7 @@ k8s.io/utils/internal/third_party/forked/golang/net
 k8s.io/utils/lru
 k8s.io/utils/net
 k8s.io/utils/trace
-# knative.dev/client v0.33.0
+# knative.dev/client v0.33.1-0.20220721162119-2f1eefe6f1dc
 ## explicit; go 1.17
 knative.dev/client/lib/test
 knative.dev/client/pkg/apis/client
@@ -1211,7 +1208,7 @@ knative.dev/client/pkg/serving/v1
 knative.dev/client/pkg/util
 knative.dev/client/pkg/util/mock
 knative.dev/client/pkg/wait
-# knative.dev/eventing v0.33.0
+# knative.dev/eventing v0.33.1-0.20220722122720-c8435ed74ba8
 ## explicit; go 1.17
 knative.dev/eventing/pkg/apis/config
 knative.dev/eventing/pkg/apis/duck
@@ -1250,7 +1247,7 @@ knative.dev/eventing/test/upgrade/prober/wathola/config
 knative.dev/eventing/test/upgrade/prober/wathola/event
 knative.dev/eventing/test/upgrade/prober/wathola/forwarder
 knative.dev/eventing/test/upgrade/prober/wathola/sender
-# knative.dev/hack v0.0.0-20220701014203-65c463ac8c98
+# knative.dev/hack v0.0.0-20220721014222-a6450400b5f1
 ## explicit; go 1.14
 knative.dev/hack
 # knative.dev/networking v0.0.0-20220705142707-f087178076e4
@@ -1265,8 +1262,8 @@ knative.dev/networking/pkg/http/probe
 knative.dev/networking/pkg/http/proxy
 knative.dev/networking/pkg/http/stats
 knative.dev/networking/pkg/k8s
-# knative.dev/pkg v0.0.0-20220705130606-e60d250dc637
-## explicit; go 1.17
+# knative.dev/pkg v0.0.0-20220721014205-1a5e1682be3a
+## explicit; go 1.18
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
 knative.dev/pkg/apis/duck/ducktypes
@@ -1308,7 +1305,7 @@ knative.dev/pkg/tracing/config
 knative.dev/pkg/tracing/propagation
 knative.dev/pkg/tracing/propagation/tracecontextb3
 knative.dev/pkg/tracker
-# knative.dev/reconciler-test v0.0.0-20220705155206-f05db88effbe
+# knative.dev/reconciler-test v0.0.0-20220722111920-0cfde63b455a
 ## explicit; go 1.17
 knative.dev/reconciler-test/cmd/eventshub
 knative.dev/reconciler-test/pkg/environment
@@ -1323,14 +1320,15 @@ knative.dev/reconciler-test/pkg/eventshub/receiver
 knative.dev/reconciler-test/pkg/eventshub/recorder_vent
 knative.dev/reconciler-test/pkg/eventshub/sender
 knative.dev/reconciler-test/pkg/feature
-knative.dev/reconciler-test/pkg/images
+knative.dev/reconciler-test/pkg/images/ko
 knative.dev/reconciler-test/pkg/k8s
 knative.dev/reconciler-test/pkg/knative
+knative.dev/reconciler-test/pkg/logging
 knative.dev/reconciler-test/pkg/manifest
 knative.dev/reconciler-test/pkg/milestone
 knative.dev/reconciler-test/pkg/state
 knative.dev/reconciler-test/resources/svc
-# knative.dev/serving v0.33.0
+# knative.dev/serving v0.33.1-0.20220722053120-d1f8e8d93026
 ## explicit; go 1.17
 knative.dev/serving/pkg/apis/autoscaling
 knative.dev/serving/pkg/apis/autoscaling/v1alpha1
