@@ -6,7 +6,9 @@ import (
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/kelseyhightower/envconfig"
+	"go.uber.org/zap"
 	"knative.dev/kn-plugin-event/pkg/event"
+	"knative.dev/pkg/logging"
 )
 
 // SendFromEnv will send an event based on a values stored in environmental
@@ -20,6 +22,8 @@ func (app *App) SendFromEnv() error {
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrCantSendWithICS, err)
 	}
+	log := logging.FromContext(app.Context())
+	log.Infow("Event sent", zap.String("ce-id", c.ce.ID()))
 	return nil
 }
 

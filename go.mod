@@ -12,13 +12,15 @@ require (
 	github.com/magefile/mage v1.11.0
 	github.com/phayes/freeport v0.0.0-20180830031419-95f893ade6f2
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/cobra v1.3.0
+	github.com/spf13/cobra v1.5.0
 	github.com/thediveo/enumflag v0.10.0
+	github.com/wavesoftware/go-commandline v1.0.0
 	github.com/wavesoftware/go-ensure v1.0.0
 	github.com/wavesoftware/go-magetasks v0.6.0
+	github.com/wavesoftware/go-retcode v1.0.0
 	go.uber.org/zap v1.21.0
 	gopkg.in/yaml.v2 v2.4.0
-	gotest.tools/v3 v3.1.0
+	gotest.tools/v3 v3.3.0
 	k8s.io/api v0.23.8
 	k8s.io/apimachinery v0.23.8
 	k8s.io/client-go v0.23.8

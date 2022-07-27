@@ -10,6 +10,7 @@ import (
 	"gotest.tools/v3/assert"
 	"knative.dev/kn-plugin-event/pkg/cli"
 	"knative.dev/kn-plugin-event/pkg/event"
+	"knative.dev/kn-plugin-event/pkg/system"
 	"knative.dev/kn-plugin-event/pkg/tests"
 )
 
@@ -34,7 +35,10 @@ func createExampleEvent() cloudevents.Event {
 
 func assertWithOutputMode(t *testing.T, want cloudevents.Event, mode cli.OutputMode) {
 	t.Helper()
-	var buf bytes.Buffer
+	var (
+		outBuf bytes.Buffer
+		errBuf bytes.Buffer
+	)
 	sender := &tests.Sender{}
 	app := cli.App{
 		Binding: event.Binding{
@@ -42,21 +46,21 @@ func assertWithOutputMode(t *testing.T, want cloudevents.Event, mode cli.OutputM
 				return sender, nil
 			},
 		},
+		Environment: system.WithOutputs(&outBuf, &errBuf, nil),
 	}
 	err := app.Send(
 		want,
 		cli.TargetArgs{URL: "http://example.org"},
 		&cli.Options{
-			Output:    mode,
-			OutWriter: &buf,
+			Output: mode,
 		},
 	)
 	assert.NilError(t, err)
-	out := buf.String()
 	assert.Equal(t, 1, len(sender.Sent))
 	assert.Equal(t, want.ID(), sender.Sent[0].ID())
 
-	assert.Check(t, strings.Contains(out,
+	outputs := outBuf.String()
+	assert.Check(t, strings.Contains(outputs,
 		fmt.Sprintf("Event (ID: %s) have been sent.", want.ID()),
 	))
 }

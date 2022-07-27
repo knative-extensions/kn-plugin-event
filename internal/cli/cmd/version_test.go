@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/wavesoftware/go-commandline"
 	"gopkg.in/yaml.v2"
 	"gotest.tools/v3/assert"
-	"knative.dev/kn-plugin-event/internal/cli/cmd"
 	"knative.dev/kn-plugin-event/pkg/cli"
 	"knative.dev/kn-plugin-event/pkg/metadata"
 )
@@ -38,11 +38,11 @@ type unmarshalFunc func(in []byte, out interface{}) error
 
 func versionSubCommandChecks(t *testing.T, format string, unmarshal unmarshalFunc) {
 	t.Helper()
-	tc := cmd.TestingCmd{}
-	tc.Args("version", "-o", format)
 	buf := bytes.NewBuffer([]byte{})
-	tc.Out(buf)
-	assert.NilError(t, tc.Execute())
+	assert.NilError(t, testapp().Execute(
+		commandline.WithOutput(buf),
+		commandline.WithArgs("version", "-o", format),
+	))
 
 	pv := cli.PluginVersionOutput{}
 	assert.NilError(t, unmarshal(buf.Bytes(), &pv))
@@ -51,11 +51,11 @@ func versionSubCommandChecks(t *testing.T, format string, unmarshal unmarshalFun
 }
 
 func TestPresentAsWithInvalidOutput(t *testing.T) {
-	tc := cmd.TestingCmd{}
 	buf := bytes.NewBuffer([]byte{})
-	tc.Out(buf)
-	tc.Args("version", "-o", "invalid")
-	err := tc.Execute()
+	err := testapp().Execute(
+		commandline.WithOutput(buf),
+		commandline.WithArgs("version", "-o", "invalid"),
+	)
 	assert.Error(t, err, "invalid argument \"invalid\" for "+
 		"\"-o, --output\" flag: must be 'human', 'json', 'yaml'")
 }

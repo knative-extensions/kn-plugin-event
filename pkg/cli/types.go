@@ -1,10 +1,9 @@
 package cli
 
 import (
-	"io"
-
 	"github.com/thediveo/enumflag"
 	"knative.dev/kn-plugin-event/pkg/event"
+	"knative.dev/kn-plugin-event/pkg/system"
 )
 
 // Options holds a general args for all commands.
@@ -17,9 +16,6 @@ type Options struct {
 	// Verbose tells does commands should display additional information about
 	// what's happening? Verbose information is printed on stderr.
 	Verbose bool
-
-	OutWriter io.Writer
-	ErrWriter io.Writer
 }
 
 // EventArgs holds args of event to be created with.
@@ -53,4 +49,5 @@ const (
 // App object.
 type App struct {
 	event.Binding
+	system.Environment
 }

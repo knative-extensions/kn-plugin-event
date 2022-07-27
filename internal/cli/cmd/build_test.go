@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"github.com/wavesoftware/go-commandline"
 	"gotest.tools/v3/assert"
-	"knative.dev/kn-plugin-event/internal/cli/cmd"
 	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/kn-plugin-event/pkg/tests"
 )
@@ -61,10 +61,10 @@ func newCmdArgs(args ...string) cmdArgs {
 func performTestsOnBuildSubCommand(t *testing.T, args cmdArgs, preparers ...eventPreparer) {
 	t.Helper()
 	buf := bytes.NewBuffer([]byte{})
-	c := cmd.TestingCmd{}
-	c.Out(buf)
-	c.Args(args.args...)
-	assert.NilError(t, c.Execute())
+	assert.NilError(t, testapp().Execute(
+		commandline.WithOutput(buf),
+		commandline.WithArgs(args.args...),
+	))
 	output := buf.Bytes()
 	ec := newEventChecks(t)
 	for _, preparer := range preparers {

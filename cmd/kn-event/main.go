@@ -1,10 +1,10 @@
 package main
 
-import "knative.dev/kn-plugin-event/internal/cli/cmd"
-
-// Suppress global check for testing purposes.
-var mainCmd = &cmd.Cmd{} //nolint:gochecknoglobals
+import (
+	"github.com/wavesoftware/go-commandline"
+	"knative.dev/kn-plugin-event/internal/cli/cmd"
+)
 
 func main() {
-	mainCmd.Execute()
+	commandline.New(new(cmd.App)).ExecuteOrDie(cmd.Options...)
 }

@@ -12,10 +12,11 @@ import (
 	"go.uber.org/zap/buffer"
 	"go.uber.org/zap/zapcore"
 	"knative.dev/kn-plugin-event/pkg/event"
+	"knative.dev/kn-plugin-event/pkg/system"
 )
 
 // WithLogger will create an event suitable Options from CLI ones.
-func (opts *Options) WithLogger() (*event.Properties, error) {
+func (opts *Options) WithLogger(outputs system.Outputs) (*event.Properties, error) {
 	zc := zap.NewProductionConfig()
 	cfg := zap.NewProductionEncoderConfig()
 	if opts.Verbose {
@@ -37,8 +38,8 @@ func (opts *Options) WithLogger() (*event.Properties, error) {
 	case JSON:
 		encoder = zapcore.NewJSONEncoder(cfg)
 	}
-	sink := zapcore.AddSync(opts.OutWriter)
-	errSink := zapcore.AddSync(opts.ErrWriter)
+	sink := zapcore.AddSync(outputs.OutOrStdout())
+	errSink := zapcore.AddSync(outputs.ErrOrStderr())
 	zcore := zapcore.NewCore(encoder, sink, zc.Level)
 	log := zap.New(
 		zcore, buildOptions(zc, errSink)...,
