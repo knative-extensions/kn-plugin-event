@@ -28,7 +28,6 @@ aliases:
   - n3wscott
   docs-wg-leads:
   - abrennan89
-  - csantanapr
   - snneji
   docs-writers:
   - abrennan89
@@ -114,9 +113,18 @@ aliases:
   - lkingland
   - matejvasek
   - nainaz
-  - omerbensaadon
   - salaboy
   - zroubalik
+  func-writers:
+  - lance
+  - lkingland
+  - matejvasek
+  - nainaz
+  - salaboy
+  - zroubalik
+  functions-wg-leads:
+  - lance
+  - salaboy
   homebrew-kn-plugins-approvers:
   - dsimansk
   - maximilien
@@ -138,14 +146,12 @@ aliases:
   - lkingland
   - matejvasek
   - nainaz
-  - omerbensaadon
   - salaboy
   - zroubalik
   kn-plugin-migration-approvers:
   - maximilien
   - zhangtbj
   kn-plugin-operator-approvers:
-  - csantanapr
   - dsimansk
   - houshengbo
   - maximilien
@@ -182,16 +188,18 @@ aliases:
   - knative-prow-robot
   - knative-prow-updater-robot
   - knative-test-reporter-robot
+  - kvmware
   - lance
+  - matzew
   - n3wscott
   - pmorie
-  - psschwei
   - thisisnotapril
+  - upodroid
   - vaikas
   - zroubalik
   knative-release-leads:
-  - evankanderson
-  - psschwei
+  - dprotaso
+  - matzew
   knative-robots:
   - knative-automation
   - knative-prow-releaser-robot
@@ -199,6 +207,7 @@ aliases:
   - knative-prow-updater-robot
   - knative-test-reporter-robot
   kperf-approvers:
+  - chzhyang
   - maximilien
   - nader-ziada
   - psschwei
@@ -241,6 +250,9 @@ aliases:
   - dprotaso
   - houshengbo
   - upodroid
+  productivity-leads:
+  - kvmware
+  - upodroid
   productivity-wg-leads:
   - kvmware
   - upodroid
@@ -251,6 +263,11 @@ aliases:
   - kvmware
   - psschwei
   - upodroid
+  security-guard-approvers:
+  - davidhadas
+  - maximilien
+  - psschwei
+  - rhuss
   security-wg-leads:
   - evankanderson
   - julz
@@ -259,6 +276,7 @@ aliases:
   - julz
   serving-wg-leads:
   - dprotaso
+  - psschwei
   serving-writers:
   - dprotaso
   - nak3
@@ -278,9 +296,7 @@ aliases:
   - zroubalik
   ux-wg-leads:
   - abrennan89
-  - csantanapr
   - snneji
   ux-writers:
   - abrennan89
-  - csantanapr
   - snneji

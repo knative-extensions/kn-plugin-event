@@ -17,25 +17,26 @@ require (
 	github.com/wavesoftware/go-commandline v1.0.0
 	github.com/wavesoftware/go-ensure v1.0.0
 	github.com/wavesoftware/go-magetasks v0.6.0
-	github.com/wavesoftware/go-retcode v1.0.0
 	go.uber.org/zap v1.21.0
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools/v3 v3.3.0
-	k8s.io/api v0.23.8
-	k8s.io/apimachinery v0.23.8
-	k8s.io/client-go v0.23.8
-	knative.dev/client v0.33.1-0.20220721162119-2f1eefe6f1dc
-	knative.dev/eventing v0.33.1-0.20220722122720-c8435ed74ba8
-	knative.dev/hack v0.0.0-20220725145124-782bbaabb8a1
-	knative.dev/pkg v0.0.0-20220725182823-ed7ab1d18a8b
-	knative.dev/reconciler-test v0.0.0-20220725125124-c8b6d66439f6
-	knative.dev/serving v0.33.1-0.20220725181024-2a22c44879f6
+	k8s.io/api v0.23.9
+	k8s.io/apimachinery v0.23.9
+	k8s.io/client-go v0.23.9
+	knative.dev/client v0.34.0
+	knative.dev/eventing v0.34.1
+	knative.dev/hack v0.0.0-20220823140917-8d1e4ccf9dc3
+	knative.dev/pkg v0.0.0-20220818004048-4a03844c0b15
+	knative.dev/reconciler-test v0.0.0-20220818122349-177f8264c28c
+	knative.dev/serving v0.34.0
 	sigs.k8s.io/yaml v1.3.0
 )
 
 require (
+	cloud.google.com/go v0.100.2 // indirect
 	cloud.google.com/go/compute v1.5.0 // indirect
 	cloud.google.com/go/iam v0.3.0 // indirect
+	cloud.google.com/go/storage v1.18.2 // indirect
 	contrib.go.opencensus.io/exporter/ocagent v0.7.1-0.20200907061046-05415f1de66d // indirect
 	contrib.go.opencensus.io/exporter/prometheus v0.4.0 // indirect
 	contrib.go.opencensus.io/exporter/zipkin v0.1.2 // indirect
@@ -89,6 +90,7 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/ko v0.9.3 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
+	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
 	github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
@@ -137,6 +139,7 @@ require (
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/vbatts/tar-split v0.11.2 // indirect
+	github.com/wavesoftware/go-retcode v1.0.0 // indirect
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect
@@ -163,10 +166,10 @@ require (
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/cli-runtime v0.23.4 // indirect
-	k8s.io/klog/v2 v2.60.1-0.20220317184644-43cc75f9ae89 // indirect
+	k8s.io/klog/v2 v2.70.2-0.20220707122935-0990e81f1a8f // indirect
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf // indirect
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
-	knative.dev/networking v0.0.0-20220723000421-cddb0ff95789 // indirect
+	knative.dev/networking v0.0.0-20220818010248-e51df7cdf571 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/kind v0.11.1 // indirect
 	sigs.k8s.io/kustomize/api v0.10.1 // indirect
