@@ -16,7 +16,7 @@ import (
 var ErrUnsupportedOutputMode = errors.New("unsupported mode")
 
 type versionCommand struct {
-	*Cmd
+	*App
 }
 
 func (v *versionCommand) command() *cobra.Command {
@@ -32,7 +32,7 @@ func (v *versionCommand) run(cmd *cobra.Command, _ []string) error {
 		Name:    metadata.PluginName,
 		Version: metadata.Version,
 		Image:   metadata.ResolveImage(),
-	}, v.options.Output)
+	}, v.Output)
 	if err != nil {
 		return err
 	}

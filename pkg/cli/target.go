@@ -62,9 +62,9 @@ func validateAddressableURI(uri string) error {
 	return nil
 }
 
-func (c *App) createTarget(args TargetArgs, props *event.Properties) (*event.Target, error) {
+func (a *App) createTarget(args TargetArgs, props *event.Properties) (*event.Target, error) {
 	if args.Addressable != "" {
-		args, err := c.fillInDefaultNamespace(args, props)
+		args, err := a.fillInDefaultNamespace(args, props)
 		if err != nil {
 			return nil, err
 		}
@@ -97,9 +97,9 @@ func (c *App) createTarget(args TargetArgs, props *event.Properties) (*event.Tar
 	return nil, ErrUseToURLOrToFlagIsRequired
 }
 
-func (c *App) fillInDefaultNamespace(args TargetArgs, props *event.Properties) (TargetArgs, error) {
+func (a *App) fillInDefaultNamespace(args TargetArgs, props *event.Properties) (TargetArgs, error) {
 	if len(args.Namespace) == 0 || len(args.SenderNamespace) == 0 {
-		defaultNs, err := c.DefaultNamespace(props)
+		defaultNs, err := a.DefaultNamespace(props)
 		if err != nil {
 			return TargetArgs{}, cantSentEvent(err)
 		}

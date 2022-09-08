@@ -22,7 +22,7 @@ var (
 type sendCommand struct {
 	target *cli.TargetArgs
 	event  *cli.EventArgs
-	*Cmd
+	*App
 }
 
 func (s *sendCommand) command() *cobra.Command {
@@ -74,13 +74,13 @@ isn't specified target URL will not be changed. This option can't be used with
 	return c
 }
 
-func (s *sendCommand) run(_ *cobra.Command, _ []string) error {
-	c := configuration.CreateCli()
+func (s *sendCommand) run(cmd *cobra.Command, _ []string) error {
+	c := configuration.CreateCli(cmd)
 	ce, err := c.CreateWithArgs(s.event)
 	if err != nil {
 		return cantBuildEventError(err)
 	}
-	err = c.Send(*ce, *s.target, s.options)
+	err = c.Send(*ce, *s.target, &s.Options)
 	if err != nil {
 		return cantSentEvent(err)
 	}

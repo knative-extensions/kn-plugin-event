@@ -12,13 +12,14 @@ require (
 	github.com/magefile/mage v1.11.0
 	github.com/phayes/freeport v0.0.0-20180830031419-95f893ade6f2
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/cobra v1.3.0
+	github.com/spf13/cobra v1.5.0
 	github.com/thediveo/enumflag v0.10.0
+	github.com/wavesoftware/go-commandline v1.0.0
 	github.com/wavesoftware/go-ensure v1.0.0
 	github.com/wavesoftware/go-magetasks v0.6.0
 	go.uber.org/zap v1.21.0
 	gopkg.in/yaml.v2 v2.4.0
-	gotest.tools/v3 v3.1.0
+	gotest.tools/v3 v3.3.0
 	k8s.io/api v0.23.9
 	k8s.io/apimachinery v0.23.9
 	k8s.io/client-go v0.23.9
@@ -138,6 +139,7 @@ require (
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/vbatts/tar-split v0.11.2 // indirect
+	github.com/wavesoftware/go-retcode v1.0.0 // indirect
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect

@@ -6,27 +6,27 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/wavesoftware/go-commandline"
 	"gotest.tools/v3/assert"
-	"knative.dev/kn-plugin-event/internal/cli/cmd"
 	"knative.dev/kn-plugin-event/pkg/tests"
 )
 
 func TestSendToAddress(t *testing.T) {
 	buf := bytes.NewBuffer([]byte{})
 	ce, err := tests.WithCloudEventsServer(func(serverURL url.URL) error {
-		tc := cmd.TestingCmd{}
-		tc.Args(
-			"send",
-			"--to-url", serverURL.String(),
-			"--id", "654321",
-			"--field", "person.name=Chris",
-			"--field", "person.email=ksuszyns@example.com",
-			"--field", "ping=123",
-			"--field", "active=true",
-			"--raw-field", "ref=321",
+		return testapp().Execute(
+			commandline.WithOutput(buf),
+			commandline.WithArgs(
+				"send",
+				"--to-url", serverURL.String(),
+				"--id", "654321",
+				"--field", "person.name=Chris",
+				"--field", "person.email=ksuszyns@example.com",
+				"--field", "ping=123",
+				"--field", "active=true",
+				"--raw-field", "ref=321",
+			),
 		)
-		tc.Out(buf)
-		return tc.Execute()
 	})
 	assert.NilError(t, err)
 	out := buf.String()

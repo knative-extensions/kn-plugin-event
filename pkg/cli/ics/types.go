@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"knative.dev/kn-plugin-event/pkg/event"
+	"knative.dev/kn-plugin-event/pkg/system"
 )
 
 var (
@@ -30,4 +31,5 @@ type Args struct {
 // App holds an ICS app binding.
 type App struct {
 	event.Binding
+	system.Environment
 }

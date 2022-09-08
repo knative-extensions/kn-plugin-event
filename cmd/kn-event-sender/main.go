@@ -1,35 +1,15 @@
 package main
 
 import (
-	"context"
-	"os"
-
-	"go.uber.org/zap"
-	"knative.dev/kn-plugin-event/pkg/cli/retcode"
-	"knative.dev/kn-plugin-event/pkg/configuration"
-	"knative.dev/pkg/logging"
+	"github.com/wavesoftware/go-commandline"
+	"knative.dev/kn-plugin-event/internal/ics"
 )
 
-// ExitFunc will be used to exit Go process in case of error.
-var ExitFunc = os.Exit // nolint:gochecknoglobals
-
 func main() {
-	logger := createLogger()
-	app := configuration.CreateIcs()
-	if err := app.SendFromEnv(); err != nil {
-		logger.Error(err)
-		ExitFunc(retcode.Calc(err))
-	}
+	commandline.New(ics.App{}).ExecuteOrDie(ics.Options...)
 }
 
 // TestMain is used by tests.
-//goland:noinspection GoUnusedExportedFunction
 func TestMain() { //nolint:deadcode
 	main()
-}
-
-func createLogger() *zap.SugaredLogger {
-	return logging.
-		FromContext(context.TODO()).
-		With("env", os.Environ())
 }

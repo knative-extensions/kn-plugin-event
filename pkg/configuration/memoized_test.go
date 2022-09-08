@@ -43,12 +43,12 @@ func testMemoizeKubeClientsCases(fn func(tc testMemoizeKubeClientsCase)) {
 	tcs := []testMemoizeKubeClientsCase{{
 		name: "cli",
 		fn: func() event.Binding {
-			return configuration.CreateCli().Binding
+			return configuration.CreateCli(nil).Binding
 		},
 	}, {
 		name: "ics",
 		fn: func() event.Binding {
-			return configuration.CreateIcs().Binding
+			return configuration.CreateIcs(nil).Binding
 		},
 	}}
 	for _, tc := range tcs {

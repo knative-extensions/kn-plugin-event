@@ -13,7 +13,7 @@ import (
 var ErrCantBePresented = errors.New("can't be presented")
 
 type buildCommand struct {
-	*Cmd
+	*App
 	event *cli.EventArgs
 }
 
@@ -28,14 +28,12 @@ func (b *buildCommand) command() *cobra.Command {
 }
 
 func (b *buildCommand) run(cmd *cobra.Command, _ []string) error {
-	b.options.OutWriter = cmd.OutOrStdout()
-	b.options.ErrWriter = cmd.ErrOrStderr()
-	c := configuration.CreateCli()
+	c := configuration.CreateCli(cmd)
 	ce, err := c.CreateWithArgs(b.event)
 	if err != nil {
 		return cantBuildEventError(err)
 	}
-	out, err := c.PresentWith(ce, b.options.Output)
+	out, err := c.PresentWith(ce, b.Output)
 	if err != nil {
 		return fmt.Errorf("event %w: %v", ErrCantBePresented, err)
 	}

@@ -2,23 +2,29 @@ package cmd_test
 
 import (
 	"bytes"
+	"math"
 	"testing"
 
+	"github.com/wavesoftware/go-commandline"
 	"gotest.tools/v3/assert"
 	"knative.dev/kn-plugin-event/internal/cli/cmd"
 )
 
 func TestRootInvalidCommand(t *testing.T) {
-	called := false
-	c := cmd.TestingCmd{}
-	c.Exit(func(code int) {
-		t.Logf("exit code received: %d", code)
-		called = true
-	})
-	c.Args("invalid-command")
+	retcode := math.MinInt64
 	buf := bytes.NewBuffer([]byte{})
-	c.Out(buf)
-	c.ExecuteOrFail()
+	testapp().ExecuteOrDie(
+		commandline.WithOutput(buf),
+		commandline.WithExit(func(code int) {
+			retcode = code
+		}),
+		commandline.WithArgs("invalid-command"),
+	)
 
-	assert.Check(t, called)
+	assert.Check(t, retcode != math.MinInt64)
+	assert.Check(t, retcode != 0)
+}
+
+func testapp() *commandline.App {
+	return commandline.New(new(cmd.App))
 }

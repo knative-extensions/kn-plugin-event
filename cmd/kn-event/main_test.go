@@ -3,26 +3,32 @@ package main // nolint:testpackage
 
 import (
 	"bytes"
+	"math"
 	"strings"
 	"testing"
 
+	"github.com/wavesoftware/go-commandline"
 	"gotest.tools/v3/assert"
 	"knative.dev/kn-plugin-event/internal/cli/cmd"
 )
 
 func TestMainFunc(t *testing.T) {
-	tc := cmd.TestingCmd{
-		Cmd: mainCmd,
+	retcode := math.MinInt64
+	defer func() {
+		cmd.Options = nil
+	}()
+	var buf bytes.Buffer
+	cmd.Options = []commandline.Option{
+		commandline.WithExit(func(code int) {
+			retcode = code
+		}),
+		commandline.WithOutput(&buf),
+		commandline.WithArgs(""),
 	}
-	buf := bytes.NewBuffer([]byte{})
-	tc.Out(buf)
-	tc.Args("")
-	tc.Exit(func(code int) {
-		assert.Equal(t, 0, code)
-	})
 
 	main()
 
 	out := buf.String()
 	assert.Check(t, strings.Contains(out, "Manage CloudEvents from command line"))
+	assert.Check(t, retcode == math.MinInt64)
 }
