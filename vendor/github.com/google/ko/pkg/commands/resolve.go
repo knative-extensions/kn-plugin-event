@@ -55,15 +55,20 @@ func addResolve(topLevel *cobra.Command) {
   ko resolve --local -f config/`,
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx := createCancellableContext()
+			if err := options.Validate(po, bo); err != nil {
+				return fmt.Errorf("validating options: %w", err)
+			}
+
+			ctx := cmd.Context()
+
 			bo.InsecureRegistry = po.InsecureRegistry
 			builder, err := makeBuilder(ctx, bo)
 			if err != nil {
-				return fmt.Errorf("error creating builder: %v", err)
+				return fmt.Errorf("error creating builder: %w", err)
 			}
 			publisher, err := makePublisher(po)
 			if err != nil {
-				return fmt.Errorf("error creating publisher: %v", err)
+				return fmt.Errorf("error creating publisher: %w", err)
 			}
 			defer publisher.Close()
 			return resolveFilesToWriter(ctx, builder, publisher, fo, so, os.Stdout)

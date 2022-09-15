@@ -49,8 +49,8 @@ func (kb KoBuilder) Build(artifact config.Artifact, notifier config.Notifier) co
 		return resultErrKoFailed(err)
 	}
 	bo := &options.BuildOptions{
-		Platform: buildPlatformString(image),
-		Labels:   buildLabels(image, importPath),
+		Platforms: buildPlatforms(image),
+		Labels:    buildLabels(image, importPath),
 	}
 	fillInLdflags(bo, importPath, image)
 	ctx := config.Actual().Context
@@ -112,12 +112,12 @@ func buildLabels(image Image, importPath string) []string {
 	return labels
 }
 
-func buildPlatformString(im Image) string {
+func buildPlatforms(im Image) []string {
 	platforms := make([]string, len(im.Architectures))
 	for i, architecture := range im.Architectures {
 		platforms[i] = fmt.Sprintf("linux/%s", architecture)
 	}
-	return strings.Join(platforms, ",")
+	return platforms
 }
 
 func calculateImageReference(result build.Result, artifact config.Artifact) (*imageReference, error) {

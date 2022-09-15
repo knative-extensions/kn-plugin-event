@@ -23,23 +23,20 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
-	"runtime"
 	"strings"
 	"sync"
 
-	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
+	"golang.org/x/sync/errgroup"
+	"gopkg.in/yaml.v3"
+	"k8s.io/apimachinery/pkg/labels"
+
 	"github.com/google/ko/pkg/build"
 	"github.com/google/ko/pkg/commands/options"
 	"github.com/google/ko/pkg/publish"
 	"github.com/google/ko/pkg/resolve"
-	"github.com/mattmoor/dep-notify/pkg/graph"
-	"golang.org/x/sync/errgroup"
-	"gopkg.in/yaml.v3"
-	"k8s.io/apimachinery/pkg/labels"
 )
 
 // ua returns the ko user agent.
@@ -61,21 +58,22 @@ func gobuildOptions(bo *options.BuildOptions) ([]build.Option, error) {
 		return nil, err
 	}
 
-	platform := bo.Platform
-	if platform == "" {
-		platform = "linux/amd64"
+	if len(bo.Platforms) == 0 {
+		envPlatform := "linux/amd64"
 
 		goos, goarch, goarm := os.Getenv("GOOS"), os.Getenv("GOARCH"), os.Getenv("GOARM")
 
 		// Default to linux/amd64 unless GOOS and GOARCH are set.
 		if goos != "" && goarch != "" {
-			platform = path.Join(goos, goarch)
+			envPlatform = path.Join(goos, goarch)
 		}
 
 		// Use GOARM for variant if it's set and GOARCH is arm.
 		if strings.Contains(goarch, "arm") && goarm != "" {
-			platform = path.Join(platform, "v"+goarm)
+			envPlatform = path.Join(envPlatform, "v"+goarm)
 		}
+
+		bo.Platforms = []string{envPlatform}
 	} else {
 		// Make sure these are all unset
 		for _, env := range []string{"GOOS", "GOARCH", "GOARM"} {
@@ -86,8 +84,9 @@ func gobuildOptions(bo *options.BuildOptions) ([]build.Option, error) {
 	}
 
 	opts := []build.Option{
-		build.WithBaseImages(getBaseImage(platform, bo)),
-		build.WithPlatforms(platform),
+		build.WithBaseImages(getBaseImage(bo)),
+		build.WithPlatforms(bo.Platforms...),
+		build.WithJobs(bo.ConcurrentBuilds),
 	}
 	if creationTime != nil {
 		opts = append(opts, build.WithCreationTime(*creationTime))
@@ -98,6 +97,17 @@ func gobuildOptions(bo *options.BuildOptions) ([]build.Option, error) {
 	if bo.DisableOptimizations {
 		opts = append(opts, build.WithDisabledOptimizations())
 	}
+	switch bo.SBOM {
+	case "none":
+		opts = append(opts, build.WithDisabledSBOM())
+	case "go.version-m":
+		opts = append(opts, build.WithGoVersionSBOM())
+	case "cyclonedx":
+		opts = append(opts, build.WithCycloneDX())
+	default: // "spdx"
+		opts = append(opts, build.WithSPDX(version()))
+	}
+	opts = append(opts, build.WithTrimpath(bo.Trimpath))
 	for _, lf := range bo.Labels {
 		parts := strings.SplitN(lf, "=", 2)
 		if len(parts) != 2 {
@@ -106,11 +116,8 @@ func gobuildOptions(bo *options.BuildOptions) ([]build.Option, error) {
 		opts = append(opts, build.WithLabel(parts[0], parts[1]))
 	}
 
-	// prefer buildConfigs from BuildOptions
 	if bo.BuildConfigs != nil {
 		opts = append(opts, build.WithConfig(bo.BuildConfigs))
-	} else if len(buildConfigs) > 0 {
-		opts = append(opts, build.WithConfig(buildConfigs))
 	}
 
 	return opts, nil
@@ -122,22 +129,17 @@ func NewBuilder(ctx context.Context, bo *options.BuildOptions) (build.Interface,
 }
 
 func makeBuilder(ctx context.Context, bo *options.BuildOptions) (*build.Caching, error) {
-	if err := loadConfig(bo.WorkingDirectory); err != nil {
+	if err := bo.LoadConfig(); err != nil {
 		return nil, err
 	}
 	opt, err := gobuildOptions(bo)
 	if err != nil {
-		return nil, fmt.Errorf("error setting up builder options: %v", err)
+		return nil, fmt.Errorf("error setting up builder options: %w", err)
 	}
-	innerBuilder, err := build.NewGo(ctx, bo.WorkingDirectory, opt...)
+	innerBuilder, err := build.NewGobuilds(ctx, bo.WorkingDirectory, bo.BuildConfigs, opt...)
 	if err != nil {
 		return nil, err
 	}
-
-	if bo.ConcurrentBuilds == 0 {
-		bo.ConcurrentBuilds = runtime.GOMAXPROCS(0)
-	}
-	innerBuilder = build.NewLimiter(innerBuilder, bo.ConcurrentBuilds)
 
 	// tl;dr Wrap builder in a caching builder.
 	//
@@ -146,9 +148,6 @@ func makeBuilder(ctx context.Context, bo *options.BuildOptions) (*build.Caching,
 	//    - if a valid Build future exists at the time of the request,
 	//      then block on it.
 	//    - if it does not, then initiate and record a Build future.
-	//  - When import paths are "affected" by filesystem changes during a
-	//    Watch, then invalidate their build futures *before* we put the
-	//    affected yaml files onto the channel
 	//
 	// This will benefit the following key cases:
 	// 1. When the same import path is referenced across multiple yaml files
@@ -182,12 +181,12 @@ func makePublisher(po *options.PublishOptions) (publish.Interface, error) {
 			return publish.NewKindPublisher(namer, po.Tags), nil
 		}
 
-		if repoName == "" {
+		if repoName == "" && po.Push {
 			return nil, errors.New("KO_DOCKER_REPO environment variable is unset")
 		}
 		if _, err := name.NewRegistry(repoName); err != nil {
 			if _, err := name.NewRepository(repoName); err != nil {
-				return nil, fmt.Errorf("failed to parse %q as repository: %v", repoName, err)
+				return nil, fmt.Errorf("failed to parse %q as repository: %w", repoName, err)
 			}
 		}
 
@@ -195,7 +194,7 @@ func makePublisher(po *options.PublishOptions) (publish.Interface, error) {
 		if po.OCILayoutPath != "" {
 			lp, err := publish.NewLayout(po.OCILayoutPath)
 			if err != nil {
-				return nil, fmt.Errorf("failed to create LayoutPublisher for %q: %v", po.OCILayoutPath, err)
+				return nil, fmt.Errorf("failed to create LayoutPublisher for %q: %w", po.OCILayoutPath, err)
 			}
 			publishers = append(publishers, lp)
 		}
@@ -210,11 +209,12 @@ func makePublisher(po *options.PublishOptions) (publish.Interface, error) {
 		if po.Push {
 			dp, err := publish.NewDefault(repoName,
 				publish.WithUserAgent(userAgent),
-				publish.WithAuthFromKeychain(authn.DefaultKeychain),
+				publish.WithAuthFromKeychain(keychain),
 				publish.WithNamer(namer),
 				publish.WithTags(po.Tags),
 				publish.WithTagOnly(po.TagOnly),
-				publish.Insecure(po.InsecureRegistry))
+				publish.Insecure(po.InsecureRegistry),
+			)
 			if err != nil {
 				return nil, err
 			}
@@ -234,6 +234,17 @@ func makePublisher(po *options.PublishOptions) (publish.Interface, error) {
 	}()
 	if err != nil {
 		return nil, err
+	}
+
+	if po.ImageRefsFile != "" {
+		f, err := os.OpenFile(po.ImageRefsFile, os.O_RDWR|os.O_CREATE, 0600)
+		if err != nil {
+			return nil, err
+		}
+		innerPublisher, err = publish.NewRecorder(innerPublisher, f)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Wrap publisher in a memoizing publisher implementation.
@@ -278,38 +289,6 @@ func resolveFilesToWriter(
 
 	// This tracks filename -> []importpath
 	var sm sync.Map
-
-	var g graph.Interface
-	var errCh chan error
-	var err error
-	if fo.Watch {
-		// Start a dep-notify process that on notifications scans the
-		// file-to-recorded-build map and for each affected file resends
-		// the filename along the channel.
-		g, errCh, err = graph.New(func(ss graph.StringSet) {
-			sm.Range(func(k, v interface{}) bool {
-				key := k.(string)
-				value := v.([]string)
-
-				for _, ip := range value {
-					// dep-notify doesn't understand the ko:// prefix
-					ip := strings.TrimPrefix(ip, build.StrictScheme)
-					if ss.Has(ip) {
-						// See the comment above about how "builder" works.
-						// Always use ko:// for the builder.
-						builder.Invalidate(build.StrictScheme + ip)
-						fs <- key
-					}
-				}
-				return true
-			})
-		})
-		if err != nil {
-			return fmt.Errorf("creating dep-notify graph: %v", err)
-		}
-		// Cleanup the fsnotify hooks when we're done.
-		defer g.Shutdown()
-	}
 
 	// This tracks resolution errors and ensures we cancel other builds if an
 	// individual build fails.
@@ -360,33 +339,11 @@ func resolveFilesToWriter(
 				if err != nil {
 					// This error is sometimes expected during watch mode, so this
 					// isn't fatal. Just print it and keep the watch open.
-					err := fmt.Errorf("error processing import paths in %q: %v", f, err)
-					if fo.Watch {
-						log.Print(err)
-						return nil
-					}
-					return err
+					return fmt.Errorf("error processing import paths in %q: %w", f, err)
 				}
 				// Associate with this file the collection of binary import paths.
 				sm.Store(f, recordingBuilder.ImportPaths)
 				ch <- b
-				if fo.Watch {
-					for _, ip := range recordingBuilder.ImportPaths {
-						// dep-notify doesn't understand the ko:// prefix
-						ip := strings.TrimPrefix(ip, build.StrictScheme)
-
-						// Technically we never remove binary targets from the graph,
-						// which will increase our graph's watch load, but the
-						// notifications that they change will result in no affected
-						// yamls, and no new builds or deploys.
-						if err := g.Add(ip); err != nil {
-							// If we're in watch mode, just fail.
-							err := fmt.Errorf("adding importpath %q to dep graph: %v", ip, err)
-							errCh <- err
-							return err
-						}
-					}
-				}
 				return nil
 			})
 
@@ -402,9 +359,6 @@ func resolveFilesToWriter(
 				// be applied.
 				out.Write(append(b, []byte("\n---\n")...))
 			}
-
-		case err := <-errCh:
-			return fmt.Errorf("watching dependencies: %v", err)
 		}
 	}
 
@@ -419,14 +373,13 @@ func resolveFile(
 	builder build.Interface,
 	pub publish.Interface,
 	so *options.SelectorOptions) (b []byte, err error) {
-
 	var selector labels.Selector
 	if so.Selector != "" {
 		var err error
 		selector, err = labels.Parse(so.Selector)
 
 		if err != nil {
-			return nil, fmt.Errorf("unable to parse selector: %v", err)
+			return nil, fmt.Errorf("unable to parse selector: %w", err)
 		}
 	}
 
@@ -448,7 +401,7 @@ func resolveFile(
 	for {
 		var doc yaml.Node
 		if err := decoder.Decode(&doc); err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				break
 			}
 			return nil, err
@@ -456,18 +409,17 @@ func resolveFile(
 
 		if selector != nil {
 			if match, err := resolve.MatchesSelector(&doc, selector); err != nil {
-				return nil, fmt.Errorf("error evaluating selector: %v", err)
+				return nil, fmt.Errorf("error evaluating selector: %w", err)
 			} else if !match {
 				continue
 			}
 		}
 
 		docNodes = append(docNodes, &doc)
-
 	}
 
 	if err := resolve.ImageReferences(ctx, docNodes, builder, pub); err != nil {
-		return nil, fmt.Errorf("error resolving image references: %v", err)
+		return nil, fmt.Errorf("error resolving image references: %w", err)
 	}
 
 	buf := &bytes.Buffer{}
@@ -477,7 +429,7 @@ func resolveFile(
 	for _, doc := range docNodes {
 		err := e.Encode(doc)
 		if err != nil {
-			return nil, fmt.Errorf("failed to encode output: %v", err)
+			return nil, fmt.Errorf("failed to encode output: %w", err)
 		}
 	}
 	e.Close()

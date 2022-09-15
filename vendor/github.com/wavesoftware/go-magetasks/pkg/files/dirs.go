@@ -20,6 +20,10 @@ func EnsureBuildDir() {
 
 // BuildDir returns project build dir.
 func BuildDir() string {
+	artifacts := os.Getenv("ARTIFACTS")
+	if artifacts != "" {
+		return artifacts
+	}
 	return relativeToProjectRoot(config.Actual().BuildDirPath)
 }
 

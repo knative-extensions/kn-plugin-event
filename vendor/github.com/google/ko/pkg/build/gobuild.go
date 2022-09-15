@@ -20,7 +20,6 @@ import (
 	"archive/tar"
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	gb "go/build"
@@ -31,6 +30,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"text/template"
@@ -42,7 +42,15 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
 	"github.com/google/go-containerregistry/pkg/v1/types"
+	"github.com/google/ko/internal/sbom"
 	specsv1 "github.com/opencontainers/image-spec/specs-go/v1"
+	"github.com/sigstore/cosign/pkg/oci"
+	ocimutate "github.com/sigstore/cosign/pkg/oci/mutate"
+	"github.com/sigstore/cosign/pkg/oci/signed"
+	"github.com/sigstore/cosign/pkg/oci/static"
+	ctypes "github.com/sigstore/cosign/pkg/types"
+	"golang.org/x/sync/errgroup"
+	"golang.org/x/sync/semaphore"
 	"golang.org/x/tools/go/packages"
 )
 
@@ -54,144 +62,80 @@ const (
 type GetBase func(context.Context, string) (name.Reference, Result, error)
 
 type builder func(context.Context, string, string, v1.Platform, Config) (string, error)
-
-type buildContext interface {
-	Import(path string, srcDir string, mode gb.ImportMode) (*gb.Package, error)
-}
+type sbomber func(context.Context, string, string, v1.Image) ([]byte, types.MediaType, error)
 
 type platformMatcher struct {
-	spec      string
+	spec      []string
 	platforms []v1.Platform
 }
 
 type gobuild struct {
+	ctx                  context.Context
 	getBase              GetBase
 	creationTime         v1.Time
 	kodataCreationTime   v1.Time
 	build                builder
+	sbom                 sbomber
 	disableOptimizations bool
+	trimpath             bool
 	buildConfigs         map[string]Config
-	mod                  *modules
-	buildContext         buildContext
 	platformMatcher      *platformMatcher
 	dir                  string
 	labels               map[string]string
+	semaphore            *semaphore.Weighted
+
+	cache *layerCache
 }
 
 // Option is a functional option for NewGo.
 type Option func(*gobuildOpener) error
 
 type gobuildOpener struct {
+	ctx                  context.Context
 	getBase              GetBase
 	creationTime         v1.Time
 	kodataCreationTime   v1.Time
 	build                builder
+	sbom                 sbomber
 	disableOptimizations bool
+	trimpath             bool
 	buildConfigs         map[string]Config
-	mod                  *modules
-	buildContext         buildContext
-	platform             string
+	platforms            []string
 	labels               map[string]string
 	dir                  string
+	jobs                 int
 }
 
 func (gbo *gobuildOpener) Open() (Interface, error) {
 	if gbo.getBase == nil {
 		return nil, errors.New("a way of providing base images must be specified, see build.WithBaseImages")
 	}
-	matcher, err := parseSpec(gbo.platform)
+	matcher, err := parseSpec(gbo.platforms)
 	if err != nil {
 		return nil, err
 	}
+	if gbo.jobs == 0 {
+		gbo.jobs = runtime.GOMAXPROCS(0)
+	}
 	return &gobuild{
+		ctx:                  gbo.ctx,
 		getBase:              gbo.getBase,
 		creationTime:         gbo.creationTime,
 		kodataCreationTime:   gbo.kodataCreationTime,
 		build:                gbo.build,
+		sbom:                 gbo.sbom,
 		disableOptimizations: gbo.disableOptimizations,
+		trimpath:             gbo.trimpath,
 		buildConfigs:         gbo.buildConfigs,
-		mod:                  gbo.mod,
-		buildContext:         gbo.buildContext,
 		labels:               gbo.labels,
 		dir:                  gbo.dir,
 		platformMatcher:      matcher,
+		cache: &layerCache{
+			buildToDiff: map[string]buildIDToDiffID{},
+			diffToDesc:  map[string]diffIDToDescriptor{},
+		},
+		semaphore: semaphore.NewWeighted(int64(gbo.jobs)),
 	}, nil
-}
-
-// https://golang.org/pkg/cmd/go/internal/modinfo/#ModulePublic
-type modules struct {
-	main *modInfo
-	deps map[string]*modInfo
-}
-
-type modInfo struct {
-	Path string
-	Dir  string
-	Main bool
-}
-
-// moduleInfo returns the module path and module root directory for a project
-// using go modules, otherwise returns nil.
-//
-// Related: https://github.com/golang/go/issues/26504
-func moduleInfo(ctx context.Context, dir string) (*modules, error) {
-	modules := modules{
-		deps: make(map[string]*modInfo),
-	}
-
-	// TODO we read all the output as a single byte array - it may
-	// be possible & more efficient to stream it
-	cmd := exec.CommandContext(ctx, "go", "list", "-mod=readonly", "-json", "-m", "all")
-	cmd.Dir = dir
-	output, err := cmd.Output()
-	if err != nil {
-		return nil, nil
-	}
-
-	dec := json.NewDecoder(bytes.NewReader(output))
-
-	for {
-		var info modInfo
-		err := dec.Decode(&info)
-		if err == io.EOF {
-			// all done
-			break
-		}
-
-		modules.deps[info.Path] = &info
-
-		if info.Main {
-			modules.main = &info
-		}
-
-		if err != nil {
-			return nil, fmt.Errorf("error reading module data %w", err)
-		}
-	}
-
-	if modules.main == nil {
-		return nil, fmt.Errorf("couldn't find main module")
-	}
-
-	return &modules, nil
-}
-
-// getGoroot shells out to `go env GOROOT` to determine
-// the GOROOT for the installed version of go so that we
-// can set it in our buildContext. By default, the GOROOT
-// of our buildContext is set to the GOROOT at install
-// time for `ko`, which means that we break when certain
-// package managers update go or when using a pre-built
-// `ko` binary that expects a different GOROOT.
-//
-// See https://github.com/google/ko/issues/106
-func getGoroot(ctx context.Context, dir string) (string, error) {
-	cmd := exec.CommandContext(ctx, "go", "env", "GOROOT")
-	// It's probably not necessary to set the command working directory here,
-	// but it helps keep everything consistent.
-	cmd.Dir = dir
-	output, err := cmd.Output()
-	return strings.TrimSpace(string(output)), err
 }
 
 // NewGo returns a build.Interface implementation that:
@@ -201,36 +145,11 @@ func getGoroot(ctx context.Context, dir string) (string, error) {
 // The `dir` argument is the working directory for executing the `go` tool.
 // If `dir` is empty, the function uses the current process working directory.
 func NewGo(ctx context.Context, dir string, options ...Option) (Interface, error) {
-	// TODO: We could do moduleInfo() and getGoroot() concurrently.
-	module, err := moduleInfo(ctx, dir)
-	if err != nil {
-		return nil, err
-	}
-
-	goroot, err := getGoroot(ctx, dir)
-	if err != nil {
-		// On error, print the output and set goroot to "" to avoid using it later.
-		log.Printf("Unexpected error running \"go env GOROOT\": %v\n%v", err, goroot)
-		goroot = ""
-	} else if goroot == "" {
-		log.Printf(`Unexpected: $(go env GOROOT) == ""`)
-	}
-
-	// If $(go env GOROOT) successfully returns a non-empty string that differs from
-	// the default build context GOROOT, use $(go env GOROOT) instead.
-	bc := gb.Default
-	bc.Dir = dir
-	if goroot != "" && bc.GOROOT != goroot {
-		bc.GOROOT = goroot
-	}
-
 	gbo := &gobuildOpener{
-		build:        build,
-		mod:          module,
-		buildContext: &bc,
-		// dir is set on both buildContext and on gbo. Not ideal, but the
-		// build.Context interface doesn't expose
-		dir: dir,
+		ctx:   ctx,
+		build: build,
+		dir:   dir,
+		sbom:  spdx("(none)"),
 	}
 
 	for _, option := range options {
@@ -242,9 +161,13 @@ func NewGo(ctx context.Context, dir string, options ...Option) (Interface, error
 }
 
 func (g *gobuild) qualifyLocalImport(importpath string) (string, error) {
+	dir := filepath.Clean(g.dir)
+	if dir == "." {
+		dir = ""
+	}
 	cfg := &packages.Config{
 		Mode: packages.NeedName,
-		Dir:  g.dir,
+		Dir:  dir,
 	}
 	pkgs, err := packages.Load(cfg, importpath)
 	if err != nil {
@@ -262,7 +185,7 @@ func (g *gobuild) QualifyImport(importpath string) (string, error) {
 		var err error
 		importpath, err = g.qualifyLocalImport(importpath)
 		if err != nil {
-			return "", fmt.Errorf("qualifying local import %s: %v", importpath, err)
+			return "", fmt.Errorf("qualifying local import %s: %w", importpath, err)
 		}
 	}
 	if !strings.HasPrefix(importpath, StrictScheme) {
@@ -280,37 +203,21 @@ func (g *gobuild) IsSupportedReference(s string) error {
 	if !ref.IsStrict() {
 		return errors.New("importpath does not start with ko://")
 	}
-	p, err := g.importPackage(ref)
-	if err != nil {
-		return err
+	dir := filepath.Clean(g.dir)
+	if dir == "." {
+		dir = ""
 	}
-	if !p.IsCommand() {
+	pkgs, err := packages.Load(&packages.Config{Dir: dir, Mode: packages.NeedName}, ref.Path())
+	if err != nil {
+		return fmt.Errorf("error loading package from %s: %w", ref.Path(), err)
+	}
+	if len(pkgs) != 1 {
+		return fmt.Errorf("found %d local packages, expected 1", len(pkgs))
+	}
+	if pkgs[0].Name != "main" {
 		return errors.New("importpath is not `package main`")
 	}
 	return nil
-}
-
-// importPackage wraps go/build.Import to handle go modules.
-//
-// Note that we will fall back to GOPATH if the project isn't using go modules.
-func (g *gobuild) importPackage(ref reference) (*gb.Package, error) {
-	if g.mod == nil {
-		return g.buildContext.Import(ref.Path(), gb.Default.GOPATH, gb.ImportComment)
-	}
-
-	// If we're inside a go modules project, try to use the module's directory
-	// as our source root to import:
-	// * any strict reference we get
-	// * paths that match module path prefix (they should be in this project)
-	// * relative paths (they should also be in this project)
-	// * path is a module
-
-	_, isDep := g.mod.deps[ref.Path()]
-	if ref.IsStrict() || strings.HasPrefix(ref.Path(), g.mod.main.Path) || gb.IsLocalImport(ref.Path()) || isDep {
-		return g.buildContext.Import(ref.Path(), g.mod.main.Dir, gb.ImportComment)
-	}
-
-	return nil, fmt.Errorf("unmatched importPackage %q with gomodules", ref.String())
 }
 
 func getGoarm(platform v1.Platform) (string, error) {
@@ -321,7 +228,7 @@ func getGoarm(platform v1.Platform) (string, error) {
 	vs := strings.TrimPrefix(platform.Variant, "v")
 	variant, err := strconv.Atoi(vs)
 	if err != nil {
-		return "", fmt.Errorf("cannot parse arm variant %q: %v", platform.Variant, err)
+		return "", fmt.Errorf("cannot parse arm variant %q: %w", platform.Variant, err)
 	}
 	if variant >= 5 {
 		// TODO(golang/go#29373): Allow for 8 in later go versions if this is fixed.
@@ -333,21 +240,7 @@ func getGoarm(platform v1.Platform) (string, error) {
 	return "", nil
 }
 
-// TODO(jonjohnsonjr): Upstream something like this.
-func platformToString(p v1.Platform) string {
-	if p.Variant != "" {
-		return fmt.Sprintf("%s/%s/%s", p.OS, p.Architecture, p.Variant)
-	}
-	return fmt.Sprintf("%s/%s", p.OS, p.Architecture)
-}
-
 func build(ctx context.Context, ip string, dir string, platform v1.Platform, config Config) (string, error) {
-	tmpDir, err := ioutil.TempDir("", "ko")
-	if err != nil {
-		return "", err
-	}
-	file := filepath.Join(tmpDir, "out")
-
 	buildArgs, err := createBuildArgs(config)
 	if err != nil {
 		return "", err
@@ -356,28 +249,104 @@ func build(ctx context.Context, ip string, dir string, platform v1.Platform, con
 	args := make([]string, 0, 4+len(buildArgs))
 	args = append(args, "build")
 	args = append(args, buildArgs...)
+
+	env, err := buildEnv(platform, os.Environ(), config.Env)
+	if err != nil {
+		return "", fmt.Errorf("could not create env for %s: %w", ip, err)
+	}
+
+	tmpDir, err := ioutil.TempDir("", "ko")
+	if err != nil {
+		return "", err
+	}
+
+	if dir := os.Getenv("KOCACHE"); dir != "" {
+		dirInfo, err := os.Stat(dir)
+		if os.IsNotExist(err) {
+			if err := os.MkdirAll(dir, os.ModePerm); err != nil && !os.IsExist(err) {
+				return "", fmt.Errorf("could not create KOCACHE dir %s: %w", dir, err)
+			}
+		} else if !dirInfo.IsDir() {
+			return "", fmt.Errorf("KOCACHE should be a directory, %s is not a directory", dir)
+		}
+
+		// TODO(#264): if KOCACHE is unset, default to filepath.Join(os.TempDir(), "ko").
+		tmpDir = filepath.Join(dir, "bin", ip, platform.String())
+		if err := os.MkdirAll(tmpDir, os.ModePerm); err != nil {
+			return "", err
+		}
+	}
+
+	file := filepath.Join(tmpDir, "out")
+
 	args = append(args, "-o", file)
 	args = append(args, ip)
 	cmd := exec.CommandContext(ctx, "go", args...)
 	cmd.Dir = dir
-
-	env, err := buildEnv(platform, os.Environ(), config.Env)
-	if err != nil {
-		return "", fmt.Errorf("could not create env for %s: %v", ip, err)
-	}
 	cmd.Env = env
 
 	var output bytes.Buffer
 	cmd.Stderr = &output
 	cmd.Stdout = &output
 
-	log.Printf("Building %s for %s", ip, platformToString(platform))
+	log.Printf("Building %s for %s", ip, platform)
 	if err := cmd.Run(); err != nil {
-		os.RemoveAll(tmpDir)
+		if os.Getenv("KOCACHE") == "" {
+			os.RemoveAll(tmpDir)
+		}
 		log.Printf("Unexpected error running \"go build\": %v\n%v", err, output.String())
 		return "", err
 	}
 	return file, nil
+}
+
+func goversionm(ctx context.Context, file string, appPath string, _ v1.Image) ([]byte, types.MediaType, error) {
+	sbom := bytes.NewBuffer(nil)
+	cmd := exec.CommandContext(ctx, "go", "version", "-m", file)
+	cmd.Stdout = sbom
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return nil, "", err
+	}
+
+	// In order to get deterministics SBOMs replace our randomized
+	// file name with the path the app will get inside of the container.
+	return []byte(strings.Replace(sbom.String(), file, appPath, 1)), "application/vnd.go.version-m", nil
+}
+
+func spdx(version string) sbomber {
+	return func(ctx context.Context, file string, appPath string, img v1.Image) ([]byte, types.MediaType, error) {
+		b, _, err := goversionm(ctx, file, appPath, img)
+		if err != nil {
+			return nil, "", err
+		}
+
+		cfg, err := img.ConfigFile()
+		if err != nil {
+			return nil, "", err
+		}
+
+		b, err = sbom.GenerateSPDX(version, cfg.Created.Time, b)
+		if err != nil {
+			return nil, "", err
+		}
+		return b, ctypes.SPDXMediaType, nil
+	}
+}
+
+func cycloneDX() sbomber {
+	return func(ctx context.Context, file string, appPath string, img v1.Image) ([]byte, types.MediaType, error) {
+		b, _, err := goversionm(ctx, file, appPath, img)
+		if err != nil {
+			return nil, "", err
+		}
+
+		b, err = sbom.GenerateCycloneDX(b)
+		if err != nil {
+			return nil, "", err
+		}
+		return b, ctypes.CycloneDXMediaType, nil
+	}
 }
 
 // buildEnv creates the environment variables used by the `go build` command.
@@ -390,14 +359,20 @@ func buildEnv(platform v1.Platform, userEnv, configEnv []string) ([]string, erro
 		"GOOS=" + platform.OS,
 		"GOARCH=" + platform.Architecture,
 	}
-
-	if strings.HasPrefix(platform.Architecture, "arm") && platform.Variant != "" {
-		goarm, err := getGoarm(platform)
-		if err != nil {
-			return nil, fmt.Errorf("goarm failure: %v", err)
-		}
-		if goarm != "" {
-			env = append(env, "GOARM="+goarm)
+	if platform.Variant != "" {
+		switch platform.Architecture {
+		case "arm":
+			// See: https://pkg.go.dev/cmd/go#hdr-Environment_variables
+			goarm, err := getGoarm(platform)
+			if err != nil {
+				return nil, fmt.Errorf("goarm failure: %w", err)
+			}
+			if goarm != "" {
+				env = append(env, "GOARM="+goarm)
+			}
+		case "amd64":
+			// See: https://tip.golang.org/doc/go1.18#amd64
+			env = append(env, "GOAMD64="+platform.Variant)
 		}
 	}
 
@@ -424,7 +399,7 @@ func appFilename(importpath string) string {
 // owner: BUILTIN/Users group: BUILTIN/Users ($sddlValue="O:BUG:BU")
 const userOwnerAndGroupSID = "AQAAgBQAAAAkAAAAAAAAAAAAAAABAgAAAAAABSAAAAAhAgAAAQIAAAAAAAUgAAAAIQIAAA=="
 
-func tarBinary(name, binary string, creationTime v1.Time, platform *v1.Platform) (*bytes.Buffer, error) {
+func tarBinary(name, binary string, platform *v1.Platform) (*bytes.Buffer, error) {
 	buf := bytes.NewBuffer(nil)
 	tw := tar.NewWriter(buf)
 	defer tw.Close()
@@ -449,10 +424,9 @@ func tarBinary(name, binary string, creationTime v1.Time, platform *v1.Platform)
 			// Use a fixed Mode, so that this isn't sensitive to the directory and umask
 			// under which it was created. Additionally, windows can only set 0222,
 			// 0444, or 0666, none of which are executable.
-			Mode:    0555,
-			ModTime: creationTime.Time,
+			Mode: 0555,
 		}); err != nil {
-			return nil, fmt.Errorf("writing dir %q: %v", dir, err)
+			return nil, fmt.Errorf("writing dir %q: %w", dir, err)
 		}
 	}
 
@@ -472,8 +446,7 @@ func tarBinary(name, binary string, creationTime v1.Time, platform *v1.Platform)
 		// Use a fixed Mode, so that this isn't sensitive to the directory and umask
 		// under which it was created. Additionally, windows can only set 0222,
 		// 0444, or 0666, none of which are executable.
-		Mode:    0555,
-		ModTime: creationTime.Time,
+		Mode: 0555,
 	}
 	if platform.OS == "windows" {
 		// This magic value is for some reason needed for Windows to be
@@ -495,11 +468,21 @@ func tarBinary(name, binary string, creationTime v1.Time, platform *v1.Platform)
 }
 
 func (g *gobuild) kodataPath(ref reference) (string, error) {
-	p, err := g.importPackage(ref)
-	if err != nil {
-		return "", err
+	dir := filepath.Clean(g.dir)
+	if dir == "." {
+		dir = ""
 	}
-	return filepath.Join(p.Dir, "kodata"), nil
+	pkgs, err := packages.Load(&packages.Config{Dir: dir, Mode: packages.NeedFiles}, ref.Path())
+	if err != nil {
+		return "", fmt.Errorf("error loading package from %s: %w", ref.Path(), err)
+	}
+	if len(pkgs) != 1 {
+		return "", fmt.Errorf("found %d local packages, expected 1", len(pkgs))
+	}
+	if len(pkgs[0].GoFiles) == 0 {
+		return "", fmt.Errorf("package %s contains no Go files", pkgs[0])
+	}
+	return filepath.Join(filepath.Dir(pkgs[0].GoFiles[0]), "kodata"), nil
 }
 
 // Where kodata lives in the image.
@@ -622,7 +605,7 @@ func (g *gobuild) tarKoData(ref reference, platform *v1.Platform) (*bytes.Buffer
 			Mode:    0555,
 			ModTime: creationTime.Time,
 		}); err != nil {
-			return nil, fmt.Errorf("writing dir %q: %v", dir, err)
+			return nil, fmt.Errorf("writing dir %q: %w", dir, err)
 		}
 	}
 
@@ -684,9 +667,10 @@ func createBuildArgs(buildCfg Config) ([]string, error) {
 }
 
 func (g *gobuild) configForImportPath(ip string) Config {
-	config, ok := g.buildConfigs[ip]
-	if !ok {
-		// Apply default build flags in case none were supplied
+	config := g.buildConfigs[ip]
+	if g.trimpath {
+		// The `-trimpath` flag removes file system paths from the resulting binary, to aid reproducibility.
+		// Ref: https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
 		config.Flags = append(config.Flags, "-trimpath")
 	}
 
@@ -695,10 +679,19 @@ func (g *gobuild) configForImportPath(ip string) Config {
 		config.Flags = append(config.Flags, "-gcflags", "all=-N -l")
 	}
 
+	if config.ID != "" {
+		log.Printf("Using build config %s for %s", config.ID, ip)
+	}
+
 	return config
 }
 
-func (g *gobuild) buildOne(ctx context.Context, refStr string, base v1.Image, platform *v1.Platform) (v1.Image, error) {
+func (g *gobuild) buildOne(ctx context.Context, refStr string, base v1.Image, platform *v1.Platform) (oci.SignedImage, error) {
+	if err := g.semaphore.Acquire(ctx, 1); err != nil {
+		return nil, err
+	}
+	defer g.semaphore.Release(1)
+
 	ref := newRef(refStr)
 
 	cf, err := base.ConfigFile()
@@ -718,7 +711,9 @@ func (g *gobuild) buildOne(ctx context.Context, refStr string, base v1.Image, pl
 	if err != nil {
 		return nil, err
 	}
-	defer os.RemoveAll(filepath.Dir(file))
+	if os.Getenv("KOCACHE") == "" {
+		defer os.RemoveAll(filepath.Dir(file))
+	}
 
 	var layers []mutate.Addendum
 
@@ -738,7 +733,8 @@ func (g *gobuild) buildOne(ctx context.Context, refStr string, base v1.Image, pl
 		Layer: dataLayer,
 		History: v1.History{
 			Author:    "ko",
-			CreatedBy: "ko publish " + ref.String(),
+			CreatedBy: "ko build " + ref.String(),
+			Created:   g.kodataCreationTime,
 			Comment:   "kodata contents, at $KO_DATA_PATH",
 		},
 	})
@@ -746,26 +742,21 @@ func (g *gobuild) buildOne(ctx context.Context, refStr string, base v1.Image, pl
 	appDir := "/ko-app"
 	appPath := path.Join(appDir, appFilename(ref.Path()))
 
-	// Construct a tarball with the binary and produce a layer.
-	binaryLayerBuf, err := tarBinary(appPath, file, v1.Time{}, platform)
+	miss := func() (v1.Layer, error) {
+		return buildLayer(appPath, file, platform)
+	}
+
+	binaryLayer, err := g.cache.get(ctx, file, miss)
 	if err != nil {
 		return nil, err
 	}
-	binaryLayerBytes := binaryLayerBuf.Bytes()
-	binaryLayer, err := tarball.LayerFromOpener(func() (io.ReadCloser, error) {
-		return ioutil.NopCloser(bytes.NewBuffer(binaryLayerBytes)), nil
-	}, tarball.WithCompressedCaching, tarball.WithEstargzOptions(estargz.WithPrioritizedFiles([]string{
-		// When using estargz, prioritize downloading the binary entrypoint.
-		appPath,
-	})))
-	if err != nil {
-		return nil, err
-	}
+
 	layers = append(layers, mutate.Addendum{
 		Layer: binaryLayer,
 		History: v1.History{
 			Author:    "ko",
-			CreatedBy: "ko publish " + ref.String(),
+			Created:   g.creationTime,
+			CreatedBy: "ko build " + ref.String(),
 			Comment:   "go build output, at " + appPath,
 		},
 	})
@@ -785,6 +776,7 @@ func (g *gobuild) buildOne(ctx context.Context, refStr string, base v1.Image, pl
 
 	cfg = cfg.DeepCopy()
 	cfg.Config.Entrypoint = []string{appPath}
+	cfg.Config.Cmd = nil
 	if platform.OS == "windows" {
 		cfg.Config.Entrypoint = []string{`C:\ko-app\` + appFilename(ref.Path())}
 		updatePath(cfg, `C:\ko-app`)
@@ -802,16 +794,48 @@ func (g *gobuild) buildOne(ctx context.Context, refStr string, base v1.Image, pl
 		cfg.Config.Labels[k] = v
 	}
 
+	empty := v1.Time{}
+	if g.creationTime != empty {
+		cfg.Created = g.creationTime
+	}
+
 	image, err := mutate.ConfigFile(withApp, cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	empty := v1.Time{}
-	if g.creationTime != empty {
-		return mutate.CreatedAt(image, g.creationTime)
+	si := signed.Image(image)
+
+	if g.sbom != nil {
+		sbom, mt, err := g.sbom(ctx, file, appPath, image)
+		if err != nil {
+			return nil, err
+		}
+		f, err := static.NewFile(sbom, static.WithLayerMediaType(mt))
+		if err != nil {
+			return nil, err
+		}
+		si, err = ocimutate.AttachFileToImage(si, "sbom", f)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return image, nil
+	return si, nil
+}
+
+func buildLayer(appPath, file string, platform *v1.Platform) (v1.Layer, error) {
+	// Construct a tarball with the binary and produce a layer.
+	binaryLayerBuf, err := tarBinary(appPath, file, platform)
+	if err != nil {
+		return nil, err
+	}
+	binaryLayerBytes := binaryLayerBuf.Bytes()
+	return tarball.LayerFromOpener(func() (io.ReadCloser, error) {
+		return ioutil.NopCloser(bytes.NewBuffer(binaryLayerBytes)), nil
+	}, tarball.WithCompressedCaching, tarball.WithEstargzOptions(estargz.WithPrioritizedFiles([]string{
+		// When using estargz, prioritize downloading the binary entrypoint.
+		appPath,
+	})))
 }
 
 // Append appPath to the PATH environment variable, if it exists. Otherwise,
@@ -838,7 +862,9 @@ func updatePath(cf *v1.ConfigFile, appPath string) {
 // Build implements build.Interface
 func (g *gobuild) Build(ctx context.Context, s string) (Result, error) {
 	// Determine the appropriate base image for this import path.
-	baseRef, base, err := g.getBase(ctx, s)
+	// We use the overall gobuild.ctx because the Build ctx gets cancelled
+	// early, and we lazily use the ctx within ggcr's remote package.
+	baseRef, base, err := g.getBase(g.ctx, s)
 	if err != nil {
 		return nil, err
 	}
@@ -849,10 +875,22 @@ func (g *gobuild) Build(ctx context.Context, s string) (Result, error) {
 		return nil, err
 	}
 
-	// Take the digest of the base index or image, to annotate images we'll build later.
-	baseDigest, err := base.Digest()
-	if err != nil {
-		return nil, err
+	// Annotate the base image we pass to the build function with
+	// annotations indicating the digest (and possibly tag) of the
+	// base image.  This will be inherited by the image produced.
+	if mt != types.DockerManifestList {
+		baseDigest, err := base.Digest()
+		if err != nil {
+			return nil, err
+		}
+
+		anns := map[string]string{
+			specsv1.AnnotationBaseImageDigest: baseDigest.String(),
+		}
+		if _, ok := baseRef.(name.Tag); ok {
+			anns[specsv1.AnnotationBaseImageName] = baseRef.Name()
+		}
+		base = mutate.Annotations(base, anns).(Result)
 	}
 
 	var res Result
@@ -875,99 +913,109 @@ func (g *gobuild) Build(ctx context.Context, s string) (Result, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// Annotate the image or index with base image information.
-	// (Docker manifest lists don't support annotations)
-	if mt != types.DockerManifestList {
-		anns := map[string]string{
-			specsv1.AnnotationBaseImageDigest: baseDigest.String(),
-		}
-		if _, ok := baseRef.(name.Tag); ok {
-			anns[specsv1.AnnotationBaseImageName] = baseRef.Name()
-		}
-		res = mutate.Annotations(res, anns).(Result)
-	}
-
 	return res, nil
 }
 
-// TODO(#192): Do these in parallel?
-func (g *gobuild) buildAll(ctx context.Context, ref string, baseIndex v1.ImageIndex) (v1.ImageIndex, error) {
+func (g *gobuild) buildAll(ctx context.Context, ref string, baseIndex v1.ImageIndex) (Result, error) {
 	im, err := baseIndex.IndexManifest()
 	if err != nil {
 		return nil, err
 	}
 
-	// Build an image for each child from the base and append it to a new index to produce the result.
-	adds := []mutate.IndexAddendum{}
+	matches := []v1.Descriptor{}
 	for _, desc := range im.Manifests {
 		// Nested index is pretty rare. We could support this in theory, but return an error for now.
 		if desc.MediaType != types.OCIManifestSchema1 && desc.MediaType != types.DockerManifestSchema2 {
 			return nil, fmt.Errorf("%q has unexpected mediaType %q in base for %q", desc.Digest, desc.MediaType, ref)
 		}
 
-		if !g.platformMatcher.matches(desc.Platform) {
-			continue
+		if g.platformMatcher.matches(desc.Platform) {
+			matches = append(matches, desc)
 		}
+	}
+	if len(matches) == 0 {
+		return nil, errors.New("no matching platforms in base image index")
+	}
+	if len(matches) == 1 {
+		// Filters resulted in a single matching platform; just produce
+		// a single-platform image.
+		img, err := baseIndex.Image(matches[0].Digest)
+		if err != nil {
+			return nil, fmt.Errorf("error getting matching image from index: %w", err)
+		}
+		// Carry forward the base index's annotations, which include base image annotations.
+		img = mutate.Annotations(img, im.Annotations).(v1.Image)
+		return g.buildOne(ctx, ref, img, matches[0].Platform)
+	}
 
-		baseImage, err := baseIndex.Image(desc.Digest)
-		if err != nil {
-			return nil, err
-		}
-		img, err := g.buildOne(ctx, ref, baseImage, desc.Platform)
-		if err != nil {
-			return nil, err
-		}
-		adds = append(adds, mutate.IndexAddendum{
-			Add: img,
-			Descriptor: v1.Descriptor{
-				URLs:        desc.URLs,
-				MediaType:   desc.MediaType,
-				Annotations: desc.Annotations,
-				Platform:    desc.Platform,
-			},
+	// Build an image for each matching platform from the base and append
+	// it to a new index to produce the result. We use the indices to
+	// preserve the base image ordering here.
+	errg, ctx := errgroup.WithContext(ctx)
+	adds := make([]ocimutate.IndexAddendum, len(matches))
+	for i, desc := range matches {
+		i, desc := i, desc
+		errg.Go(func() error {
+			baseImage, err := baseIndex.Image(desc.Digest)
+			if err != nil {
+				return err
+			}
+			img, err := g.buildOne(ctx, ref, baseImage, desc.Platform)
+			if err != nil {
+				return err
+			}
+			adds[i] = ocimutate.IndexAddendum{
+				Add: img,
+				Descriptor: v1.Descriptor{
+					URLs:        desc.URLs,
+					MediaType:   desc.MediaType,
+					Annotations: desc.Annotations,
+					Platform:    desc.Platform,
+				},
+			}
+			return nil
 		})
+	}
+	if err := errg.Wait(); err != nil {
+		return nil, err
 	}
 
 	baseType, err := baseIndex.MediaType()
 	if err != nil {
 		return nil, err
 	}
-	idx := mutate.IndexMediaType(mutate.AppendManifests(empty.Index, adds...), baseType)
 
+	idx := ocimutate.AppendManifests(
+		mutate.Annotations(
+			mutate.IndexMediaType(empty.Index, baseType),
+			im.Annotations).(v1.ImageIndex),
+		adds...)
+
+	// TODO(mattmoor): If we want to attach anything (e.g. signatures, attestations, SBOM)
+	// at the index level, we would do it here!
 	return idx, nil
 }
 
-func parseSpec(spec string) (*platformMatcher, error) {
+func parseSpec(spec []string) (*platformMatcher, error) {
 	// Don't bother parsing "all".
-	// "" should never happen because we default to linux/amd64.
-	platforms := []v1.Platform{}
-	if spec == "all" || spec == "" {
+	// Empty slice should never happen because we default to linux/amd64 (or GOOS/GOARCH).
+	if len(spec) == 0 || spec[0] == "all" {
 		return &platformMatcher{spec: spec}, nil
 	}
 
-	for _, platform := range strings.Split(spec, ",") {
-		var p v1.Platform
-		parts := strings.Split(strings.TrimSpace(platform), "/")
-		if len(parts) > 0 {
-			p.OS = parts[0]
+	platforms := []v1.Platform{}
+	for _, s := range spec {
+		p, err := v1.ParsePlatform(s)
+		if err != nil {
+			return nil, err
 		}
-		if len(parts) > 1 {
-			p.Architecture = parts[1]
-		}
-		if len(parts) > 2 {
-			p.Variant = parts[2]
-		}
-		if len(parts) > 3 {
-			return nil, fmt.Errorf("too many slashes in platform spec: %s", platform)
-		}
-		platforms = append(platforms, p)
+		platforms = append(platforms, *p)
 	}
 	return &platformMatcher{spec: spec, platforms: platforms}, nil
 }
 
 func (pm *platformMatcher) matches(base *v1.Platform) bool {
-	if pm.spec == "all" {
+	if len(pm.spec) > 0 && pm.spec[0] == "all" {
 		return true
 	}
 
@@ -987,6 +1035,42 @@ func (pm *platformMatcher) matches(base *v1.Platform) bool {
 			continue
 		}
 
+		// Windows is... weird. Windows base images use osversion to
+		// communicate what Windows version is used, which matters for image
+		// selection at runtime.
+		//
+		// Windows osversions include the usual major/minor/patch version
+		// components, as well as an incrementing "build number" which can
+		// change when new Windows base images are released.
+		//
+		// In order to avoid having to match the entire osversion including the
+		// incrementing build number component, we allow matching a platform
+		// that only matches the first three osversion components, only for
+		// Windows images.
+		//
+		// If the X.Y.Z components don't match (or aren't formed as we expect),
+		// the platform doesn't match. Only if X.Y.Z matches and the extra
+		// build number component doesn't, do we consider the platform to
+		// match.
+		//
+		// Ref: https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/version-compatibility?tabs=windows-server-2022%2Cwindows-10-21H1#build-number-new-release-of-windows
+		if p.OSVersion != "" && p.OSVersion != base.OSVersion {
+			if p.OS != "windows" {
+				// osversion mismatch is only possibly allowed when os == windows.
+				continue
+			} else {
+				if pcount, bcount := strings.Count(p.OSVersion, "."), strings.Count(base.OSVersion, "."); pcount == 2 && bcount == 3 {
+					if p.OSVersion != base.OSVersion[:strings.LastIndex(base.OSVersion, ".")] {
+						// If requested osversion is X.Y.Z and potential match is X.Y.Z.A, all of X.Y.Z must match.
+						// Any other form of these osversions are not a match.
+						continue
+					}
+				} else {
+					// Partial osversion matching only allows X.Y.Z to match X.Y.Z.A.
+					continue
+				}
+			}
+		}
 		return true
 	}
 
