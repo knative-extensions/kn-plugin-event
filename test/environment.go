@@ -26,7 +26,7 @@ func ResolveKnEventCommand(t TestingT) Command {
 	MaybeSkip(t)
 	bin := fmt.Sprintf("kn-event-%s-%s", runtime.GOOS, runtime.GOARCH)
 	c := Command{
-		Executable: path.Join(rootDir(), "build", "_output", "bin", bin),
+		Executable: path.Join(artifactsDir(), "bin", bin),
 	}
 	if val, ok := os.LookupEnv("KN_PLUGIN_EVENT_EXECUTABLE"); ok {
 		c.Executable = val
@@ -47,6 +47,13 @@ type Command struct {
 func (c Command) ToIcmd(args ...string) icmd.Cmd {
 	args = append(c.Args, args...)
 	return icmd.Command(c.Executable, args...)
+}
+
+func artifactsDir() string {
+	if dir := os.Getenv("ARTIFACTS"); dir != "" {
+		return dir
+	}
+	return path.Join(rootDir(), "build", "_output")
 }
 
 func rootDir() string {
