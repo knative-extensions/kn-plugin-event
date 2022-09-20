@@ -35,7 +35,7 @@ func addRun(topLevel *cobra.Command) {
 	run := &cobra.Command{
 		Use:   "run IMPORTPATH",
 		Short: "A variant of `kubectl run` that containerizes IMPORTPATH first.",
-		Long:  `This sub-command combines "ko publish" and "kubectl run" to support containerizing and running Go binaries on Kubernetes in a single command.`,
+		Long:  `This sub-command combines "ko build" and "kubectl run" to support containerizing and running Go binaries on Kubernetes in a single command.`,
 		Example: `
   # Publish the image and run it on Kubernetes as:
   #   ${KO_DOCKER_REPO}/<package name>-<hash of import path>
@@ -49,7 +49,11 @@ func addRun(topLevel *cobra.Command) {
   # You can also supply args and flags to the command.
   ko run ./cmd/baz -- -v arg1 arg2 --yes`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx := createCancellableContext()
+			if err := options.Validate(po, bo); err != nil {
+				return fmt.Errorf("validating options: %w", err)
+			}
+
+			ctx := cmd.Context()
 
 			// Args after -- are for kubectl, so only consider importPaths before it.
 			importPaths := args
@@ -70,11 +74,11 @@ func addRun(topLevel *cobra.Command) {
 			bo.InsecureRegistry = po.InsecureRegistry
 			builder, err := makeBuilder(ctx, bo)
 			if err != nil {
-				return fmt.Errorf("error creating builder: %v", err)
+				return fmt.Errorf("error creating builder: %w", err)
 			}
 			publisher, err := makePublisher(po)
 			if err != nil {
-				return fmt.Errorf("error creating publisher: %v", err)
+				return fmt.Errorf("error creating publisher: %w", err)
 			}
 			defer publisher.Close()
 
@@ -87,7 +91,7 @@ func addRun(topLevel *cobra.Command) {
 			}
 			imgs, err := publishImages(ctx, importPaths, publisher, builder)
 			if err != nil {
-				return fmt.Errorf("failed to publish images: %v", err)
+				return fmt.Errorf("failed to publish images: %w", err)
 			}
 
 			// Usually only one, but this is the simple way to access the

@@ -69,7 +69,11 @@ func (r VersionResolver) Version() string {
 		return r.repository().Describe()
 	})
 	ensure.NoError(err)
-	return ver.(string)
+	v, ok := ver.(string)
+	if !ok {
+		panic("can't cast version to string!?")
+	}
+	return v
 }
 
 func (r VersionResolver) IsLatest(versionRange string) (bool, error) {
@@ -103,5 +107,9 @@ func (r VersionResolver) resolveTags() []string {
 		return r.repository().Tags()
 	})
 	ensure.NoError(err)
-	return tt.([]string)
+	t, ok := tt.([]string)
+	if !ok {
+		panic("can't cast version to []string!?")
+	}
+	return t
 }

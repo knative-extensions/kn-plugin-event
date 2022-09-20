@@ -17,7 +17,7 @@ limitations under the License.
 package options
 
 import (
-	"crypto/md5" //nolint: gosec // No strong cryptography needed.
+	"crypto/md5" // nolint: gosec // No strong cryptography needed.
 	"encoding/hex"
 	"os"
 	"path"
@@ -59,12 +59,17 @@ type PublishOptions struct {
 	OCILayoutPath string
 	TarballFile   string
 
+	ImageRefsFile string
+
 	// PreserveImportPaths preserves the full import path after KO_DOCKER_REPO.
 	PreserveImportPaths bool
 	// BaseImportPaths uses the base path without MD5 hash after KO_DOCKER_REPO.
 	BaseImportPaths bool
 	// Bare uses a tag on the KO_DOCKER_REPO without anything additional.
 	Bare bool
+	// ImageNamer can be used to pass a custom image name function. When given
+	// PreserveImportPaths, BaseImportPaths, Bare has no effect.
+	ImageNamer publish.Namer
 }
 
 func AddPublishArg(cmd *cobra.Command, po *PublishOptions) {
@@ -90,6 +95,9 @@ func AddPublishArg(cmd *cobra.Command, po *PublishOptions) {
 	cmd.Flags().StringVar(&po.OCILayoutPath, "oci-layout-path", "", "Path to save the OCI image layout of the built images")
 	cmd.Flags().StringVar(&po.TarballFile, "tarball", "", "File to save images tarballs")
 
+	cmd.Flags().StringVar(&po.ImageRefsFile, "image-refs", "",
+		"Path to file where a list of the published image references will be written.")
+
 	cmd.Flags().BoolVarP(&po.PreserveImportPaths, "preserve-import-paths", "P", po.PreserveImportPaths,
 		"Whether to preserve the full import path after KO_DOCKER_REPO.")
 	cmd.Flags().BoolVarP(&po.BaseImportPaths, "base-import-paths", "B", po.BaseImportPaths,
@@ -99,7 +107,7 @@ func AddPublishArg(cmd *cobra.Command, po *PublishOptions) {
 }
 
 func packageWithMD5(base, importpath string) string {
-	hasher := md5.New() //nolint: gosec // No strong cryptography needed.
+	hasher := md5.New() // nolint: gosec // No strong cryptography needed.
 	hasher.Write([]byte(importpath))
 	return path.Join(base, path.Base(importpath)+"-"+hex.EncodeToString(hasher.Sum(nil)))
 }
@@ -117,7 +125,9 @@ func bareDockerRepo(base, _ string) string {
 }
 
 func MakeNamer(po *PublishOptions) publish.Namer {
-	if po.PreserveImportPaths {
+	if po.ImageNamer != nil {
+		return po.ImageNamer
+	} else if po.PreserveImportPaths {
 		return preserveImportPath
 	} else if po.BaseImportPaths {
 		return baseImportPaths

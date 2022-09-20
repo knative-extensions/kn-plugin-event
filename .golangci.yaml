@@ -40,4 +40,5 @@ issues:
 linters-settings:
   gomoddirectives:
     # List of allowed `replace` directives. Default is empty.
-    replace-allow-list: []
+    replace-allow-list:
+      - github.com/awslabs/amazon-ecr-credential-helper/ecr-login

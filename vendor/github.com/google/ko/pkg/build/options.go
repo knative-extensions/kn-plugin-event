@@ -15,6 +15,8 @@
 package build
 
 import (
+	"strings"
+
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 )
 
@@ -54,6 +56,23 @@ func WithDisabledOptimizations() Option {
 	}
 }
 
+// WithDisabledSBOM is a functional option for disabling SBOM generation.
+func WithDisabledSBOM() Option {
+	return func(gbo *gobuildOpener) error {
+		gbo.sbom = nil
+		return nil
+	}
+}
+
+// WithTrimpath is a functional option that controls whether the `-trimpath`
+// flag is added to `go build`.
+func WithTrimpath(v bool) Option {
+	return func(gbo *gobuildOpener) error {
+		gbo.trimpath = v
+		return nil
+	}
+}
+
 // WithConfig is a functional option for providing GoReleaser Build influenced
 // build settings for importpaths.
 //
@@ -68,13 +87,21 @@ func WithConfig(buildConfigs map[string]Config) Option {
 
 // WithPlatforms is a functional option for building certain platforms for
 // multi-platform base images. To build everything from the base, use "all",
-// otherwise use a comma-separated list of platform specs, i.e.:
+// otherwise use a list of platform specs, i.e.:
 //
 // platform = <os>[/<arch>[/<variant>]]
-// allowed = all | platform[,platform]*
-func WithPlatforms(platforms string) Option {
+// allowed = "all" | []string{platform[,platform]*}
+//
+// Note: a string of comma-separated platforms (i.e. "platform[,platform]*")
+// has been deprecated and only exist for backwards compatibility reasons,
+// which will be removed in the future.
+func WithPlatforms(platforms ...string) Option {
 	return func(gbo *gobuildOpener) error {
-		gbo.platform = platforms
+		if len(platforms) == 1 {
+			// TODO: inform users that they are using deprecated flow?
+			platforms = strings.Split(platforms[0], ",")
+		}
+		gbo.platforms = platforms
 		return nil
 	}
 }
@@ -99,19 +126,46 @@ func withBuilder(b builder) Option {
 	}
 }
 
-// withModulePath is a functional option for overriding the module path for
-// the current ko invocation.
-// This is exposed for testing.
-func withModuleInfo(m *modules) Option {
+// WithGoVersionSBOM is a functional option to direct ko to use
+// go version -m for SBOM format.
+func WithGoVersionSBOM() Option {
 	return func(gbo *gobuildOpener) error {
-		gbo.mod = m
+		gbo.sbom = goversionm
 		return nil
 	}
 }
 
-func withBuildContext(b buildContext) Option {
+// WithSPDX is a functional option to direct ko to use
+// SPDX for SBOM format.
+func WithSPDX(version string) Option {
 	return func(gbo *gobuildOpener) error {
-		gbo.buildContext = b
+		gbo.sbom = spdx(version)
+		return nil
+	}
+}
+
+// WithCycloneDX is a functional option to direct ko to use CycloneDX for SBOM
+// format.
+func WithCycloneDX() Option {
+	return func(gbo *gobuildOpener) error {
+		gbo.sbom = cycloneDX()
+		return nil
+	}
+}
+
+// withSBOMber is a functional option for overriding the way SBOMs
+// are generated.
+func withSBOMber(sbom sbomber) Option {
+	return func(gbo *gobuildOpener) error {
+		gbo.sbom = sbom
+		return nil
+	}
+}
+
+// WithJobs limits the number of concurrent builds.
+func WithJobs(jobs int) Option {
+	return func(gbo *gobuildOpener) error {
+		gbo.jobs = jobs
 		return nil
 	}
 }

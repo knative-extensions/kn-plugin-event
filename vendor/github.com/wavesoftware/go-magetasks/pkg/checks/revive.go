@@ -1,6 +1,7 @@
 package checks
 
 import (
+	"fmt"
 	"path"
 
 	"github.com/magefile/mage/sh"
@@ -14,7 +15,7 @@ func Revive() config.Task {
 		Name:      "revive",
 		Operation: revive,
 		Overrides: []config.Configurator{
-			config.NewDependencies("github.com/mgechev/revive"),
+			config.NewDependencies("github.com/mgechev/revive@latest"),
 		},
 	}
 }
@@ -26,6 +27,7 @@ func revive(notifier config.Notifier) error {
 		skipBecauseOfMissingConfig(notifier, configFile)
 		return nil
 	}
-	return sh.RunV("revive", "-config", configFile,
+	cmd := fmt.Sprintf("%s/tools/revive", files.BuildDir())
+	return sh.RunV(cmd, "-config", configFile,
 		"-formatter", "stylish", "./...")
 }
