@@ -3,6 +3,7 @@ run:
   build-tags:
     - e2e
     - mage
+    - ignored
 
 linters:
   disable-all: false
@@ -40,5 +41,4 @@ issues:
 linters-settings:
   gomoddirectives:
     # List of allowed `replace` directives. Default is empty.
-    replace-allow-list:
-      - github.com/awslabs/amazon-ecr-credential-helper/ecr-login
+    replace-allow-list: []
