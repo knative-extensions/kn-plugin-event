@@ -1527,7 +1527,7 @@ knative.dev/client/pkg/serving/v1
 knative.dev/client/pkg/util
 knative.dev/client/pkg/util/mock
 knative.dev/client/pkg/wait
-# knative.dev/eventing v0.34.1-0.20221017124757-c5ef0686df31
+# knative.dev/eventing v0.34.1-0.20221017145257-53a186d7d92e
 ## explicit; go 1.18
 knative.dev/eventing/pkg/apis/config
 knative.dev/eventing/pkg/apis/duck
