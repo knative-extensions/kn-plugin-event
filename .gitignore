@@ -1,4 +1,4 @@
-/build/
+/build/_output/
 /*.test
 /tmp
 /.idea

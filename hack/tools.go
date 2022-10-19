@@ -22,9 +22,6 @@ package tools
 import (
 	_ "knative.dev/hack"
 
-	// For Mage stuff
-	_ "github.com/magefile/mage/mage"
-
 	// Test images
 	_ "knative.dev/eventing/test/test_images/wathola-forwarder"
 	_ "knative.dev/reconciler-test/cmd/eventshub"
