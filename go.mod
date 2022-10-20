@@ -13,6 +13,7 @@ require (
 	github.com/phayes/freeport v0.0.0-20220201140144-74d24b5ae9f5
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.6.0
+	github.com/stretchr/testify v1.8.0
 	github.com/thediveo/enumflag v0.10.0
 	github.com/wavesoftware/go-commandline v1.0.0
 	github.com/wavesoftware/go-ensure v1.0.0
@@ -170,7 +171,6 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.13.0 // indirect
-	github.com/stretchr/testify v1.8.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/theupdateframework/go-tuf v0.5.0 // indirect
 	github.com/titanous/rocacheck v0.0.0-20171023193734-afe73141d399 // indirect
