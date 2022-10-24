@@ -15,7 +15,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/rand"
 	"k8s.io/apimachinery/pkg/util/validation"
-	"knative.dev/kn-plugin-event/pkg/cli/ics"
 	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/kn-plugin-event/pkg/k8s"
 	"knative.dev/kn-plugin-event/pkg/sender"
@@ -124,7 +123,7 @@ func idViolatesRFC1123(t *testing.T) inClusterTestCase {
 			addressResolver: stubAddressResolver(),
 			jobRunner: fnJobRunner(func(job *batchv1.Job) error {
 				name := job.GetName()
-				errs := validation.IsDNS1123Subdomain(name)
+				errs := validation.IsDNS1035Label(name)
 				if len(errs) > 0 {
 					//goland:noinspection GoErrorStringFormat
 					return fmt.Errorf("Job.batch \"%s\" is invalid: "+ //nolint:goerr113
@@ -137,7 +136,6 @@ func idViolatesRFC1123(t *testing.T) inClusterTestCase {
 		args: args{
 			ce: ce,
 		},
-		err: ics.ErrCantSendWithICS,
 	}
 }
 
