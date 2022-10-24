@@ -20,10 +20,11 @@ type App struct {
 
 func (a *App) Command() *cobra.Command {
 	c := &cobra.Command{
-		Use:     metadata.PluginUse,
-		Aliases: []string{fmt.Sprintf("kn %s", metadata.PluginUse)},
-		Short:   metadata.PluginDescription,
-		Long:    metadata.PluginLongDescription,
+		Use:          metadata.PluginUse,
+		Aliases:      []string{fmt.Sprintf("kn %s", metadata.PluginUse)},
+		Short:        metadata.PluginDescription,
+		Long:         metadata.PluginLongDescription,
+		SilenceUsage: true,
 	}
 	c.PersistentFlags().BoolVarP(
 		&a.Verbose, "verbose", "v",
