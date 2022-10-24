@@ -96,7 +96,10 @@ func waitAndClose(tsk task) {
 func (j *jobRunner) deleteJob(job *batchv1.Job) error {
 	ctx := j.kube.Context()
 	jobs := j.kube.Typed().BatchV1().Jobs(job.GetNamespace())
-	err := jobs.Delete(ctx, job.GetName(), metav1.DeleteOptions{})
+	policy := metav1.DeletePropagationBackground
+	err := jobs.Delete(ctx, job.GetName(), metav1.DeleteOptions{
+		PropagationPolicy: &policy,
+	})
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
 	}
