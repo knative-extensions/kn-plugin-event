@@ -18,14 +18,14 @@ func Test() {
 	t := tasks.Start("✅", "Testing", true)
 	args := []string{
 		"--format", "testname",
-		"--jsonfile", fmt.Sprintf("%s/tests-output.json", files.BuildDir()),
-		"--junitfile", fmt.Sprintf("%s/tests-results.junit.xml", files.BuildDir()),
+		"--jsonfile", fmt.Sprintf("%s/tests-output.json", files.ReportsDir()),
+		"--junitfile", fmt.Sprintf("%s/tests-results.junit.xml", files.ReportsDir()),
 	}
 	if color.NoColor {
 		args = append(args, "--no-color")
 	}
 	args = append(args, "--",
-		"-covermode=atomic", fmt.Sprintf("-coverprofile=%s/coverage.out", files.BuildDir()),
+		"-covermode=atomic", fmt.Sprintf("-coverprofile=%s/tests-coverage.out", files.ReportsDir()),
 		"-race",
 		"-count=1",
 		"-short",

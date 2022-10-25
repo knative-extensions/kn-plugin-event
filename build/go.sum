@@ -2112,8 +2112,8 @@ github.com/vmihailenco/tagparser v0.1.1 h1:quXMXlA39OCbd2wAdTsGDlK9RkOk6Wuw+x37w
 github.com/vmihailenco/tagparser v0.1.1/go.mod h1:OeAg3pn3UbLjkWt+rN9oFYB6u/cQgqMEUPoW2WPyhdI=
 github.com/wavesoftware/go-ensure v1.0.0 h1:6X3gQL5psBWwtu/H9a+69xQ+JGTUELaLhgOB/iB3AQk=
 github.com/wavesoftware/go-ensure v1.0.0/go.mod h1:K2UAFSwMTvpiRGay/M3aEYYuurcR8S4A6HkQlJPV8k4=
-github.com/wavesoftware/go-magetasks v0.8.0 h1:48X4nK1rEWijBM5AOCmbwdvQJ3GsPqe68ZZ6SiBWpqo=
-github.com/wavesoftware/go-magetasks v0.8.0/go.mod h1:nPMW4IHK+liYrvMZMvET1bzQUkNHwoRul2g2IKKvVMo=
+github.com/wavesoftware/go-magetasks v0.8.1 h1:cfQd0CiEqSXAPwWDIgc6yh6GkqGoFQ4MMc2JmTAkrfo=
+github.com/wavesoftware/go-magetasks v0.8.1/go.mod h1:nPMW4IHK+liYrvMZMvET1bzQUkNHwoRul2g2IKKvVMo=
 github.com/wavesoftware/go-retcode v1.0.0 h1:Z53+VpIHMvRMtjS6jPScdihbAN1ks3lIJ5Mj32gCpno=
 github.com/wavesoftware/go-retcode v1.0.0/go.mod h1:BLqIIXhB/PQ+izkkRGfSQgu95BDtMmUBuvTJ/gkSWVM=
 github.com/weppos/publicsuffix-go v0.15.1-0.20210807195340-dc689ff0bb59/go.mod h1:HYux0V0Zi04bHNwOHy4cXJVz/TQjYonnF6aoYhj+3QE=
