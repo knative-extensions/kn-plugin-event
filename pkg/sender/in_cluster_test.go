@@ -9,9 +9,12 @@ import (
 	"time"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
+	cetest "github.com/cloudevents/sdk-go/v2/test"
 	"gotest.tools/v3/assert"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/util/rand"
+	"k8s.io/apimachinery/pkg/util/validation"
 	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/kn-plugin-event/pkg/k8s"
 	"knative.dev/kn-plugin-event/pkg/sender"
@@ -20,12 +23,15 @@ import (
 	"knative.dev/pkg/tracker"
 )
 
+const toLongForRFC1123 = 64
+
 var errExampleValidationFault = errors.New("example validation fault")
 
 func TestInClusterSenderSend(t *testing.T) {
 	testCases := []inClusterTestCase{
 		passingInClusterSenderSend(t),
 		couldResolveAddress(t),
+		idViolatesRFC1123(t),
 	}
 	for i := range testCases {
 		tt := testCases[i]
@@ -49,7 +55,7 @@ func TestInClusterSenderSend(t *testing.T) {
 				AddressableVal: tt.fields.addressable,
 			})
 			assert.NilError(t, err)
-			if err := s.Send(tt.args.ce); !errors.Is(err, tt.err) {
+			if err = s.Send(tt.args.ce); !errors.Is(err, tt.err) {
 				t.Errorf("Send() error = %v, wantErr = %v", err, tt.err)
 			}
 		})
@@ -86,15 +92,15 @@ func passingInClusterSenderSend(t *testing.T) inClusterTestCase {
 
 func couldResolveAddress(t *testing.T) inClusterTestCase {
 	t.Helper()
-	ar := stubAddressResolver()
-	ar.isValid = func(ref *tracker.Reference) error {
+	sar := stubAddressResolver()
+	sar.isValid = func(ref *tracker.Reference) error {
 		return errExampleValidationFault
 	}
 	return inClusterTestCase{
 		name: "couldResolveAddress",
 		fields: fields{
 			addressable:     exampleBrokerAddressableSpec(t),
-			addressResolver: ar,
+			addressResolver: sar,
 			jobRunner: stubJobRunner(func(job *batchv1.Job) bool {
 				return true
 			}),
@@ -106,6 +112,38 @@ func couldResolveAddress(t *testing.T) inClusterTestCase {
 	}
 }
 
+func idViolatesRFC1123(t *testing.T) inClusterTestCase {
+	t.Helper()
+	ce := cetest.FullEvent()
+	ce.SetID(newIDViolatesRFC1123())
+	return inClusterTestCase{
+		name: "idViolatesRFC1123",
+		fields: fields{
+			addressable:     exampleBrokerAddressableSpec(t),
+			addressResolver: stubAddressResolver(),
+			jobRunner: fnJobRunner(func(job *batchv1.Job) error {
+				name := job.GetName()
+				errs := validation.IsDNS1035Label(name)
+				if len(errs) > 0 {
+					//goland:noinspection GoErrorStringFormat
+					return fmt.Errorf("Job.batch \"%s\" is invalid: "+ //nolint:goerr113
+						"metadata.name: Invalid value: \"%s\": %s",
+						name, name, strings.Join(errs, ", "))
+				}
+				return nil
+			}),
+		},
+		args: args{
+			ce: ce,
+		},
+	}
+}
+
+// newIDViolatesRFC1123 returns a new random ID which violates the RFC 1123 on purpose.
+func newIDViolatesRFC1123() string {
+	return "test-event-" + strings.ToUpper(rand.String(toLongForRFC1123))
+}
+
 func envof(envs []corev1.EnvVar, name string) (string, bool) {
 	for _, env := range envs {
 		if env.Name == name {
@@ -115,22 +153,17 @@ func envof(envs []corev1.EnvVar, name string) (string, bool) {
 	return "", false
 }
 
-type jr struct {
-	isValid func(job *batchv1.Job) bool
-}
+type fnJobRunner func(job *batchv1.Job) error
 
-func (j *jr) Run(job *batchv1.Job) error {
-	if !j.isValid(job) {
-		return event.ErrCantSentEvent
-	}
-	return nil
+func (f fnJobRunner) Run(job *batchv1.Job) error {
+	return f(job)
 }
 
 type ar struct {
 	isValid func(ref *tracker.Reference) error
 }
 
-func (a *ar) ResolveAddress(ref *tracker.Reference, uri *apis.URL) (*url.URL, error) {
+func (a *ar) ResolveAddress(ref *tracker.Reference, _ *apis.URL) (*url.URL, error) {
 	if a.isValid != nil {
 		if err := a.isValid(ref); err != nil {
 			return nil, err
@@ -144,8 +177,13 @@ func (a *ar) ResolveAddress(ref *tracker.Reference, uri *apis.URL) (*url.URL, er
 	return u, nil
 }
 
-func stubJobRunner(isValid func(job *batchv1.Job) bool) *jr {
-	return &jr{isValid: isValid}
+func stubJobRunner(isValid func(job *batchv1.Job) bool) k8s.JobRunner {
+	return fnJobRunner(func(job *batchv1.Job) error {
+		if !isValid(job) {
+			return event.ErrCantSentEvent
+		}
+		return nil
+	})
 }
 
 func stubAddressResolver() *ar {

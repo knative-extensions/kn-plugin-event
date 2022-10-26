@@ -107,6 +107,9 @@ func handleSendErr(ctx context.Context, t feature.T, err error, ev cloudevents.E
 	if kerr != nil {
 		log.Error(kerr)
 	}
+	if len(jlist.Items) != 1 {
+		t.Fatal(err)
+	}
 	jobName := jlist.Items[0].Name
 	plist, kerr := pods.List(ctx, metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("job-name=%s", jobName),
