@@ -7,11 +7,14 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/rand"
 	"knative.dev/kn-plugin-event/pkg/cli/ics"
 	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/kn-plugin-event/pkg/k8s"
 	"knative.dev/kn-plugin-event/pkg/metadata"
 )
+
+const idLength = 16
 
 type inClusterSender struct {
 	addressable     *event.AddressableSpec
@@ -32,7 +35,7 @@ func (i *inClusterSender) Send(ce cloudevents.Event) error {
 	}
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("kn-event-sender-%s", ce.ID()),
+			Name:      newJobName(),
 			Namespace: i.addressable.SenderNamespace,
 			Labels: map[string]string{
 				"event-id": ce.ID(),
@@ -62,4 +65,9 @@ func (i *inClusterSender) Send(ce cloudevents.Event) error {
 		return fmt.Errorf("%w: %v", ics.ErrCantSendWithICS, err)
 	}
 	return nil
+}
+
+func newJobName() string {
+	id := rand.String(idLength)
+	return fmt.Sprintf("kn-event-sender-%s", id)
 }
