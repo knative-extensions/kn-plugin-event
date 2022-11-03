@@ -1,4 +1,7 @@
 github.com/blang/semver v3.5.1+incompatible h1:cQNTCjp13qL8KC3Nbxr/y2Bqb63oX6wdnnjpJbkM4JQ=
+github.com/cardil/knative-hack v0.0.0-20220909113229-74194e0f87fd/go.mod h1:spaJM0u+hfki+h+hLreZq/0fc4qJXAE92xJpiH7by+A=
+github.com/cardil/knative-hack v0.0.0-20221103141943-85b3565837bc h1:pr11YKiahlxXfJvbvZqIKXHZ8h+QfppDVQB5K92RysY=
+github.com/cardil/knative-hack v0.0.0-20221103141943-85b3565837bc/go.mod h1:dx0YG3YWqJu653e9tjcT0Q1ZdS9JJXLKbUhzr4EB0g8=
 github.com/emicklei/go-restful v2.9.5+incompatible h1:spTtZBk5DYEvbxMVutUuTyh1Ao2r4iyvLdACqsl/Ljk=
 github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
 github.com/googleapis/gax-go v2.0.2+incompatible h1:silFMLAnr330+NRuag/VjIGF7TLp/LBrV2CJKFLWEww=

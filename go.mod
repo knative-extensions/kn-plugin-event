@@ -29,6 +29,9 @@ require (
 	sigs.k8s.io/yaml v1.3.0
 )
 
+// FIXME: remove this once https://github.com/knative/hack/pull/222 is merged
+replace knative.dev/hack => github.com/cardil/knative-hack v0.0.0-20221103141943-85b3565837bc
+
 require (
 	cloud.google.com/go v0.103.0 // indirect
 	cloud.google.com/go/compute v1.10.0 // indirect

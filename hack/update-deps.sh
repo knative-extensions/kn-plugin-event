@@ -14,10 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -o errexit
-set -o nounset
-set -o pipefail
+set -Eeuo pipefail
 
-source "$(dirname "$0")/../vendor/knative.dev/hack/library.sh"
+# shellcheck disable=SC1090
+source "$(go run knative.dev/hack/cmd/script library.sh)"
 
 go_update_deps "$@"
