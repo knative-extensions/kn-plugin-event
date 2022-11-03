@@ -30,7 +30,7 @@ require (
 )
 
 // FIXME: remove this once https://github.com/knative/hack/pull/222 is merged
-replace knative.dev/hack => github.com/cardil/knative-hack v0.0.0-20221103141943-85b3565837bc
+replace knative.dev/hack => github.com/cardil/knative-hack v0.0.0-20221103160308-fab288c06c1a
 
 require (
 	cloud.google.com/go v0.103.0 // indirect

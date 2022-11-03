@@ -113,8 +113,8 @@ github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6r
 github.com/blendle/zapdriver v1.3.1 h1:C3dydBOWYRiOk+B8X9IVZ5IOe+7cl+tGOexN4QqHfpE=
 github.com/blendle/zapdriver v1.3.1/go.mod h1:mdXfREi6u5MArG4j9fewC+FGnXaBR+T4Ox4J2u4eHCc=
 github.com/buger/jsonparser v1.1.1/go.mod h1:6RYKKt7H4d4+iWqouImQ9R2FZql3VbhNgx27UK13J/0=
-github.com/cardil/knative-hack v0.0.0-20221103141943-85b3565837bc h1:pr11YKiahlxXfJvbvZqIKXHZ8h+QfppDVQB5K92RysY=
-github.com/cardil/knative-hack v0.0.0-20221103141943-85b3565837bc/go.mod h1:dx0YG3YWqJu653e9tjcT0Q1ZdS9JJXLKbUhzr4EB0g8=
+github.com/cardil/knative-hack v0.0.0-20221103160308-fab288c06c1a h1:45H0glk0tWTLm1GWT2eYABEU3IkEVFf9T79NkU8Ijsk=
+github.com/cardil/knative-hack v0.0.0-20221103160308-fab288c06c1a/go.mod h1:dx0YG3YWqJu653e9tjcT0Q1ZdS9JJXLKbUhzr4EB0g8=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/census-instrumentation/opencensus-proto v0.3.0 h1:t/LhUZLVitR1Ow2YOnduCsavhwFUklBMoGVYUCqmCqk=
 github.com/census-instrumentation/opencensus-proto v0.3.0/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
