@@ -1,5 +1,4 @@
 //go:build e2e
-// +build e2e
 
 package e2e
 
@@ -10,6 +9,7 @@ import (
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	cetest "github.com/cloudevents/sdk-go/v2/test"
+	"github.com/stretchr/testify/assert"
 	"gotest.tools/v3/icmd"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"knative.dev/kn-plugin-event/test"
@@ -17,9 +17,15 @@ import (
 	"knative.dev/pkg/logging"
 	"knative.dev/reconciler-test/pkg/environment"
 	"knative.dev/reconciler-test/pkg/eventshub"
-	"knative.dev/reconciler-test/pkg/eventshub/assert"
+	eventshubassert "knative.dev/reconciler-test/pkg/eventshub/assert"
 	"knative.dev/reconciler-test/pkg/feature"
 	"sigs.k8s.io/yaml"
+)
+
+const (
+	issue228Warn = "child pods are preserved by default when jobs are deleted; " +
+		"set propagationPolicy=Background to remove them or set " +
+		"propagationPolicy=Orphan to suppress this warning"
 )
 
 // SendEventFeature will create a feature.Feature that will test sending an
@@ -71,12 +77,13 @@ func sendEvent(ev cloudevents.Event, sink Sink) feature.StepFn {
 		}); err != nil {
 			handleSendErr(ctx, t, err, ev)
 		}
+		assert.NotContains(t, result.Stderr(), issue228Warn)
 		log.Info("Succeeded")
 	}
 }
 
 func receiveEvent(ev cloudevents.Event, sinkName string) feature.StepFn {
-	return assert.OnStore(sinkName).
+	return eventshubassert.OnStore(sinkName).
 		MatchEvent(cetest.HasId(ev.ID())).
 		Exact(1)
 }
@@ -99,6 +106,9 @@ func handleSendErr(ctx context.Context, t feature.T, err error, ev cloudevents.E
 	})
 	if kerr != nil {
 		log.Error(kerr)
+	}
+	if len(jlist.Items) != 1 {
+		t.Fatal(err)
 	}
 	jobName := jlist.Items[0].Name
 	plist, kerr := pods.List(ctx, metav1.ListOptions{
