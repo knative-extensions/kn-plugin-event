@@ -2,6 +2,8 @@
 
 set -Eeo pipefail
 
+export ENABLE_GKE_TELEMETRY=true
+
 source "$(dirname "$(dirname "$(readlink -f "${BASH_SOURCE[0]:-$0}")")")/vendor/knative.dev/hack/e2e-tests.sh"
 
 function start_latest_knative_serving() {
