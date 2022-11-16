@@ -1,7 +1,6 @@
 package configuration_test
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -71,7 +70,7 @@ func updateConfig(tb testing.TB, cfgfile string, fn func(cfg *clientcmdapi.Confi
 
 func tempConfigFile(tb testing.TB) string {
 	tb.Helper()
-	tmpfile, err := ioutil.TempFile("", "kubeconfig")
+	tmpfile, err := os.CreateTemp("", "kubeconfig")
 	assert.NilError(tb, err)
 	assert.NilError(tb, tmpfile.Close())
 	cfg := stubConfig()
@@ -84,7 +83,7 @@ func safeConfig(tb testing.TB, cfgfile string, config clientcmdapi.Config) {
 	config.SetGroupVersionKind(clientcmdapi.SchemeGroupVersion.WithKind("Config"))
 	bytes, err := yaml.Marshal(config)
 	assert.NilError(tb, err)
-	err = ioutil.WriteFile(cfgfile, bytes, 0o600)
+	err = os.WriteFile(cfgfile, bytes, 0o600)
 	assert.NilError(tb, err)
 }
 

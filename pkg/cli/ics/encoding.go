@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"strings"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -45,7 +45,7 @@ func Decode(encoded string) (*cloudevents.Event, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrCouldntDecode, err)
 	}
-	bb, err := ioutil.ReadAll(reader)
+	bb, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrCouldntDecode, err)
 	}

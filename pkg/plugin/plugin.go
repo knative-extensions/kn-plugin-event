@@ -11,8 +11,7 @@ import (
 
 // init makes sure to register plugin as internal one, after import of
 // pkg/plugin, as knative cli plugins are expected to do.
-// nolint:gochecknoinits
-func init() {
+func init() { //nolint:gochecknoinits
 	knplugin.InternalPlugins = append(knplugin.InternalPlugins, &plugin{})
 }
 
