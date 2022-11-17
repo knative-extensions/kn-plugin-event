@@ -3,7 +3,7 @@ module knative.dev/kn-plugin-event/build
 go 1.18
 
 require (
-	github.com/wavesoftware/go-magetasks v0.8.0
+	github.com/wavesoftware/go-magetasks v0.8.1
 	knative.dev/kn-plugin-event v0.0.0
 )
 

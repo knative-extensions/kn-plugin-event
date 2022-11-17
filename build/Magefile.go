@@ -1,5 +1,4 @@
 //go:build mage
-// +build mage
 
 package main
 
@@ -21,8 +20,9 @@ import (
 )
 
 // Default target is set to binary.
-//goland:noinspection GoUnusedGlobalVariable
-var Default = magetasks.Build // nolint:deadcode,gochecknoglobals
+//
+// goland:noinspection GoUnusedGlobalVariable
+var Default = magetasks.Build //nolint:deadcode,gochecknoglobals
 
 func init() { //nolint:gochecknoinits
 	sender := artifact.Image{

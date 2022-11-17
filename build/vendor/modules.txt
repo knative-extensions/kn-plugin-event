@@ -476,7 +476,7 @@ github.com/vbatts/tar-split/archive/tar
 # github.com/wavesoftware/go-ensure v1.0.0
 ## explicit; go 1.13
 github.com/wavesoftware/go-ensure
-# github.com/wavesoftware/go-magetasks v0.8.0
+# github.com/wavesoftware/go-magetasks v0.8.1
 ## explicit; go 1.18
 github.com/wavesoftware/go-magetasks
 github.com/wavesoftware/go-magetasks/config
@@ -712,6 +712,7 @@ gopkg.in/yaml.v3
 k8s.io/apimachinery/pkg/labels
 k8s.io/apimachinery/pkg/selection
 k8s.io/apimachinery/pkg/util/errors
+k8s.io/apimachinery/pkg/util/rand
 k8s.io/apimachinery/pkg/util/sets
 k8s.io/apimachinery/pkg/util/validation
 k8s.io/apimachinery/pkg/util/validation/field

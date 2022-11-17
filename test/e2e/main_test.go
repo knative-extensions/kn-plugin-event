@@ -1,5 +1,4 @@
 //go:build e2e
-// +build e2e
 
 package e2e_test
 
@@ -15,8 +14,7 @@ import (
 // global is the singleton instance of GlobalEnvironment. It is used to parse
 // the testing config for the test run. The config will specify the cluster
 // config as well as the parsing level and state flags.
-// nolint:gochecknoglobals
-var global environment.GlobalEnvironment
+var global environment.GlobalEnvironment //nolint:gochecknoglobals
 
 // TestMain is the first entry point for `go test`.
 func TestMain(m *testing.M) {

@@ -88,10 +88,11 @@ func receiveEvent(ev cloudevents.Event, sinkName string) feature.StepFn {
 		Exact(1)
 }
 
-// handleSendErr TODO: most of this code should be moved to production CLI, so
-//                     that in case of send error, a nice, report is produced.
-//                     See: https://github.com/knative-sandbox/kn-plugin-event/issues/129
+// handleSendErr will handle the error from sending event.
 func handleSendErr(ctx context.Context, t feature.T, err error, ev cloudevents.Event) {
+	// TODO: most of this code should be moved to production CLI, so that in case
+	//       of send error, a nice, report is produced.
+	//       See: https://github.com/knative-sandbox/kn-plugin-event/issues/129
 	if err == nil {
 		return
 	}

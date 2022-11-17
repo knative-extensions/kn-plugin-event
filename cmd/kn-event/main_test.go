@@ -1,5 +1,5 @@
 // Needs to suppress testpackage lint to be able to call main() func.
-package main // nolint:testpackage
+package main
 
 import (
 	"bytes"
