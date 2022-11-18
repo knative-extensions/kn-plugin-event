@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/wavesoftware/go-magetasks v0.8.1
-	knative.dev/kn-plugin-event v0.0.0
+	knative.dev/kn-plugin-event v0.34.1-0.20221118015639-1888e340b8ab
 )
 
 require (
@@ -124,9 +124,9 @@ require (
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apimachinery v0.25.2 // indirect
-	k8s.io/klog/v2 v2.80.1 // indirect
-	k8s.io/utils v0.0.0-20220823124924-e9cbc92d1a73 // indirect
+	k8s.io/apimachinery v0.25.4 // indirect
+	k8s.io/klog/v2 v2.80.2-0.20221028030830-9ae4992afb54 // indirect
+	k8s.io/utils v0.0.0-20221108210102-8e77b1f39fe2 // indirect
 	sigs.k8s.io/kind v0.14.0 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )

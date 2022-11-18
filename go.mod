@@ -18,15 +18,15 @@ require (
 	go.uber.org/zap v1.23.0
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools/v3 v3.3.0
-	k8s.io/api v0.25.2
-	k8s.io/apimachinery v0.25.2
-	k8s.io/client-go v0.25.2
-	knative.dev/client v0.35.0
-	knative.dev/eventing v0.35.0
-	knative.dev/hack v0.0.0-20221010154335-3fdc50b9c24a
-	knative.dev/pkg v0.0.0-20221011175852-714b7630a836
-	knative.dev/reconciler-test v0.0.0-20221017014457-090970c9ca3c
-	knative.dev/serving v0.35.0
+	k8s.io/api v0.25.4
+	k8s.io/apimachinery v0.25.4
+	k8s.io/client-go v0.25.4
+	knative.dev/client v0.34.1-0.20221117015440-9de74647cd1c
+	knative.dev/eventing v0.35.1-0.20221117061338-e2140727bd48
+	knative.dev/hack v0.0.0-20221117013839-2e610ce611f8
+	knative.dev/pkg v0.0.0-20221117013641-f5c1a03ab4f1
+	knative.dev/reconciler-test v0.0.0-20221117131740-ccb154a09236
+	knative.dev/serving v0.35.1-0.20221117190339-7157519076cf
 	sigs.k8s.io/yaml v1.3.0
 )
 
@@ -141,10 +141,10 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/cli-runtime v0.25.2 // indirect
-	k8s.io/klog/v2 v2.80.1 // indirect
+	k8s.io/klog/v2 v2.80.2-0.20221028030830-9ae4992afb54 // indirect
 	k8s.io/kube-openapi v0.0.0-20220803162953-67bda5d908f1 // indirect
-	k8s.io/utils v0.0.0-20220823124924-e9cbc92d1a73 // indirect
-	knative.dev/networking v0.0.0-20221012062251-58f3e6239b4f // indirect
+	k8s.io/utils v0.0.0-20221108210102-8e77b1f39fe2 // indirect
+	knative.dev/networking v0.0.0-20221115023037-6d96d6934458 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/kustomize/api v0.12.1 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.13.9 // indirect
