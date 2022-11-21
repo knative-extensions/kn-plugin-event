@@ -1156,7 +1156,7 @@ knative.dev/eventing/test/upgrade/prober/wathola/config
 knative.dev/eventing/test/upgrade/prober/wathola/event
 knative.dev/eventing/test/upgrade/prober/wathola/forwarder
 knative.dev/eventing/test/upgrade/prober/wathola/sender
-# knative.dev/hack v0.0.0-20221117013839-2e610ce611f8
+# knative.dev/hack v0.0.0-20221117013839-2e610ce611f8 => github.com/cardil/hack v0.0.0-20221121144805-510f8af4c639
 ## explicit; go 1.18
 knative.dev/hack
 # knative.dev/networking v0.0.0-20221115023037-6d96d6934458
@@ -1367,3 +1367,4 @@ sigs.k8s.io/structured-merge-diff/v4/value
 # sigs.k8s.io/yaml v1.3.0
 ## explicit; go 1.12
 sigs.k8s.io/yaml
+# knative.dev/hack => github.com/cardil/hack v0.0.0-20221121144805-510f8af4c639
