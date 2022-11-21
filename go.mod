@@ -151,4 +151,4 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 )
 
-replace knative.dev/hack => github.com/cardil/hack v0.0.0-20221121144805-510f8af4c639
+replace knative.dev/hack => github.com/cardil/hack v0.0.0-20221121225508-5af6017e0b2b
