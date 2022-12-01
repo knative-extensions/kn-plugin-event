@@ -84,7 +84,6 @@ func normalizeURI(refPath, base string) string {
 // There is a special case for schemas that are anchored with an "id":
 // in that case, the rebasing is performed // against the id only if this is an anchor for the initial root document.
 // All other intermediate "id"'s found along the way are ignored for the purpose of rebasing.
-//
 func denormalizeRef(ref *Ref, originalRelativeBase, id string) Ref {
 	debugLog("denormalizeRef called:\n$ref: %q\noriginal: %s\nroot ID:%s", ref.String(), originalRelativeBase, id)
 

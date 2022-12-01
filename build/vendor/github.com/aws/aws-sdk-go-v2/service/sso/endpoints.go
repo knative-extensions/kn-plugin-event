@@ -6,13 +6,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
+	"strings"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsmiddleware "github.com/aws/aws-sdk-go-v2/aws/middleware"
 	internalendpoints "github.com/aws/aws-sdk-go-v2/service/sso/internal/endpoints"
 	"github.com/aws/smithy-go/middleware"
 	smithyhttp "github.com/aws/smithy-go/transport/http"
-	"net/url"
-	"strings"
 )
 
 // EndpointResolverOptions is the service endpoint resolver options
