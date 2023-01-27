@@ -5,15 +5,16 @@ package ecr
 import (
 	"context"
 	"fmt"
+	"time"
+
 	awsmiddleware "github.com/aws/aws-sdk-go-v2/aws/middleware"
-	"github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/service/ecr/types"
 	"github.com/aws/smithy-go/middleware"
 	smithytime "github.com/aws/smithy-go/time"
 	smithyhttp "github.com/aws/smithy-go/transport/http"
 	smithywaiter "github.com/aws/smithy-go/waiter"
 	"github.com/jmespath/go-jmespath"
-	"time"
+	v4 "knative.dev/kn-plugin-event/build/vendor/github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 )
 
 // Retrieves the results of the lifecycle policy preview request for the specified

@@ -4,10 +4,11 @@ package ecr
 
 import (
 	"context"
+
 	awsmiddleware "github.com/aws/aws-sdk-go-v2/aws/middleware"
-	"github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/smithy-go/middleware"
 	smithyhttp "github.com/aws/smithy-go/transport/http"
+	v4 "knative.dev/kn-plugin-event/build/vendor/github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 )
 
 // Retrieves the pre-signed Amazon S3 download URL corresponding to an image layer.

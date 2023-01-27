@@ -4,11 +4,14 @@ package ecr
 
 import (
 	"context"
+	"net"
+	"net/http"
+	"time"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/defaults"
 	awsmiddleware "github.com/aws/aws-sdk-go-v2/aws/middleware"
 	"github.com/aws/aws-sdk-go-v2/aws/retry"
-	"github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
 	internalConfig "github.com/aws/aws-sdk-go-v2/internal/configsources"
 	smithy "github.com/aws/smithy-go"
@@ -16,9 +19,7 @@ import (
 	"github.com/aws/smithy-go/logging"
 	"github.com/aws/smithy-go/middleware"
 	smithyhttp "github.com/aws/smithy-go/transport/http"
-	"net"
-	"net/http"
-	"time"
+	v4 "knative.dev/kn-plugin-event/build/vendor/github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 )
 
 const ServiceID = "ECR"
