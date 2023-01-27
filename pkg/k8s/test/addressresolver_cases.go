@@ -150,7 +150,9 @@ func mtBroker(namespace string) ResolveAddressTestCase {
 			Name: name, Namespace: namespace,
 		},
 		Status: eventingv1.BrokerStatus{
-			Address: duckv1.Addressable{URL: u},
+			AddressStatus: duckv1.AddressStatus{
+				Address: &duckv1.Addressable{URL: u},
+			},
 		},
 	}
 	br.SetGroupVersionKind(eventingv1.SchemeGroupVersion.WithKind("Broker"))
