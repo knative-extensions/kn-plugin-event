@@ -4,6 +4,7 @@ package sso
 
 import (
 	"context"
+
 	awsmiddleware "github.com/aws/aws-sdk-go-v2/aws/middleware"
 	"github.com/aws/aws-sdk-go-v2/service/sso/types"
 	"github.com/aws/smithy-go/middleware"
