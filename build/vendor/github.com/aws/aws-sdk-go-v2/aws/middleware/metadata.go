@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-
 	"github.com/aws/aws-sdk-go-v2/aws"
 
 	"github.com/aws/smithy-go/middleware"

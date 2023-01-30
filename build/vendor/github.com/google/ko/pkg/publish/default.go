@@ -67,9 +67,8 @@ type Namer func(string, string) string
 
 // identity is the default namer, so import paths are affixed as-is under the repository
 // name for maximum clarity, e.g.
-//
-//	gcr.io/foo/github.com/bar/baz/cmd/blah
-//	^--base--^ ^-------import path-------^
+//   gcr.io/foo/github.com/bar/baz/cmd/blah
+//   ^--base--^ ^-------import path-------^
 func identity(base, in string) string { return path.Join(base, in) }
 
 // As some registries do not support pushing an image by digest, the default tag for pushing

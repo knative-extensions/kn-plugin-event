@@ -4,12 +4,11 @@ package sts
 
 import (
 	"context"
-
 	awsmiddleware "github.com/aws/aws-sdk-go-v2/aws/middleware"
+	"github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/service/sts/types"
 	"github.com/aws/smithy-go/middleware"
 	smithyhttp "github.com/aws/smithy-go/transport/http"
-	v4 "knative.dev/kn-plugin-event/build/vendor/github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 )
 
 // Returns a set of temporary security credentials (consisting of an access key ID,

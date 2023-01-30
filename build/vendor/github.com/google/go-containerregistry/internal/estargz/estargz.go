@@ -29,9 +29,9 @@ var _ io.ReadCloser = (*estargz.Blob)(nil)
 
 // ReadCloser reads uncompressed tarball input from the io.ReadCloser and
 // returns:
-//   - An io.ReadCloser from which compressed data may be read, and
-//   - A v1.Hash with the hash of the estargz table of contents, or
-//   - An error if the estargz processing encountered a problem.
+//  * An io.ReadCloser from which compressed data may be read, and
+//  * A v1.Hash with the hash of the estargz table of contents, or
+//  * An error if the estargz processing encountered a problem.
 //
 // Refer to estargz for the options:
 // https://pkg.go.dev/github.com/containerd/stargz-snapshotter/estargz@v0.4.1#Option

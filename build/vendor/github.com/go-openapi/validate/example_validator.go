@@ -48,6 +48,7 @@ func (ex *exampleValidator) isVisited(path string) bool {
 //   - schemas
 //   - individual property
 //   - responses
+//
 func (ex *exampleValidator) Validate() (errs *Result) {
 	errs = new(Result)
 	if ex == nil || ex.SpecValidator == nil {
