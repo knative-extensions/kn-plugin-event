@@ -14,4 +14,4 @@ on:
 
 jobs:
   analyze:
-    uses: cardil/knative-actions/.github/workflows/security.yaml@5d9f673
+    uses: cardil/knative-actions/.github/workflows/security.yaml@5d9f6735cf6d1c0f709ea40e1899e46d6667d6d0
