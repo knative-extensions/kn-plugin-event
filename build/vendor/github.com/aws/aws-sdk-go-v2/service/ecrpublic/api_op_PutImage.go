@@ -4,12 +4,11 @@ package ecrpublic
 
 import (
 	"context"
-
 	awsmiddleware "github.com/aws/aws-sdk-go-v2/aws/middleware"
+	"github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/service/ecrpublic/types"
 	"github.com/aws/smithy-go/middleware"
 	smithyhttp "github.com/aws/smithy-go/transport/http"
-	v4 "knative.dev/kn-plugin-event/build/vendor/github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 )
 
 // Creates or updates the image manifest and tags associated with an image. When an

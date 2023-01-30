@@ -4,7 +4,7 @@ import (
 	"io"
 
 	"github.com/wavesoftware/go-commandline"
-	knplugin "knative.dev/client/pkg/kn/plugin"
+	knplugin "knative.dev/client-pkg/pkg/kn/plugin"
 	"knative.dev/kn-plugin-event/internal/cli/cmd"
 	"knative.dev/kn-plugin-event/pkg/metadata"
 )
