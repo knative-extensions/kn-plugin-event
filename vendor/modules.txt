@@ -1105,7 +1105,7 @@ knative.dev/eventing/test/upgrade/prober/wathola/config
 knative.dev/eventing/test/upgrade/prober/wathola/event
 knative.dev/eventing/test/upgrade/prober/wathola/forwarder
 knative.dev/eventing/test/upgrade/prober/wathola/sender
-# knative.dev/hack v0.0.0-20230113013652-c7cfcb062de9
+# knative.dev/hack v0.0.0-20230210215449-d71d569c4308
 ## explicit; go 1.18
 knative.dev/hack
 # knative.dev/networking v0.0.0-20230123233838-db2bcbea2560
