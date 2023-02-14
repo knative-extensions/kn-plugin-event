@@ -17,7 +17,7 @@ import (
 	"knative.dev/reconciler-test/pkg/environment"
 	"knative.dev/reconciler-test/pkg/feature"
 	"knative.dev/reconciler-test/pkg/k8s"
-	"knative.dev/reconciler-test/resources/svc"
+	"knative.dev/reconciler-test/pkg/resources/service"
 )
 
 // SendEventToBroker returns a feature.Feature that verifies the kn-event
@@ -86,7 +86,7 @@ func (b brokerSutImpl) deployTrigger(ctx context.Context, t feature.T) {
 	ns := env.Namespace()
 	rest := injection.GetConfig(ctx)
 	triggers := eventingv1clientset.NewForConfigOrDie(rest).Triggers(ns)
-	sinkRef := svc.AsDestinationRef(b.sinkName)
+	sinkRef := service.AsDestinationRef(b.sinkName)
 	sinkRef.Ref.Namespace = ns
 	trigger := &eventingv1.Trigger{
 		ObjectMeta: metav1.ObjectMeta{Name: b.name(), Namespace: ns},
