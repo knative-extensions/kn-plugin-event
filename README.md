@@ -114,6 +114,10 @@ $ kn event send \
 
 ## Install
 
+There are multiple ways to install the `kn-plugin-event`.
+
+### Install using a binary
+
 You can download a pre-built version of `kn-plugin-event` from
 [our release page](https://github.com/knative-sandbox/kn-plugin-event/releases)
 . Choose the one that fits your platform.
@@ -125,7 +129,7 @@ standalone binary. Check the available commands with:
 kn-event-<OS>-<ARCH> --help
 ```
 
-### Install to work with `kn` CLI
+#### Install to work with `kn` CLI
 
 If you'd like to use the plugin with `kn` CLI, install the plugin by simply
 copying the executable file under `kn` plugins directory as:
@@ -146,6 +150,14 @@ Run it
 
 ```sh
 $ kn event -h
+```
+
+### Install using Homebrew
+
+To install `kn-plugin-event` using [Homebrew](https://brew.sh/), run the command:
+
+```sh
+brew install knative-sandbox/kn-plugins/event
 ```
 
 ## Building
