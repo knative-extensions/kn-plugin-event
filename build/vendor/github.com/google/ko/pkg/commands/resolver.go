@@ -58,6 +58,10 @@ func gobuildOptions(bo *options.BuildOptions) ([]build.Option, error) {
 		return nil, err
 	}
 
+	if len(bo.Platforms) == 0 && len(bo.DefaultPlatforms) > 0 {
+		bo.Platforms = bo.DefaultPlatforms
+	}
+
 	if len(bo.Platforms) == 0 {
 		envPlatform := "linux/amd64"
 
@@ -78,7 +82,7 @@ func gobuildOptions(bo *options.BuildOptions) ([]build.Option, error) {
 		// Make sure these are all unset
 		for _, env := range []string{"GOOS", "GOARCH", "GOARM"} {
 			if s, ok := os.LookupEnv(env); ok {
-				return nil, fmt.Errorf("cannot use --platform with %s=%q", env, s)
+				return nil, fmt.Errorf("cannot use --platform or defaultPlatforms in .ko.yaml or env KO_DEFAULTPLATFORMS combined with %s=%q", env, s)
 			}
 		}
 	}
@@ -118,6 +122,10 @@ func gobuildOptions(bo *options.BuildOptions) ([]build.Option, error) {
 
 	if bo.BuildConfigs != nil {
 		opts = append(opts, build.WithConfig(bo.BuildConfigs))
+	}
+
+	if bo.SBOMDir != "" {
+		opts = append(opts, build.WithSBOMDir(bo.SBOMDir))
 	}
 
 	return opts, nil
@@ -163,15 +171,28 @@ func NewPublisher(po *options.PublishOptions) (publish.Interface, error) {
 }
 
 func makePublisher(po *options.PublishOptions) (publish.Interface, error) {
+	// use each tag only once
+	po.Tags = unique(po.Tags)
 	// Create the publish.Interface that we will use to publish image references
 	// to either a docker daemon or a container image registry.
 	innerPublisher, err := func() (publish.Interface, error) {
 		repoName := po.DockerRepo
 		namer := options.MakeNamer(po)
-		if strings.HasPrefix(repoName, publish.LocalDomain) || po.Local {
+		// Default LocalDomain if unset.
+		if po.LocalDomain == "" {
+			po.LocalDomain = publish.LocalDomain
+		}
+		// If repoName is unset with --local, default it to the local domain.
+		if po.Local && repoName == "" {
+			repoName = po.LocalDomain
+		}
+		// When in doubt, if repoName is under the local domain, default to --local.
+		po.Local = strings.HasPrefix(repoName, po.LocalDomain)
+		if po.Local {
 			// TODO(jonjohnsonjr): I'm assuming that nobody will
 			// use local with other publishers, but that might
 			// not be true.
+			po.LocalDomain = repoName
 			return publish.NewDaemon(namer, po.Tags,
 				publish.WithDockerClient(po.DockerClient),
 				publish.WithLocalDomain(po.LocalDomain),
@@ -244,7 +265,7 @@ func makePublisher(po *options.PublishOptions) (publish.Interface, error) {
 	}
 
 	if po.ImageRefsFile != "" {
-		f, err := os.OpenFile(po.ImageRefsFile, os.O_RDWR|os.O_CREATE, 0644)
+		f, err := os.OpenFile(po.ImageRefsFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
 			return nil, err
 		}
@@ -382,7 +403,7 @@ func ResolveFilesToWriter(
 	}
 
 	// Make sure we exit with an error.
-	// See https://github.com/google/ko/issues/84
+	// See https://github.com/ko-build/ko/issues/84
 	return errs.Wait()
 }
 
@@ -454,4 +475,20 @@ func resolveFile(
 	e.Close()
 
 	return buf.Bytes(), nil
+}
+
+// create a set from the input slice
+// preserving the order of unique elements
+func unique(ss []string) []string {
+	var (
+		seen = make(map[string]struct{}, len(ss))
+		uniq = make([]string, 0, len(ss))
+	)
+	for _, s := range ss {
+		if _, ok := seen[s]; !ok {
+			seen[s] = struct{}{}
+			uniq = append(uniq, s)
+		}
+	}
+	return uniq
 }

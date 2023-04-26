@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -27,7 +28,7 @@ import (
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/types"
 	specsv1 "github.com/opencontainers/image-spec/specs-go/v1"
-	"github.com/sigstore/cosign/pkg/oci"
+	"github.com/sigstore/cosign/v2/pkg/oci"
 )
 
 type qualifier struct {
@@ -59,7 +60,7 @@ func GenerateImageSPDX(koVersion string, mod []byte, img oci.SignedImage) ([]byt
 		return nil, err
 	}
 
-	bi, err := ParseBuildInfo(string(mod))
+	bi, err := debug.ParseBuildInfo(string(mod))
 	if err != nil {
 		return nil, err
 	}
@@ -100,8 +101,9 @@ func GenerateImageSPDX(koVersion string, mod []byte, img oci.SignedImage) ([]byt
 		LicenseConcluded: NOASSERTION,
 		LicenseDeclared:  NOASSERTION,
 		CopyrightText:    NOASSERTION,
+		PrimaryPurpose:   "CONTAINER",
 		ExternalRefs: []ExternalRef{{
-			Category: "PACKAGE_MANAGER",
+			Category: "PACKAGE-MANAGER",
 			Type:     "purl",
 			Locator: ociRef("image", imgDigest, qualifier{
 				key:   "mediaType",
@@ -133,7 +135,7 @@ func GenerateImageSPDX(koVersion string, mod []byte, img oci.SignedImage) ([]byt
 		LicenseDeclared:  NOASSERTION,
 		CopyrightText:    NOASSERTION,
 		ExternalRefs: []ExternalRef{{
-			Category: "PACKAGE_MANAGER",
+			Category: "PACKAGE-MANAGER",
 			Type:     "purl",
 			Locator:  goRef(&bi.Main),
 		}},
@@ -159,7 +161,7 @@ func GenerateImageSPDX(koVersion string, mod []byte, img oci.SignedImage) ([]byt
 			LicenseDeclared:  NOASSERTION,
 			CopyrightText:    NOASSERTION,
 			ExternalRefs: []ExternalRef{{
-				Category: "PACKAGE_MANAGER",
+				Category: "PACKAGE-MANAGER",
 				Type:     "purl",
 				Locator:  goRef(dep),
 			}},
@@ -235,12 +237,13 @@ func GenerateIndexSPDX(koVersion string, sii oci.SignedImageIndex) ([]byte, erro
 		LicenseConcluded: NOASSERTION,
 		LicenseDeclared:  NOASSERTION,
 		CopyrightText:    NOASSERTION,
+		PrimaryPurpose:   "CONTAINER",
 		Checksums: []Checksum{{
 			Algorithm: strings.ToUpper(indexDigest.Algorithm),
 			Value:     indexDigest.Hex,
 		}},
 		ExternalRefs: []ExternalRef{{
-			Category: "PACKAGE_MANAGER",
+			Category: "PACKAGE-MANAGER",
 			Type:     "purl",
 			Locator: ociRef("index", indexDigest, qualifier{
 				key:   "mediaType",
@@ -312,8 +315,9 @@ func GenerateIndexSPDX(koVersion string, sii oci.SignedImageIndex) ([]byte, erro
 				LicenseConcluded: NOASSERTION,
 				LicenseDeclared:  NOASSERTION,
 				CopyrightText:    NOASSERTION,
+				PrimaryPurpose:   "CONTAINER",
 				ExternalRefs: []ExternalRef{{
-					Category: "PACKAGE_MANAGER",
+					Category: "PACKAGE-MANAGER",
 					Type:     "purl",
 					Locator:  ociRef("image", imageDigest, qual...),
 				}},
@@ -410,7 +414,7 @@ func addBaseImage(doc *Document, annotations map[string]string, h v1.Hash) error
 		LicenseDeclared:  NOASSERTION,
 		CopyrightText:    NOASSERTION,
 		ExternalRefs: []ExternalRef{{
-			Category: "PACKAGE_MANAGER",
+			Category: "PACKAGE-MANAGER",
 			Type:     "purl",
 			Locator:  ociRef("image", hash, qual...),
 		}},
@@ -443,7 +447,7 @@ limitations under the License.
 
 const (
 	NOASSERTION = "NOASSERTION"
-	Version     = "SPDX-2.2"
+	Version     = "SPDX-2.3"
 )
 
 type Document struct {
@@ -478,6 +482,7 @@ type Package struct {
 	Originator           string                   `json:"originator,omitempty"`
 	SourceInfo           string                   `json:"sourceInfo,omitempty"`
 	CopyrightText        string                   `json:"copyrightText"`
+	PrimaryPurpose       string                   `json:"primaryPackagePurpose,omitempty"`
 	HasFiles             []string                 `json:"hasFiles,omitempty"`
 	LicenseInfoFromFiles []string                 `json:"licenseInfoFromFiles,omitempty"`
 	Checksums            []Checksum               `json:"checksums,omitempty"`

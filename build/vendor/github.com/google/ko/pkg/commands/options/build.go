@@ -32,7 +32,7 @@ import (
 
 const (
 	// configDefaultBaseImage is the default base image if not specified in .ko.yaml.
-	configDefaultBaseImage = "distroless.dev/static:latest"
+	configDefaultBaseImage = "cgr.dev/chainguard/static:latest"
 )
 
 // BuildOptions represents options for the ko builder.
@@ -44,6 +44,9 @@ type BuildOptions struct {
 	// BaseImageOverrides stores base image overrides for import paths.
 	BaseImageOverrides map[string]string
 
+	// DefaultPlatforms defines the default platforms when Platforms is not explicitly defined
+	DefaultPlatforms []string
+
 	// WorkingDirectory allows for setting the working directory for invocations of the `go` tool.
 	// Empty string means the current working directory.
 	WorkingDirectory string
@@ -51,6 +54,7 @@ type BuildOptions struct {
 	ConcurrentBuilds     int
 	DisableOptimizations bool
 	SBOM                 string
+	SBOMDir              string
 	Platforms            []string
 	Labels               []string
 	// UserAgent enables overriding the default value of the `User-Agent` HTTP
@@ -76,6 +80,8 @@ func AddBuildOptions(cmd *cobra.Command, bo *BuildOptions) {
 		"Disable optimizations when building Go code. Useful when you want to interactively debug the created container.")
 	cmd.Flags().StringVar(&bo.SBOM, "sbom", "spdx",
 		"The SBOM media type to use (none will disable SBOM synthesis and upload, also supports: spdx, cyclonedx, go.version-m).")
+	cmd.Flags().StringVar(&bo.SBOMDir, "sbom-dir", "",
+		"Path to file where the SBOM will be written.")
 	cmd.Flags().StringSliceVar(&bo.Platforms, "platform", []string{},
 		"Which platform to use when pulling a multi-platform base. Format: all | <os>[/<arch>[/<variant>]][,platform]*")
 	cmd.Flags().StringSliceVar(&bo.Labels, "image-label", []string{},
@@ -102,21 +108,22 @@ func (bo *BuildOptions) LoadConfig() error {
 		if err != nil {
 			return fmt.Errorf("error looking for config file: %w", err)
 		}
-		var path string
-		if file.IsDir() {
-			path = filepath.Join(override, configName+".yaml")
+		if file.Mode().IsRegular() {
+			v.SetConfigFile(override)
+		} else if file.IsDir() {
+			path := filepath.Join(override, ".ko.yaml")
 			file, err = os.Stat(path)
 			if err != nil {
 				return fmt.Errorf("error looking for config file: %w", err)
 			}
+			if file.Mode().IsRegular() {
+				v.SetConfigFile(path)
+			} else {
+				return fmt.Errorf("config file %s is not a regular file", path)
+			}
 		} else {
-			path = override
+			return fmt.Errorf("config file %s is not a regular file", override)
 		}
-
-		if !file.Mode().IsRegular() {
-			return fmt.Errorf("config file %s is not a regular file", path)
-		}
-		v.AddConfigPath(override)
 	}
 	v.AddConfigPath(bo.WorkingDirectory)
 
@@ -124,6 +131,11 @@ func (bo *BuildOptions) LoadConfig() error {
 		if !errors.As(err, &viper.ConfigFileNotFoundError{}) {
 			return fmt.Errorf("error reading config file: %w", err)
 		}
+	}
+
+	dp := v.GetStringSlice("defaultPlatforms")
+	if len(dp) > 0 {
+		bo.DefaultPlatforms = dp
 	}
 
 	if bo.BaseImage == "" {

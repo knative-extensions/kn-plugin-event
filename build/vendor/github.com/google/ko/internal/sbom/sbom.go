@@ -18,9 +18,36 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"runtime/debug"
 	"strings"
 	"unicode"
 )
+
+func modulePackageName(mod *debug.Module) string {
+	return fmt.Sprintf("SPDXRef-Package-%s-%s",
+		strings.ReplaceAll(mod.Path, "/", "."),
+		mod.Version)
+}
+
+func bomRef(mod *debug.Module) string {
+	return fmt.Sprintf("pkg:golang/%s@%s?type=module", mod.Path, mod.Version)
+}
+
+func goRef(mod *debug.Module) string {
+	path := mod.Path
+	// Try to lowercase the first 2 path elements to comply with spec
+	// https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst#golang
+	p := strings.Split(path, "/")
+	if len(p) > 2 {
+		path = strings.Join(
+			append(
+				[]string{strings.ToLower(p[0]), strings.ToLower(p[1])},
+				p[2:]...,
+			), "/",
+		)
+	}
+	return fmt.Sprintf("pkg:golang/%s@%s?type=module", path, mod.Version)
+}
 
 // massageGoModVersion massages the output of `go version -m` into a form that
 // can be consumed by ParseBuildInfo.
@@ -33,7 +60,7 @@ func massageGoVersionM(b []byte) ([]byte, error) {
 	if !scanner.Scan() {
 		// Input was malformed, and doesn't contain any newlines (it
 		// may even be empty). This seems to happen on Windows
-		// (https://github.com/google/ko/issues/535) and in unit tests.
+		// (https://github.com/ko-build/ko/issues/535) and in unit tests.
 		// Just proceed with an empty output for now, and SBOMs will be empty.
 		// TODO: This should be an error.
 		return nil, nil
