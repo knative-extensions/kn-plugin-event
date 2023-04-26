@@ -100,7 +100,7 @@ github.com/cloudevents/sdk-go/v2/types
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/emicklei/go-restful/v3 v3.8.0
+# github.com/emicklei/go-restful/v3 v3.9.0
 ## explicit; go 1.13
 github.com/emicklei/go-restful/v3
 github.com/emicklei/go-restful/v3/log
@@ -175,8 +175,8 @@ github.com/google/go-cmp/cmp/internal/diff
 github.com/google/go-cmp/cmp/internal/flags
 github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
-# github.com/google/go-containerregistry v0.11.0
-## explicit; go 1.17
+# github.com/google/go-containerregistry v0.13.0
+## explicit; go 1.18
 github.com/google/go-containerregistry/pkg/name
 # github.com/google/gofuzz v1.2.0
 ## explicit; go 1.12
@@ -392,11 +392,11 @@ go.uber.org/zap/internal/exit
 go.uber.org/zap/internal/ztest
 go.uber.org/zap/zapcore
 go.uber.org/zap/zaptest
-# golang.org/x/crypto v0.0.0-20220919173607-35f4265a4bc0
+# golang.org/x/crypto v0.1.0
 ## explicit; go 1.17
 golang.org/x/crypto/pkcs12
 golang.org/x/crypto/pkcs12/internal/rc2
-# golang.org/x/net v0.0.0-20220919232410-f2f64ebce3c1
+# golang.org/x/net v0.7.0
 ## explicit; go 1.17
 golang.org/x/net/context
 golang.org/x/net/context/ctxhttp
@@ -407,7 +407,7 @@ golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/internal/timeseries
 golang.org/x/net/trace
-# golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
+# golang.org/x/oauth2 v0.1.0
 ## explicit; go 1.17
 golang.org/x/oauth2
 golang.org/x/oauth2/authhandler
@@ -416,21 +416,21 @@ golang.org/x/oauth2/google/internal/externalaccount
 golang.org/x/oauth2/internal
 golang.org/x/oauth2/jws
 golang.org/x/oauth2/jwt
-# golang.org/x/sync v0.0.0-20220907140024-f12130a52804
+# golang.org/x/sync v0.1.0
 ## explicit
 golang.org/x/sync/errgroup
 golang.org/x/sync/semaphore
-# golang.org/x/sys v0.0.0-20220919091848-fb04ddd9f9c8
+# golang.org/x/sys v0.5.0
 ## explicit; go 1.17
 golang.org/x/sys/execabs
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/plan9
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/term v0.0.0-20220919170432-7a66f970e087
+# golang.org/x/term v0.5.0
 ## explicit; go 1.17
 golang.org/x/term
-# golang.org/x/text v0.3.8-0.20211004125949-5bd84dd9b33b
+# golang.org/x/text v0.7.0
 ## explicit; go 1.17
 golang.org/x/text/encoding
 golang.org/x/text/encoding/internal
@@ -442,7 +442,7 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
-# golang.org/x/time v0.0.0-20220920022843-2ce7c2934d45
+# golang.org/x/time v0.1.0
 ## explicit
 golang.org/x/time/rate
 # golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2
@@ -1025,12 +1025,14 @@ k8s.io/klog/v2/internal/clock
 k8s.io/klog/v2/internal/dbg
 k8s.io/klog/v2/internal/serialize
 k8s.io/klog/v2/internal/severity
-# k8s.io/kube-openapi v0.0.0-20220803162953-67bda5d908f1
+# k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280
 ## explicit; go 1.18
 k8s.io/kube-openapi/pkg/builder3/util
 k8s.io/kube-openapi/pkg/common
 k8s.io/kube-openapi/pkg/handler3
+k8s.io/kube-openapi/pkg/internal
 k8s.io/kube-openapi/pkg/internal/handler
+k8s.io/kube-openapi/pkg/internal/third_party/go-json-experiment/json
 k8s.io/kube-openapi/pkg/openapiconv
 k8s.io/kube-openapi/pkg/schemaconv
 k8s.io/kube-openapi/pkg/schemamutation
@@ -1050,7 +1052,7 @@ k8s.io/utils/net
 k8s.io/utils/pointer
 k8s.io/utils/strings/slices
 k8s.io/utils/trace
-# knative.dev/client-pkg v0.0.0-20230210014748-e9619222f136
+# knative.dev/client-pkg v0.0.0-20230425201444-4f052f9ef2f2
 ## explicit; go 1.18
 knative.dev/client-pkg/pkg/apis/client
 knative.dev/client-pkg/pkg/apis/client/v1alpha1
@@ -1066,8 +1068,8 @@ knative.dev/client-pkg/pkg/util
 knative.dev/client-pkg/pkg/util/mock
 knative.dev/client-pkg/pkg/util/test
 knative.dev/client-pkg/pkg/wait
-# knative.dev/eventing v0.36.1-0.20230210013552-82324b96a170
-## explicit; go 1.18
+# knative.dev/eventing v0.37.0
+## explicit; go 1.19
 knative.dev/eventing/pkg/apis/config
 knative.dev/eventing/pkg/apis/duck
 knative.dev/eventing/pkg/apis/duck/v1
@@ -1105,10 +1107,10 @@ knative.dev/eventing/test/upgrade/prober/wathola/config
 knative.dev/eventing/test/upgrade/prober/wathola/event
 knative.dev/eventing/test/upgrade/prober/wathola/forwarder
 knative.dev/eventing/test/upgrade/prober/wathola/sender
-# knative.dev/hack v0.0.0-20230210215449-d71d569c4308
+# knative.dev/hack v0.0.0-20230417170854-f591fea109b3
 ## explicit; go 1.18
 knative.dev/hack
-# knative.dev/networking v0.0.0-20230210015049-195809a6b766
+# knative.dev/networking v0.0.0-20230419144338-e5d04e805e50
 ## explicit; go 1.18
 knative.dev/networking/pkg
 knative.dev/networking/pkg/apis/networking
@@ -1120,7 +1122,7 @@ knative.dev/networking/pkg/http/probe
 knative.dev/networking/pkg/http/proxy
 knative.dev/networking/pkg/http/stats
 knative.dev/networking/pkg/k8s
-# knative.dev/pkg v0.0.0-20230213131952-c889c5b7e128
+# knative.dev/pkg v0.0.0-20230418073056-dfad48eaa5d0
 ## explicit; go 1.18
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
@@ -1167,7 +1169,7 @@ knative.dev/pkg/tracing/config
 knative.dev/pkg/tracing/propagation
 knative.dev/pkg/tracing/propagation/tracecontextb3
 knative.dev/pkg/tracker
-# knative.dev/reconciler-test v0.0.0-20230213145153-2c512fbf10ba
+# knative.dev/reconciler-test v0.0.0-20230420091239-6c21623d2555
 ## explicit; go 1.18
 knative.dev/reconciler-test/cmd/eventshub
 knative.dev/reconciler-test/pkg/environment
@@ -1182,6 +1184,7 @@ knative.dev/reconciler-test/pkg/eventshub/receiver
 knative.dev/reconciler-test/pkg/eventshub/recorder_vent
 knative.dev/reconciler-test/pkg/eventshub/sender
 knative.dev/reconciler-test/pkg/feature
+knative.dev/reconciler-test/pkg/images/file
 knative.dev/reconciler-test/pkg/images/ko
 knative.dev/reconciler-test/pkg/k8s
 knative.dev/reconciler-test/pkg/knative
@@ -1190,7 +1193,7 @@ knative.dev/reconciler-test/pkg/manifest
 knative.dev/reconciler-test/pkg/milestone
 knative.dev/reconciler-test/pkg/resources/service
 knative.dev/reconciler-test/pkg/state
-# knative.dev/serving v0.36.1-0.20230213123751-9b9a9518d807
+# knative.dev/serving v0.37.0
 ## explicit; go 1.18
 knative.dev/serving/pkg/apis/autoscaling
 knative.dev/serving/pkg/apis/autoscaling/v1alpha1

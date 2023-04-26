@@ -51,6 +51,7 @@ function tag_images_in_yamls() {
   local DOCKER_BASE="${KO_DOCKER_REPO}/${REPO_ROOT_DIR/$SRC_DIR}"
   local GEO_REGIONS="${GEO_REPLICATION[@]} "
   echo "Tagging any images under '${DOCKER_BASE}' with ${TAG}"
+  # shellcheck disable=SC2068
   for file in $@; do
     [[ "${file##*.}" != "yaml" ]] && continue
     echo "Inspecting ${file}"
@@ -316,7 +317,8 @@ function build_from_source() {
 function get_images_in_yamls() {
   rm -rf "$IMAGES_REFS_FILE"
   echo "Assembling a list of image refences to sign"
-  for file in "$@"; do
+  # shellcheck disable=SC2068
+  for file in $@; do
     [[ "${file##*.}" != "yaml" ]] && continue
     echo "Inspecting ${file}"
     while read -r image; do
@@ -328,12 +330,18 @@ function get_images_in_yamls() {
   fi
 }
 
+# Finds a checksums file within the given list of artifacts (space delimited)
+# Parameters: $n - artifact files
 function find_checksums_file() {
-  for file in "$@"; do
-    if [[ "${file}" == *"checksums.txt" ]]; then
-      echo "${file}"
-      return 0
-    fi
+  for arg in "$@"; do
+    # kinda dirty hack needed as we pass $ARTIFACTS_TO_PUBLISH in space
+    # delimiter variable, which is vulnerable to all sorts of argument quoting
+    while read -r file; do
+      if [[ "${file}" == *"checksums.txt" ]]; then
+        echo "${file}"
+        return 0
+      fi
+    done < <(echo "$arg" | tr ' ' '\n')
   done
   warning "cannot find checksums file"
 }
@@ -401,10 +409,11 @@ function sign_release() {
   if [[ -f "$IMAGES_REFS_FILE" ]]; then
     COSIGN_EXPERIMENTAL=1 cosign sign $(cat "$IMAGES_REFS_FILE") \
       --recursive --identity-token="${ID_TOKEN}"
+    cp "${IMAGES_REFS_FILE}" "${ARTIFACTS}"
     if  [ -n "${ATTEST_IMAGES:-}" ]; then # Temporary Feature Gate
       provenance-generator --clone-log=/logs/clone.json \
         --image-refs="$IMAGES_REFS_FILE" --output=attestation.json
-      mkdir -p "${ARTIFACTS}"/attestation && cp attestation.json "${ARTIFACTS}"/attestation
+      mkdir -p "${ARTIFACTS}" && cp attestation.json "${ARTIFACTS}"
       COSIGN_EXPERIMENTAL=1 cosign attest $(cat "$IMAGES_REFS_FILE") \
         --recursive --identity-token="${ID_TOKEN}" \
         --predicate=attestation.json --type=slsaprovenance
@@ -724,7 +733,7 @@ function main() {
 # Parameters: $1..$n - files to add to the release.
 function publish_to_github() {
   (( PUBLISH_TO_GITHUB )) || return 0
-  local title="${REPO_NAME_FORMATTED} release ${TAG}"
+  local title="${TAG}"
   local attachments=()
   local description="$(mktemp)"
   local attachments_dir="$(mktemp -d)"

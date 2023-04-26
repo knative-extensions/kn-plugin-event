@@ -1,3 +1,5 @@
+// Copyright 2019 Google LLC All Rights Reserved.
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -70,12 +72,13 @@ func New(use, short string, options []crane.Option) *cobra.Command {
 
 			options = append(options, crane.WithPlatform(platform.platform))
 
-			transport := remote.DefaultTransport.Clone()
+			transport := remote.DefaultTransport.(*http.Transport).Clone()
 			transport.TLSClientConfig = &tls.Config{
 				InsecureSkipVerify: insecure, //nolint: gosec
 			}
 
 			var rt http.RoundTripper = transport
+
 			// Add any http headers if they are set in the config file.
 			cf, err := config.Load(os.Getenv("DOCKER_CONFIG"))
 			if err != nil {
@@ -93,9 +96,9 @@ func New(use, short string, options []crane.Option) *cobra.Command {
 
 	commands := []*cobra.Command{
 		NewCmdAppend(&options),
-		NewCmdAuth("crane", "auth"),
+		NewCmdAuth(options, "crane", "auth"),
 		NewCmdBlob(&options),
-		NewCmdCatalog(&options),
+		NewCmdCatalog(&options, "crane"),
 		NewCmdConfig(&options),
 		NewCmdCopy(&options),
 		NewCmdDelete(&options),
