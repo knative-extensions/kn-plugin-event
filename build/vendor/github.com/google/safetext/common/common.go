@@ -200,8 +200,8 @@ func applyPipeCmds(cmds []*parse.CommandNode) {
 
 					newPipe := &parse.PipeNode{NodeType: parse.NodePipe, Decl: nil}
 					newPipe.Cmds = []*parse.CommandNode{
-						&parse.CommandNode{NodeType: parse.NodeCommand, Args: []parse.Node{a}},
-						&parse.CommandNode{NodeType: parse.NodeCommand, Args: []parse.Node{&parse.IdentifierNode{NodeType: parse.NodeIdentifier, Ident: applyFunc}}},
+						{NodeType: parse.NodeCommand, Args: []parse.Node{a}},
+						{NodeType: parse.NodeCommand, Args: []parse.Node{&parse.IdentifierNode{NodeType: parse.NodeIdentifier, Ident: applyFunc}}},
 					}
 					newArgs = append(newArgs, newPipe)
 				}

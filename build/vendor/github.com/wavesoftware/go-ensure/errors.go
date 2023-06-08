@@ -2,8 +2,9 @@ package ensure
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"regexp"
+
+	"github.com/pkg/errors"
 )
 
 // NoError will panic if given an error, as it was unexpected
