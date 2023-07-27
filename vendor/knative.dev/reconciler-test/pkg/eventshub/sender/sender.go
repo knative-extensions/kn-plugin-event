@@ -19,9 +19,12 @@ package sender
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	nethttp "net/http"
 	"strconv"
@@ -36,6 +39,7 @@ import (
 	"github.com/cloudevents/sdk-go/v2/types"
 	"github.com/kelseyhightower/envconfig"
 	"go.opencensus.io/trace"
+	"go.uber.org/atomic"
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"knative.dev/pkg/logging"
@@ -48,6 +52,12 @@ type generator struct {
 
 	// Sink url for the message destination
 	Sink string `envconfig:"SINK" required:"true"`
+
+	// CACert is the certificate for enabling HTTPS in Sink URL
+	CACerts string `envconfig:"CA_CERTS"`
+
+	// EnforceTLS is used to enforce TLS.
+	EnforceTLS bool `envconfig:"ENFORCE_TLS" default:"false"`
 
 	// The duration to wait before starting sending the first message
 	Delay string `envconfig:"DELAY" default:"5" required:"false"`
@@ -107,9 +117,11 @@ type generator struct {
 	eventQueue []conformanceevent.Event
 }
 
-type Option func(*nethttp.Client) error
+var (
+	verifyConnectionCounter = atomic.NewUint64(0)
+)
 
-func Start(ctx context.Context, logs *eventshub.EventLogs, clientOpts ...Option) error {
+func Start(ctx context.Context, logs *eventshub.EventLogs, clientOpts ...eventshub.ClientOption) error {
 	var env generator
 	if err := envconfig.Process("", &env); err != nil {
 		return fmt.Errorf("failed to process env var. %w", err)
@@ -136,6 +148,11 @@ func Start(ctx context.Context, logs *eventshub.EventLogs, clientOpts ...Option)
 		logging.FromContext(ctx).Info("awake, continuing")
 	}
 
+	httpClient, _, err := createClient(ctx, env, logs)
+	if err != nil {
+		return err
+	}
+
 	if env.ProbeSink {
 		probingTimeout := time.Duration(env.ProbeSinkTimeout) * time.Second
 		// Probe the sink for up to a minute.
@@ -145,21 +162,13 @@ func Start(ctx context.Context, logs *eventshub.EventLogs, clientOpts ...Option)
 				return false, err
 			}
 
-			if _, err := nethttp.DefaultClient.Do(req); err != nil {
+			if _, err := httpClient.Do(req); err != nil {
 				logging.FromContext(ctx).Error(zap.Error(err))
 				return false, nil
 			}
 			return true, nil
 		}); err != nil {
 			return fmt.Errorf("probing the sink '%s' using timeout %s failed: %w", env.Sink, probingTimeout, err)
-		}
-	}
-
-	httpClient := &nethttp.Client{}
-
-	for _, opt := range clientOpts {
-		if err := opt(httpClient); err != nil {
-			return fmt.Errorf("unable to apply option: %w", err)
 		}
 	}
 
@@ -174,6 +183,19 @@ func Start(ctx context.Context, logs *eventshub.EventLogs, clientOpts ...Option)
 
 	ticker := time.NewTicker(period)
 	for {
+
+		// when enforcing TLS we want to create multiple transports to force multiple TLS handshakes
+		// on each request sent so that VerifyConnection is called multiple times.
+		httpClient, _, err = createClient(ctx, env, logs)
+		if err != nil {
+			return err
+		}
+
+		for _, opt := range clientOpts {
+			if err := opt(httpClient); err != nil {
+				return fmt.Errorf("unable to apply option: %w", err)
+			}
+		}
 
 		ctx, span := trace.StartSpan(ctx, "eventshub-sender")
 
@@ -220,6 +242,49 @@ func Start(ctx context.Context, logs *eventshub.EventLogs, clientOpts ...Option)
 			logging.FromContext(ctx).Infof("Canceled sending messages because context was closed")
 			return nil
 		}
+	}
+}
+
+func createClient(ctx context.Context, env generator, logs *eventshub.EventLogs) (*nethttp.Client, *nethttp.Transport, error) {
+	if env.EnforceTLS {
+		caCertPool, err := x509.SystemCertPool()
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to create cert pool %s: %w", env.Sink, err)
+		}
+		caCertPool.AppendCertsFromPEM([]byte(env.CACerts))
+
+		transport := nethttp.DefaultTransport.(*nethttp.Transport).Clone()
+
+		// Force multiple TLS handshakes
+		transport.DisableKeepAlives = true
+		transport.IdleConnTimeout = 500 * time.Millisecond
+
+		transport.TLSClientConfig = &tls.Config{
+			RootCAs:    caCertPool,
+			MinVersion: tls.VersionTLS12,
+			VerifyConnection: func(state tls.ConnectionState) error {
+				logging.FromContext(ctx).Infow("VerifyConnection")
+
+				if err := logs.Vent(env.peerCertificatesReceived(verifyConnectionCounter.Inc(), state)); err != nil {
+					return err
+				}
+				return nil
+			},
+		}
+		return &nethttp.Client{Transport: transport}, transport, nil
+	}
+
+	return nethttp.DefaultClient, nethttp.DefaultTransport.(*nethttp.Transport), nil
+}
+
+func (g *generator) peerCertificatesReceived(counter uint64, state tls.ConnectionState) eventshub.EventInfo {
+	return eventshub.EventInfo{
+		Kind:       eventshub.PeerCertificatesReceived,
+		Connection: eventshub.TLSConnectionStateToConnection(&state),
+		Origin:     g.SenderName,
+		Observer:   g.SenderName,
+		Time:       time.Now(),
+		Sequence:   counter,
 	}
 }
 
@@ -284,7 +349,7 @@ func (g *generator) responseInfo(res *nethttp.Response, event *cloudevents.Event
 	responseMessage := cehttp.NewMessageFromHttpResponse(res)
 
 	if responseMessage.ReadEncoding() == binding.EncodingUnknown {
-		body, err := ioutil.ReadAll(res.Body)
+		body, err := io.ReadAll(res.Body)
 
 		if err != nil {
 			responseInfo.Error = err.Error()
