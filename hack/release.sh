@@ -19,7 +19,7 @@ set -Eeuo pipefail
 # Coordinates in GitHub.
 ORG_NAME="${ORG_NAME:-knative-sandbox}"
 
-source "$(dirname "$0")/../vendor/knative.dev/hack/release.sh"
+source "$(go run knative.dev/hack/cmd/script release.sh)"
 
 build_dir="${BUILD_DIR:-${REPO_ROOT_DIR}/build/_output}"
 

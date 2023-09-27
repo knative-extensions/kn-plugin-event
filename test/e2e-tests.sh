@@ -2,7 +2,7 @@
 
 set -Eeo pipefail
 
-source "$(dirname "$(dirname "$(readlink -f "${BASH_SOURCE[0]:-$0}")")")/vendor/knative.dev/hack/e2e-tests.sh"
+source "$(go run knative.dev/hack/cmd/script e2e-tests.sh)"
 
 function start_latest_knative_serving() {
   local KNATIVE_NET_KOURIER_RELEASE
