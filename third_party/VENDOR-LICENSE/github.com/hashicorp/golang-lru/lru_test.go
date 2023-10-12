@@ -1,7 +1,6 @@
 package lru
 
 import (
-	"math/rand"
 	"testing"
 )
 
@@ -13,7 +12,7 @@ func BenchmarkLRU_Rand(b *testing.B) {
 
 	trace := make([]int64, b.N*2)
 	for i := 0; i < b.N*2; i++ {
-		trace[i] = rand.Int63() % 32768
+		trace[i] = getRand(b) % 32768
 	}
 
 	b.ResetTimer()
@@ -43,9 +42,9 @@ func BenchmarkLRU_Freq(b *testing.B) {
 	trace := make([]int64, b.N*2)
 	for i := 0; i < b.N*2; i++ {
 		if i%2 == 0 {
-			trace[i] = rand.Int63() % 16384
+			trace[i] = getRand(b) % 16384
 		} else {
-			trace[i] = rand.Int63() % 32768
+			trace[i] = getRand(b) % 32768
 		}
 	}
 
@@ -267,7 +266,7 @@ func TestLRUResize(t *testing.T) {
 	// Downsize
 	l.Add(1, 1)
 	l.Add(2, 2)
-	evicted := l.Resize(1);
+	evicted := l.Resize(1)
 	if evicted != 1 {
 		t.Errorf("1 element should have been evicted: %v", evicted)
 	}
@@ -281,7 +280,7 @@ func TestLRUResize(t *testing.T) {
 	}
 
 	// Upsize
-	evicted = l.Resize(2);
+	evicted = l.Resize(2)
 	if evicted != 0 {
 		t.Errorf("0 elements should have been evicted: %v", evicted)
 	}
