@@ -3,7 +3,7 @@ module knative.dev/kn-plugin-event/build
 go 1.21
 
 require (
-	github.com/wavesoftware/go-magetasks v0.9.1
+	github.com/wavesoftware/go-magetasks v0.9.2
 	knative.dev/kn-plugin-event v0.0.0
 )
 
@@ -50,7 +50,7 @@ require (
 	github.com/bodgit/plumbing v1.3.0 // indirect
 	github.com/bodgit/sevenzip v1.5.0 // indirect
 	github.com/bodgit/windows v1.0.1 // indirect
-	github.com/cardil/ghet v0.0.1-0.20240327122721-f64bf4f053e1 // indirect
+	github.com/cardil/ghet v0.0.1-0.20240328141807-46c5078274de // indirect
 	github.com/charmbracelet/bubbles v0.18.0 // indirect
 	github.com/charmbracelet/bubbletea v0.25.0 // indirect
 	github.com/charmbracelet/harmonica v0.2.0 // indirect
@@ -110,7 +110,7 @@ require (
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f // indirect
 	github.com/klauspost/compress v1.17.7 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
-	github.com/letsencrypt/boulder v0.0.0-20240326064629-3f6eccf58d8d // indirect
+	github.com/letsencrypt/boulder v0.0.0-20240328001739-6149ac63e632 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/magefile/mage v1.15.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
@@ -194,8 +194,8 @@ require (
 	k8s.io/apimachinery v0.29.3 // indirect
 	k8s.io/klog/v2 v2.120.1 // indirect
 	k8s.io/utils v0.0.0-20240310230437-4693a0247e57 // indirect
-	knative.dev/client-pkg v0.0.0-20240327121233-6984d81a90ec // indirect
-	knative.dev/pkg v0.0.0-20240327140624-1ca1f09c329e // indirect
+	knative.dev/client-pkg v0.0.0-20240328140606-2dec0683c965 // indirect
+	knative.dev/pkg v0.0.0-20240328135156-f69f148b7c70 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kind v0.22.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
