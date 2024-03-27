@@ -57,7 +57,6 @@ require (
 	github.com/charmbracelet/lipgloss v0.10.0 // indirect
 	github.com/chrismellard/docker-credential-acr-env v0.0.0-20230304212654-82a0ddb27589 // indirect
 	github.com/containerd/console v1.0.4 // indirect
-	github.com/containerd/log v0.1.0 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.15.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dimchansky/utfbom v1.1.1 // indirect
@@ -204,6 +203,6 @@ require (
 )
 
 replace (
-  knative.dev/kn-plugin-event => ../
-  knative.dev/client-pkg => github.com/cardil/knative-client-pkg v0.0.0-20240326192722-2741fa4b9666
+	knative.dev/client-pkg => github.com/cardil/knative-client-pkg v0.0.0-20240327105650-518467c4e8c5
+	knative.dev/kn-plugin-event => ../
 )

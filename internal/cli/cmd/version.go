@@ -58,7 +58,7 @@ type marshalFunc func(in interface{}) (out []byte, err error)
 func marshalWith(pv cli.PluginVersionOutput, marchaller marshalFunc) (string, error) {
 	bytes, err := marchaller(pv)
 	if err != nil {
-		return "", fmt.Errorf("version %w: %v", ErrCantBePresented, err)
+		return "", fmt.Errorf("version %w: %w", ErrCantBePresented, err)
 	}
 	return string(bytes), err
 }

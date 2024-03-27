@@ -20,7 +20,7 @@ func (app *App) SendFromEnv() error {
 	}
 	err = c.sender.Send(*c.ce)
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrCantSendWithICS, err)
+		return fmt.Errorf("%w: %w", ErrCantSendWithICS, err)
 	}
 	log := logging.FromContext(app.Context())
 	log.Infow("Event sent", zap.String("ce-id", c.ce.ID()))
@@ -33,11 +33,11 @@ func (app *App) configure() (config, error) {
 	}
 	err := envconfig.Process("K", args)
 	if err != nil {
-		return config{}, fmt.Errorf("%w: %v", ErrCantConfigureICS, err)
+		return config{}, fmt.Errorf("%w: %w", ErrCantConfigureICS, err)
 	}
 	u, err := url.Parse(args.Sink)
 	if err != nil {
-		return config{}, fmt.Errorf("%w: %v", ErrCantConfigureICS, err)
+		return config{}, fmt.Errorf("%w: %w", ErrCantConfigureICS, err)
 	}
 	target := &event.Target{
 		Type:   event.TargetTypeReachable,
@@ -45,7 +45,7 @@ func (app *App) configure() (config, error) {
 	}
 	s, err := app.Binding.CreateSender(target)
 	if err != nil {
-		return config{}, fmt.Errorf("%w: %v", ErrCantConfigureICS, err)
+		return config{}, fmt.Errorf("%w: %w", ErrCantConfigureICS, err)
 	}
 	ce, err := Decode(args.Event)
 	if err != nil {

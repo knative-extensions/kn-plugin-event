@@ -11,7 +11,7 @@ import (
 
 // JobRunner will launch a Job and monitor it for completion.
 type JobRunner interface {
-	Run(*batchv1.Job) error
+	Run(job *batchv1.Job) error
 }
 
 // CreateJobRunner will create a JobRunner, or return an error.
@@ -66,7 +66,7 @@ func (j *jobRunner) createJob(job *batchv1.Job, tsk task) {
 	jobs := j.kube.Typed().BatchV1().Jobs(job.Namespace)
 	_, err := jobs.Create(ctx, job, metav1.CreateOptions{})
 	if err != nil {
-		tsk.errs <- fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
+		tsk.errs <- fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
 	}
 }
 
@@ -84,7 +84,7 @@ func (j *jobRunner) waitForSuccess(job *batchv1.Job, tsk task) {
 		return true, nil
 	})
 	if err != nil {
-		tsk.errs <- fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
+		tsk.errs <- fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
 	}
 }
 
@@ -101,14 +101,14 @@ func (j *jobRunner) deleteJob(job *batchv1.Job) error {
 		PropagationPolicy: &policy,
 	})
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
+		return fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
 	}
 	pods := j.kube.Typed().CoreV1().Pods(job.GetNamespace())
 	err = pods.DeleteCollection(ctx, metav1.DeleteOptions{}, metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("job-name=%s", job.GetName()),
 	})
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
+		return fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
 	}
 	return nil
 }
@@ -120,7 +120,7 @@ func (j *jobRunner) watchJob(obj metav1.Object, tsk task, changeFn func(job *bat
 		FieldSelector: fmt.Sprintf("metadata.name=%s", obj.GetName()),
 	})
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
+		return fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
 	}
 	defer watcher.Stop()
 	resultCh := watcher.ResultChan()
@@ -135,7 +135,7 @@ func (j *jobRunner) watchJob(obj metav1.Object, tsk task, changeFn func(job *bat
 			var brk bool
 			brk, err = changeFn(job)
 			if err != nil {
-				return fmt.Errorf("%w: %v", ErrICSenderJobFailed, err)
+				return fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
 			}
 			if brk {
 				return nil

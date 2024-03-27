@@ -28,23 +28,23 @@ func CreateKubeClient(props *event.Properties) (Clients, error) {
 	restcfg := cc.Config
 	typed, err := kubernetes.NewForConfig(restcfg)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrUnexcpected, err)
+		return nil, fmt.Errorf("%w: %w", ErrUnexcpected, err)
 	}
 	dyn, err := dynamic.NewForConfig(restcfg)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrUnexcpected, err)
+		return nil, fmt.Errorf("%w: %w", ErrUnexcpected, err)
 	}
 	servingclient, err := servingv1.NewForConfig(restcfg)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrUnexcpected, err)
+		return nil, fmt.Errorf("%w: %w", ErrUnexcpected, err)
 	}
 	eventingclient, err := eventingv1.NewForConfig(restcfg)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrUnexcpected, err)
+		return nil, fmt.Errorf("%w: %w", ErrUnexcpected, err)
 	}
 	messagingclient, err := messagingv1.NewForConfig(restcfg)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrUnexcpected, err)
+		return nil, fmt.Errorf("%w: %w", ErrUnexcpected, err)
 	}
 	return &clients{
 		ctx:       context.Background(),
@@ -86,11 +86,11 @@ func loadClientConfig(props *event.Properties) (clientConfig, error) {
 	cc := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
 	cfg, err := cc.ClientConfig()
 	if err != nil {
-		return clientConfig{}, fmt.Errorf("%w: %v", ErrNoKubernetesConnection, err)
+		return clientConfig{}, fmt.Errorf("%w: %w", ErrNoKubernetesConnection, err)
 	}
 	ns, _, err := cc.Namespace()
 	if err != nil {
-		return clientConfig{}, fmt.Errorf("%w: %v", ErrNoKubernetesConnection, err)
+		return clientConfig{}, fmt.Errorf("%w: %w", ErrNoKubernetesConnection, err)
 	}
 	return clientConfig{Config: cfg, namespace: ns}, nil
 }

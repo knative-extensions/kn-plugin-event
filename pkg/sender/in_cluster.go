@@ -27,11 +27,11 @@ func (i *inClusterSender) Send(ce cloudevents.Event) error {
 		i.addressable.Reference, i.addressable.URI,
 	)
 	if err != nil {
-		return fmt.Errorf("%w: %v", k8s.ErrInvalidReference, err)
+		return fmt.Errorf("%w: %w", k8s.ErrInvalidReference, err)
 	}
 	kevent, err := ics.Encode(ce)
 	if err != nil {
-		return fmt.Errorf("%w: %v", ics.ErrCouldntEncode, err)
+		return fmt.Errorf("%w: %w", ics.ErrCouldntEncode, err)
 	}
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
@@ -62,7 +62,7 @@ func (i *inClusterSender) Send(ce cloudevents.Event) error {
 	}
 	err = i.jobRunner.Run(job)
 	if err != nil {
-		return fmt.Errorf("%w: %v", ics.ErrCantSendWithICS, err)
+		return fmt.Errorf("%w: %w", ics.ErrCantSendWithICS, err)
 	}
 	return nil
 }

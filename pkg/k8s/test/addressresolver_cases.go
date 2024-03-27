@@ -61,7 +61,7 @@ func EnsureResolveAddress( //nolint:thelper
 	resolver := k8s.CreateAddressResolver(clients)
 	u, err := resolver.ResolveAddress(tc.ref, uri)
 	if tc.err != nil {
-		assert.ErrorType(tb, err, tc.err)
+		assert.ErrorIs(tb, err, tc.err)
 	} else {
 		assert.Equal(tb, err, nil)
 	}
