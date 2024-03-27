@@ -6,6 +6,9 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+env:
+  FORCE_COLOR: true
+
 jobs:
 
   build:
@@ -14,19 +17,18 @@ jobs:
     strategy:
       matrix:
         go-version:
+          - '1.22'
           - '1.21'
     steps:
 
     - name: Set up Go ${{ matrix.go-version }}
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go-version }}
       id: go
 
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Build & Test
       run: ./mage
-      env:
-        FORCE_COLOR: true
