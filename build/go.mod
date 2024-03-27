@@ -195,7 +195,7 @@ require (
 	k8s.io/klog/v2 v2.120.1 // indirect
 	k8s.io/utils v0.0.0-20240310230437-4693a0247e57 // indirect
 	knative.dev/client-pkg v0.0.0-20240327121233-6984d81a90ec // indirect
-	knative.dev/pkg v0.0.0-20240327130924-2d1662ad2ee1 // indirect
+	knative.dev/pkg v0.0.0-20240327140624-1ca1f09c329e // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kind v0.22.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
