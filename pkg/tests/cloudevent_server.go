@@ -23,17 +23,17 @@ func WithCloudEventsServer(test func(serverURL url.URL) error) (*cloudevents.Eve
 	ctx := context.Background()
 	protocol, err := cloudevents.NewHTTP()
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrCantStartCloudEventsServer, err)
+		return nil, fmt.Errorf("%w: %w", ErrCantStartCloudEventsServer, err)
 	}
 	handler, err := cloudevents.NewHTTPReceiveHandler(ctx, protocol, receive)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrCantStartCloudEventsServer, err)
+		return nil, fmt.Errorf("%w: %w", ErrCantStartCloudEventsServer, err)
 	}
 	server := httptest.NewServer(handler)
 	defer server.Close()
 	u, err := url.Parse(server.URL)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrCantStartCloudEventsServer, err)
+		return nil, fmt.Errorf("%w: %w", ErrCantStartCloudEventsServer, err)
 	}
 	err = test(*u)
 	return ce, err

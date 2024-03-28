@@ -54,7 +54,7 @@ func (a *addressResolver) ResolveAddress(
 	r := resolver.NewURIResolverFromTracker(a.ctx, tr)
 	u, err := r.URIFromDestinationV1(a.ctx, *dest, parent)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrNotAddressable, err)
+		return nil, fmt.Errorf("%w: %w", ErrNotAddressable, err)
 	}
 	resolved := u.URL()
 	return resolved, nil
@@ -80,7 +80,7 @@ func (a *addressResolver) toDestination(
 			LabelSelector: ref.Selector.String(),
 		})
 		if err != nil {
-			return nil, fmt.Errorf("%w: %v", ErrNotFound, err)
+			return nil, fmt.Errorf("%w: %w", ErrNotFound, err)
 		}
 		count := len(list.Items)
 		if count == 0 {

@@ -111,5 +111,5 @@ func unexpected(err error) error {
 	if errors.Is(err, event.ErrUnexpected) {
 		return err
 	}
-	return fmt.Errorf("%w: %v", event.ErrUnexpected, err)
+	return fmt.Errorf("%w: %w", event.ErrUnexpected, err)
 }

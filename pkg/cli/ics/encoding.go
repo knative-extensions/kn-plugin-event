@@ -17,22 +17,22 @@ import (
 func Encode(ce cloudevents.Event) (string, error) {
 	bb, err := json.Marshal(ce)
 	if err != nil {
-		return "", fmt.Errorf("%w: %v", ErrCouldntEncode, err)
+		return "", fmt.Errorf("%w: %w", ErrCouldntEncode, err)
 	}
 	var b bytes.Buffer
 	encoder := base64.NewEncoder(base64.RawURLEncoding, &b)
 	w := zlib.NewWriter(encoder)
 	_, err = w.Write(bb)
 	if err != nil {
-		return "", fmt.Errorf("%w: %v", ErrCouldntEncode, err)
+		return "", fmt.Errorf("%w: %w", ErrCouldntEncode, err)
 	}
 	err = w.Close()
 	if err != nil {
-		return "", fmt.Errorf("%w: %v", ErrCouldntEncode, err)
+		return "", fmt.Errorf("%w: %w", ErrCouldntEncode, err)
 	}
 	err = encoder.Close()
 	if err != nil {
-		return "", fmt.Errorf("%w: %v", ErrCouldntEncode, err)
+		return "", fmt.Errorf("%w: %w", ErrCouldntEncode, err)
 	}
 	return b.String(), nil
 }
@@ -43,16 +43,16 @@ func Decode(encoded string) (*cloudevents.Event, error) {
 	decoder := base64.NewDecoder(base64.RawURLEncoding, r)
 	reader, err := zlib.NewReader(decoder)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrCouldntDecode, err)
+		return nil, fmt.Errorf("%w: %w", ErrCouldntDecode, err)
 	}
 	bb, err := io.ReadAll(reader)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrCouldntDecode, err)
+		return nil, fmt.Errorf("%w: %w", ErrCouldntDecode, err)
 	}
 	ce := &cloudevents.Event{}
 	err = json.Unmarshal(bb, ce)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrCouldntDecode, err)
+		return nil, fmt.Errorf("%w: %w", ErrCouldntDecode, err)
 	}
 	return ce, nil
 }

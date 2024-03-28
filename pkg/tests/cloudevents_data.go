@@ -14,7 +14,7 @@ func UnmarshalCloudEventData(bytes []byte) (map[string]interface{}, error) {
 	m := map[string]interface{}{}
 	err := json.Unmarshal(bytes, &m)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrCantUnmarshalData, err)
+		return nil, fmt.Errorf("%w: %w", ErrCantUnmarshalData, err)
 	}
 	return m, nil
 }

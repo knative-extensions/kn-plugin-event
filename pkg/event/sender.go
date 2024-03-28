@@ -37,5 +37,5 @@ func cantSentEvent(err error) error {
 	if errors.Is(err, ErrCantSentEvent) {
 		return err
 	}
-	return fmt.Errorf("%w: %v", ErrCantSentEvent, err)
+	return fmt.Errorf("%w: %w", ErrCantSentEvent, err)
 }

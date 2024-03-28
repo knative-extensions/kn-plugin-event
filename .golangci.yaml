@@ -29,6 +29,7 @@ linters:
     - ireturn
     - varnamelen
     - exhaustruct
+    - depguard
     # FIXME: remove `containedctx` exclude after fixing knative-sandbox/kn-plugin-event#202
     - containedctx
 

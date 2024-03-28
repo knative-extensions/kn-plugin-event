@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"io"
 
-	knplugin "knative.dev/client-pkg/pkg/kn/plugin"
+	knplugin "knative.dev/client-pkg/pkg/plugin"
 )
 
 // WithCapture captures the output from of a running plugin.

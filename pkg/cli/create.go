@@ -60,7 +60,7 @@ func (a *App) CreateWithArgs(args *EventArgs) (*cloudevents.Event, error) {
 	}
 	ce, err := event.CreateFromSpec(spec)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrCantBuildEvent, err)
+		return nil, fmt.Errorf("%w: %w", ErrCantBuildEvent, err)
 	}
 	return ce, nil
 }
@@ -81,7 +81,7 @@ func (a *App) PresentWith(e *cloudevents.Event, output OutputMode) (string, erro
 func presentEventAsYaml(in *cloudevents.Event) (string, error) {
 	bytes, err := yaml.Marshal(in)
 	if err != nil {
-		return "", fmt.Errorf("%w: %v", ErrCantMarshalEvent, err)
+		return "", fmt.Errorf("%w: %w", ErrCantMarshalEvent, err)
 	}
 	return string(bytes), nil
 }
@@ -89,7 +89,7 @@ func presentEventAsYaml(in *cloudevents.Event) (string, error) {
 func presentEventAsJSON(event *cloudevents.Event) (string, error) {
 	bytes, err := json.MarshalIndent(event, "", "  ")
 	if err != nil {
-		return "", fmt.Errorf("%w: %v", ErrCantMarshalEvent, err)
+		return "", fmt.Errorf("%w: %w", ErrCantMarshalEvent, err)
 	}
 	return string(bytes), nil
 }
@@ -101,11 +101,11 @@ func presentEventAsHumanReadable(e *cloudevents.Event) (string, error) {
 	m := map[string]interface{}{}
 	err := json.Unmarshal(e.Data(), &m)
 	if err != nil {
-		return "", fmt.Errorf("%w: %v", ErrCantMarshalEvent, err)
+		return "", fmt.Errorf("%w: %w", ErrCantMarshalEvent, err)
 	}
 	data, err := json.MarshalIndent(m, "  ", "  ")
 	if err != nil {
-		return "", fmt.Errorf("%w: %v", ErrCantMarshalEvent, err)
+		return "", fmt.Errorf("%w: %w", ErrCantMarshalEvent, err)
 	}
 	return fmt.Sprintf(
 		`☁️  cloudevents.Event
@@ -133,9 +133,9 @@ func readAsBoolean(in string) (bool, error) {
 	val, err := strconv.ParseBool(in)
 	// TODO(cardil): log error as it may be beneficial for debugging
 	if err != nil {
-		return false, fmt.Errorf("%w: %v", ErrInvalidFormat, err)
+		return false, fmt.Errorf("%w: %w", ErrInvalidFormat, err)
 	}
-	if text := fmt.Sprintf("%t", val); in == text {
+	if text := strconv.FormatBool(val); in == text {
 		return val, nil
 	}
 	return false, fmt.Errorf("%w: not a bool: %v", ErrInvalidFormat, in)
@@ -148,7 +148,7 @@ func readAsFloat64(in string) (float64, error) {
 	val, err := strconv.ParseFloat(in, precision64BitSize)
 	// TODO(cardil): log error as it may be beneficial for debugging
 	if err != nil {
-		return -0, fmt.Errorf("%w: %v", ErrInvalidFormat, err)
+		return -0, fmt.Errorf("%w: %w", ErrInvalidFormat, err)
 	}
 	if text := fmt.Sprintf("%f", val); in == text {
 		return val, nil
@@ -160,9 +160,9 @@ func readAsInt64(in string) (int64, error) {
 	val, err := strconv.ParseInt(in, decimalBase, precision64BitSize)
 	// TODO(cardil): log error as it may be beneficial for debugging
 	if err != nil {
-		return -0, fmt.Errorf("%w: %v", ErrInvalidFormat, err)
+		return -0, fmt.Errorf("%w: %w", ErrInvalidFormat, err)
 	}
-	if text := fmt.Sprintf("%d", val); in == text {
+	if text := strconv.FormatInt(val, 10); in == text {
 		return val, nil
 	}
 	return -0, fmt.Errorf("%w: not an int: %v", ErrInvalidFormat, in)

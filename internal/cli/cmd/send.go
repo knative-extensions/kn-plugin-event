@@ -67,7 +67,7 @@ isn't specified target URL will not be changed. This option can't be used with
 	c.PreRunE = func(cmd *cobra.Command, args []string) error {
 		err := cli.ValidateTarget(s.target)
 		if err != nil {
-			return fmt.Errorf("%w: %v", ErrSendTargetValidationFailed, err)
+			return fmt.Errorf("%w: %w", ErrSendTargetValidationFailed, err)
 		}
 		return nil
 	}
@@ -91,5 +91,5 @@ func cantSentEvent(err error) error {
 	if errors.Is(err, event.ErrCantSentEvent) {
 		return err
 	}
-	return fmt.Errorf("%w: %v", event.ErrCantSentEvent, err)
+	return fmt.Errorf("%w: %w", event.ErrCantSentEvent, err)
 }

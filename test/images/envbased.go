@@ -47,7 +47,7 @@ func (c *EnvironmentalBasedResolver) Resolve(kopath string) (name.Reference, err
 	}
 	ref, err := name.ParseReference(val)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrNotFound, err)
+		return nil, fmt.Errorf("%w: %w", ErrNotFound, err)
 	}
 	return ref, nil
 }

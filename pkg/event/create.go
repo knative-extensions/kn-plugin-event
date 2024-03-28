@@ -45,7 +45,7 @@ func CreateFromSpec(spec *Spec) (*cloudevents.Event, error) {
 	}
 	err := e.SetData(cloudevents.ApplicationJSON, m)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrCantMarshalAsJSON, err)
+		return nil, fmt.Errorf("%w: %w", ErrCantMarshalAsJSON, err)
 	}
 	return e, nil
 }
