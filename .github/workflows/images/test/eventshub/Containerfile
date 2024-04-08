@@ -1,0 +1,16 @@
+FROM docker.io/library/golang:1.19 AS builder
+
+COPY . /code
+WORKDIR /code
+
+RUN go build \
+  -o ./build/eventshub \
+  ./vendor/knative.dev/reconciler-test/cmd/eventshub
+
+FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
+
+COPY --from=builder /code/build/eventshub /app/eventshub
+
+USER 65532
+
+ENTRYPOINT ["/app/eventshub"]
