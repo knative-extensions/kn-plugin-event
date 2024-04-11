@@ -1,6 +1,6 @@
 package overrides
 
-import "github.com/wavesoftware/go-magetasks/config"
+import "knative.dev/toolbox/magetasks/config"
 
 // List holds overrides by which downstream forks could influence the build
 // process.
