@@ -1,5 +1,4 @@
 //go:build ignored
-// +build ignored
 
 package main
 
@@ -8,7 +7,7 @@ import (
 	"path"
 	"runtime"
 
-	"github.com/wavesoftware/go-magetasks/entrypoint"
+	"knative.dev/toolbox/magetasks/entrypoint"
 )
 
 func main() {

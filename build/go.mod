@@ -3,8 +3,8 @@ module knative.dev/kn-plugin-event/build
 go 1.21
 
 require (
-	github.com/wavesoftware/go-magetasks v0.9.2
 	knative.dev/kn-plugin-event v0.0.0
+	knative.dev/toolbox/magetasks v0.0.0-20240412084849-703489d35306
 )
 
 require (
@@ -94,7 +94,7 @@ require (
 	github.com/google/go-containerregistry v0.19.1 // indirect
 	github.com/google/go-github/v48 v48.2.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/google/gofuzz v1.2.0 // indirect
+	github.com/google/gofuzz v1.2.1-0.20210504230335-f78f29fc09ea // indirect
 	github.com/google/ko v0.15.2 // indirect
 	github.com/google/safetext v0.0.0-20240104143208-7a7d9b3d812f // indirect
 	github.com/google/uuid v1.6.0 // indirect

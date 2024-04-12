@@ -5,18 +5,19 @@ package main
 import (
 	"os"
 
-	// mage:import
-	"github.com/wavesoftware/go-magetasks"
-	"github.com/wavesoftware/go-magetasks/config"
-	"github.com/wavesoftware/go-magetasks/config/buildvars"
-	"github.com/wavesoftware/go-magetasks/pkg/artifact"
-	"github.com/wavesoftware/go-magetasks/pkg/artifact/platform"
-	"github.com/wavesoftware/go-magetasks/pkg/checks"
-	"github.com/wavesoftware/go-magetasks/pkg/git"
-	"github.com/wavesoftware/go-magetasks/pkg/image"
-	"github.com/wavesoftware/go-magetasks/pkg/knative"
 	"knative.dev/kn-plugin-event/build/overrides"
 	"knative.dev/kn-plugin-event/pkg/metadata"
+
+	// mage:import
+	"knative.dev/toolbox/magetasks"
+	"knative.dev/toolbox/magetasks/config"
+	"knative.dev/toolbox/magetasks/config/buildvars"
+	"knative.dev/toolbox/magetasks/pkg/artifact"
+	"knative.dev/toolbox/magetasks/pkg/artifact/platform"
+	"knative.dev/toolbox/magetasks/pkg/checks"
+	"knative.dev/toolbox/magetasks/pkg/git"
+	"knative.dev/toolbox/magetasks/pkg/image"
+	"knative.dev/toolbox/magetasks/pkg/knative"
 )
 
 // Default target is set to binary.
