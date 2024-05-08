@@ -8,7 +8,7 @@ export ARTIFACT_DIR="${ARTIFACT_DIR:-$(dirname "$(mktemp -d -u)")/build-${BUILD_
 export ARTIFACTS="${ARTIFACTS:-${ARTIFACT_DIR}}/kn-event/e2e-tests"
 mkdir -p "${ARTIFACTS}"
 
-source "$(go run knative.dev/hack/cmd/script e2e-tests.sh)"
+source "$(dirname "$(dirname "$(readlink -f "${BASH_SOURCE[0]:-$0}")")")/vendor/knative.dev/hack/e2e-tests.sh"
 
 set -Eeuo pipefail
 
