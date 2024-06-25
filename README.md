@@ -5,6 +5,7 @@
 [![Releases](https://img.shields.io/github/release-pre/knative-sandbox/kn-plugin-event.svg?sort=semver)](https://github.com/knative-sandbox/kn-plugin-event/releases)
 [![LICENSE](https://img.shields.io/github/license/knative-sandbox/kn-plugin-event.svg)](https://github.com/knative-sandbox/kn-plugin-event/blob/main/LICENSE)
 [![Maturity level](https://img.shields.io/badge/Maturity%20level-ALPHA-red)](https://github.com/knative/community/tree/main/mechanics/MATURITY-LEVELS.md)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fknative-extensions%2Fkn-plugin-event.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fknative-extensions%2Fkn-plugin-event?ref=badge_shield)
 
 `kn-plugin-event` is a plugin of Knative Client, for managing cloud events from
 command line.
@@ -176,3 +177,7 @@ To update dependencies, please utilize the standard `hack/update-deps.sh`
 script. It's also needed to run this script if you are doing any changes to Go
 libraries. Read more about it at [knative/hack](https://github.com/knative/hack)
 repository.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fknative-extensions%2Fkn-plugin-event.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fknative-extensions%2Fkn-plugin-event?ref=badge_large)
