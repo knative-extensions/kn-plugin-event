@@ -32,6 +32,10 @@ linters:
     - depguard
     # FIXME: remove `containedctx` exclude after fixing knative-sandbox/kn-plugin-event#202
     - containedctx
+    # FIXME: consider enabling and fixing
+    - revive
+    - copyloopvar
+    - perfsprint
 
 issues:
   exclude-rules:
