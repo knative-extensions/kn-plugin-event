@@ -1,0 +1,18 @@
+FROM registry.access.redhat.com/ubi8/ubi-minimal:latest AS builder
+
+RUN microdnf install -y golang
+
+COPY . /code
+WORKDIR /code
+
+RUN go build \
+  -o ./build/eventshub \
+  knative.dev/reconciler-test/cmd/eventshub
+
+FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
+
+COPY --from=builder /code/build/eventshub /app/eventshub
+
+USER 65532
+
+ENTRYPOINT ["/app/eventshub"]

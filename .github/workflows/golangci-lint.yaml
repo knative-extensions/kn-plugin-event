@@ -1,0 +1,11 @@
+name: Code Style
+
+on:
+  pull_request:
+    branches: [ 'main', 'release-*' ]
+
+jobs:
+
+  style:
+    uses: knative/actions/.github/workflows/style.yaml@main
+

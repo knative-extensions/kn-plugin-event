@@ -1,0 +1,21 @@
+name: Multiarch builds
+
+on:
+  push:
+    branches-ignore:    
+      - 'main'
+      - 'ci/*'
+
+jobs:
+  build-image:
+    name: Build image
+    uses: openshift-knative/hack/.github/workflows/multiarch-containerfile-build.yaml@main
+    secrets: inherit
+    strategy:
+      matrix:
+        image:
+        - eventshub
+        - wathola-forwarder
+    with:
+      image: ${{ matrix.image }}
+      containerfile: .github/workflows/images/test/${{ matrix.image }}/Containerfile
