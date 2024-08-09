@@ -176,12 +176,12 @@ require (
 	golang.org/x/mod v0.19.0 // indirect
 	golang.org/x/net v0.27.0 // indirect
 	golang.org/x/oauth2 v0.21.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/term v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/tools v0.23.0 // indirect
-	google.golang.org/protobuf v1.34.1 // indirect
+	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/go-jose/go-jose.v2 v2.6.3 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
@@ -191,8 +191,8 @@ require (
 	k8s.io/apimachinery v0.29.3 // indirect
 	k8s.io/klog/v2 v2.120.1 // indirect
 	k8s.io/utils v0.0.0-20240310230437-4693a0247e57 // indirect
-	knative.dev/client-pkg v0.0.0-20240724091446-8393d69ad672 // indirect
-	knative.dev/pkg v0.0.0-20240716082220-4355f0c73608 // indirect
+	knative.dev/client-pkg v0.0.0-20240808015000-22f598931483 // indirect
+	knative.dev/pkg v0.0.0-20240808013630-0991b2f920f4 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kind v0.22.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
