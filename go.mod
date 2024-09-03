@@ -21,7 +21,7 @@ require (
 	k8s.io/api v0.30.3
 	k8s.io/apimachinery v0.30.3
 	k8s.io/client-go v0.30.3
-	knative.dev/client/pkg v0.0.0
+	knative.dev/client/pkg v0.0.0-20240903134911-f09e7164ceaf
 	knative.dev/eventing v0.42.1-0.20240828134450-34f9cd384dea
 	knative.dev/hack v0.0.0-20240814130635-06f7aff93954
 	knative.dev/pkg v0.0.0-20240815051656-89743d9bbf7c
@@ -29,8 +29,6 @@ require (
 	knative.dev/serving v0.42.1-0.20240820122005-5f5f6d820b03
 	sigs.k8s.io/yaml v1.4.0
 )
-
-replace knative.dev/client/pkg => github.com/cardil/knative-client/pkg v0.0.0-20240903100332-8ddab3c57b08
 
 require (
 	contrib.go.opencensus.io/exporter/ocagent v0.7.1-0.20200907061046-05415f1de66d // indirect
