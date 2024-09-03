@@ -3,7 +3,7 @@ package k8s_test
 import (
 	"testing"
 
-	clienttest "knative.dev/client-pkg/pkg/util/test"
+	clienttest "knative.dev/client/pkg/util/test"
 	"knative.dev/kn-plugin-event/pkg/k8s"
 	k8stest "knative.dev/kn-plugin-event/pkg/k8s/test"
 	"knative.dev/kn-plugin-event/pkg/tests"

@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"regexp"
 
-	clientutil "knative.dev/client-pkg/pkg/util"
+	clientutil "knative.dev/client/pkg/util"
 	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/pkg/apis"
 )

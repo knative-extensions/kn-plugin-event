@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"gotest.tools/v3/assert"
-	knplugin "knative.dev/client-pkg/pkg/plugin"
+	knplugin "knative.dev/client/pkg/plugin"
 	"knative.dev/kn-plugin-event/pkg/metadata"
 	"knative.dev/kn-plugin-event/pkg/plugin"
 )

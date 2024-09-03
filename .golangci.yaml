@@ -46,4 +46,5 @@ issues:
 linters-settings:
   gomoddirectives:
     # List of allowed `replace` directives. Default is empty.
-    replace-allow-list: []
+    replace-allow-list:
+      - knative.dev/client/pkg

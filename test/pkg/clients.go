@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"gotest.tools/v3/assert"
-	clienttest "knative.dev/client-pkg/pkg/util/test"
+	clienttest "knative.dev/client/pkg/util/test"
 	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/kn-plugin-event/pkg/k8s"
 	plugintest "knative.dev/kn-plugin-event/test"
