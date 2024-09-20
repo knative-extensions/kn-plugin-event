@@ -1,58 +1,52 @@
 package ics
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 	"github.com/wavesoftware/go-commandline"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"knative.dev/kn-plugin-event/pkg/configuration"
-	"knative.dev/kn-plugin-event/pkg/system"
+	outlogging "knative.dev/client/pkg/output/logging"
+	"knative.dev/kn-plugin-event/pkg/binding"
+	"knative.dev/kn-plugin-event/pkg/cli"
+	"knative.dev/kn-plugin-event/pkg/k8s"
 	"knative.dev/pkg/logging"
 )
 
 // Options to override the commandline for testing purposes.
 var Options []commandline.Option //nolint:gochecknoglobals
 
-type App struct{}
+type App struct {
+	k8s.Params
+}
 
 func (a App) Command() *cobra.Command {
-	return &cobra.Command{
+	c := &cobra.Command{
 		Use:           "ics",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE:          a.run,
 	}
+	c.SetContext(cli.InitialContext())
+	c.PersistentPreRun = func(cmd *cobra.Command, _ []string) {
+		cli.SetupContext(cmd, zapcore.DebugLevel)
+	}
+	c.PersistentPostRunE = func(cmd *cobra.Command, _ []string) error {
+		closer := outlogging.LogFileCloserFrom(cmd.Context())
+		// ensure to close the log file
+		return closer()
+	}
+	a.SetGlobalFlags(c.PersistentFlags())
+	return c
 }
 
 func (a App) run(cmd *cobra.Command, _ []string) error {
-	env := withLogger(cmd)
-	log := logging.FromContext(env.Context())
-	defer func(log *zap.SugaredLogger) {
-		_ = log.Sync()
-	}(log)
-	err := configuration.CreateIcs(env).SendFromEnv()
+	ctx := cmd.Context()
+	log := logging.FromContext(ctx)
+	err := binding.IcsApp().SendFromEnv(ctx, a.Parse())
 	if err != nil {
 		log.Error(zap.Error(err))
 	}
-	return err //nolint:wrapcheck
+	return err
 }
 
 var _ commandline.CobraProvider = new(App)
-
-func withLogger(env system.Environment) system.Environment {
-	ctx := env.Context()
-	ctx = logging.WithLogger(ctx, createLogger(env))
-	return system.WithContext(ctx, env)
-}
-
-func createLogger(env system.Environment) *zap.SugaredLogger {
-	cfg := zap.NewProductionConfig()
-	encoder := zapcore.NewJSONEncoder(cfg.EncoderConfig)
-	sink := zapcore.AddSync(env.OutOrStdout())
-	zcore := zapcore.NewCore(encoder, sink, cfg.Level)
-	return zap.New(zcore).
-		With(zap.Strings("env", os.Environ())).
-		Sugar()
-}

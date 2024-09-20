@@ -4,17 +4,16 @@ import (
 	"errors"
 
 	"knative.dev/kn-plugin-event/pkg/event"
-	"knative.dev/kn-plugin-event/pkg/system"
 )
 
 var (
-	// ErrCouldntEncode is returned when problem occur while trying to encode an
-	// event.
+	// ErrCouldntEncode is returned when the problem occurs while trying to encode
+	// an event.
 	ErrCouldntEncode = errors.New("couldn't encode an event")
-	// ErrCouldntDecode is returned when problem occur while trying to decode an
-	// event.
+	// ErrCouldntDecode is returned when the problem occurs while trying to
+	// decode an event.
 	ErrCouldntDecode = errors.New("couldn't decode an event")
-	// ErrCantConfigureICS is returned when problem occur while trying to
+	// ErrCantConfigureICS is returned when the problem occurs while trying to
 	// configure ICS sender.
 	ErrCantConfigureICS = errors.New("can't configure ICS sender")
 	// ErrCantSendWithICS if can't send with ICS sender.
@@ -31,5 +30,4 @@ type Args struct {
 // App holds an ICS app binding.
 type App struct {
 	event.Binding
-	system.Environment
 }

@@ -1,6 +1,7 @@
 package sender_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/url"
@@ -10,17 +11,20 @@ import (
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	cetest "github.com/cloudevents/sdk-go/v2/test"
+	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap/zaptest"
 	"gotest.tools/v3/assert"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/rand"
 	"k8s.io/apimachinery/pkg/util/validation"
+	"knative.dev/client/pkg/flags/sink"
+	"knative.dev/eventing/test/rekt/resources/broker"
 	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/kn-plugin-event/pkg/k8s"
 	"knative.dev/kn-plugin-event/pkg/sender"
 	"knative.dev/kn-plugin-event/pkg/tests"
-	"knative.dev/pkg/apis"
-	"knative.dev/pkg/tracker"
+	"knative.dev/pkg/logging"
 )
 
 const toLongForRFC1123 = 64
@@ -33,29 +37,28 @@ func TestInClusterSenderSend(t *testing.T) {
 		couldResolveAddress(t),
 		idViolatesRFC1123(t),
 	}
-	for i := range testCases {
-		tt := testCases[i]
+	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			createKubeClient := func(_ *event.Properties) (k8s.Clients, error) {
+			createKubeClient := func(*k8s.Configurator) (k8s.Clients, error) {
 				return &tests.FakeClients{}, nil
 			}
-			createJobRunner := func(_ k8s.Clients) k8s.JobRunner {
+			createJobRunner := func(k8s.Clients) k8s.JobRunner {
 				return tt.fields.jobRunner
 			}
-			createAddressResolver := func(_ k8s.Clients) k8s.ReferenceAddressResolver {
+			createAddressResolver := func(k8s.Clients) k8s.ReferenceAddressResolver {
 				return tt.fields.addressResolver
 			}
 			binding := sender.Binding{
-				CreateKubeClients:     createKubeClient,
-				CreateJobRunner:       createJobRunner,
-				CreateAddressResolver: createAddressResolver,
+				NewKubeClients:     createKubeClient,
+				NewJobRunner:       createJobRunner,
+				NewAddressResolver: createAddressResolver,
 			}
-			s, err := binding.New(&event.Target{
-				Type:           event.TargetTypeAddressable,
-				AddressableVal: tt.fields.addressable,
-			})
+			cfg := &k8s.Configurator{}
+			s, err := binding.New(cfg, &event.Target{Reference: tt.fields.reference})
 			assert.NilError(t, err)
-			if err = s.Send(tt.args.ce); !errors.Is(err, tt.err) {
+			log := zaptest.NewLogger(t, zaptest.Level(zapcore.DebugLevel))
+			ctx := logging.WithLogger(context.TODO(), log.Sugar())
+			if err = s.Send(ctx, tt.args.ce); !errors.Is(err, tt.err) {
 				t.Errorf("Send() error = %v, wantErr = %v", err, tt.err)
 			}
 		})
@@ -67,10 +70,10 @@ func passingInClusterSenderSend(t *testing.T) inClusterTestCase {
 	return inClusterTestCase{
 		name: "passing",
 		fields: fields{
-			addressable: exampleBrokerAddressableSpec(t),
+			reference: exampleBrokerReference(t),
 			jobRunner: stubJobRunner(func(job *batchv1.Job) bool {
-				if sink, ok := envof(job.Spec.Template.Spec.Containers[0].Env, "K_SINK"); ok {
-					if sink != "default.demo.broker.eventing.dev.cluster.local" {
+				if snk, ok := envof(job.Spec.Template.Spec.Containers[0].Env, "K_SINK"); ok {
+					if snk != "default.demo.brokers.cluster.local" {
 						return false
 					}
 				} else {
@@ -93,15 +96,15 @@ func passingInClusterSenderSend(t *testing.T) inClusterTestCase {
 func couldResolveAddress(t *testing.T) inClusterTestCase {
 	t.Helper()
 	sar := stubAddressResolver()
-	sar.isValid = func(ref *tracker.Reference) error {
+	sar.isValid = func(*sink.Reference) error {
 		return errExampleValidationFault
 	}
 	return inClusterTestCase{
 		name: "couldResolveAddress",
 		fields: fields{
-			addressable:     exampleBrokerAddressableSpec(t),
+			reference:       exampleBrokerReference(t),
 			addressResolver: sar,
-			jobRunner: stubJobRunner(func(job *batchv1.Job) bool {
+			jobRunner: stubJobRunner(func(*batchv1.Job) bool {
 				return true
 			}),
 		},
@@ -119,9 +122,9 @@ func idViolatesRFC1123(t *testing.T) inClusterTestCase {
 	return inClusterTestCase{
 		name: "idViolatesRFC1123",
 		fields: fields{
-			addressable:     exampleBrokerAddressableSpec(t),
+			reference:       exampleBrokerReference(t),
 			addressResolver: stubAddressResolver(),
-			jobRunner: fnJobRunner(func(job *batchv1.Job) error {
+			jobRunner: fnJobRunner(func(_ context.Context, job *batchv1.Job) error {
 				name := job.GetName()
 				errs := validation.IsDNS1035Label(name)
 				if len(errs) > 0 {
@@ -153,24 +156,24 @@ func envof(envs []corev1.EnvVar, name string) (string, bool) {
 	return "", false
 }
 
-type fnJobRunner func(job *batchv1.Job) error
+type fnJobRunner func(_ context.Context, job *batchv1.Job) error
 
-func (f fnJobRunner) Run(job *batchv1.Job) error {
-	return f(job)
+func (f fnJobRunner) Run(ctx context.Context, job *batchv1.Job) error {
+	return f(ctx, job)
 }
 
 type ar struct {
-	isValid func(ref *tracker.Reference) error
+	isValid func(ref *sink.Reference) error
 }
 
-func (a *ar) ResolveAddress(ref *tracker.Reference, _ *apis.URL) (*url.URL, error) {
+func (a *ar) ResolveAddress(_ context.Context, ref *sink.Reference, _ string) (*url.URL, error) {
 	if a.isValid != nil {
 		if err := a.isValid(ref); err != nil {
 			return nil, err
 		}
 	}
 	u, err := url.Parse(fmt.Sprintf("%s.%s.%s.cluster.local",
-		ref.Name, ref.Namespace, ref.Kind))
+		ref.Name, ref.Namespace, ref.GVR.Resource))
 	if err != nil {
 		return nil, fmt.Errorf("bad url: %w", err)
 	}
@@ -178,7 +181,7 @@ func (a *ar) ResolveAddress(ref *tracker.Reference, _ *apis.URL) (*url.URL, erro
 }
 
 func stubJobRunner(isValid func(job *batchv1.Job) bool) k8s.JobRunner {
-	return fnJobRunner(func(job *batchv1.Job) error {
+	return fnJobRunner(func(_ context.Context, job *batchv1.Job) error {
 		if !isValid(job) {
 			return event.ErrCantSentEvent
 		}
@@ -188,13 +191,6 @@ func stubJobRunner(isValid func(job *batchv1.Job) bool) k8s.JobRunner {
 
 func stubAddressResolver() *ar {
 	return &ar{}
-}
-
-func uri(t *testing.T, uri string) *apis.URL {
-	t.Helper()
-	u, err := apis.ParseURL(uri)
-	assert.NilError(t, err)
-	return u
 }
 
 func exampleEvent(t *testing.T) cloudevents.Event {
@@ -216,23 +212,19 @@ func exampleEvent(t *testing.T) cloudevents.Event {
 	return e
 }
 
-func exampleBrokerAddressableSpec(t *testing.T) *event.AddressableSpec {
+func exampleBrokerReference(t *testing.T) *sink.Reference {
 	t.Helper()
-	return &event.AddressableSpec{
-		Reference: &tracker.Reference{
-			APIVersion: "betav1",
-			Kind:       "broker.eventing.dev",
-			Namespace:  "demo",
-			Name:       "default",
-			Selector:   nil,
+	return &sink.Reference{
+		KubeReference: &sink.KubeReference{
+			GVR:       broker.GVR(),
+			Name:      "default",
+			Namespace: "demo",
 		},
-		URI:             uri(t, "/"),
-		SenderNamespace: "default",
 	}
 }
 
 type fields struct {
-	addressable     *event.AddressableSpec
+	reference       *sink.Reference
 	addressResolver k8s.ReferenceAddressResolver
 	jobRunner       k8s.JobRunner
 }

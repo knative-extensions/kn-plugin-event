@@ -1,58 +1,65 @@
-package configuration_test
+package binding_test
 
 import (
 	"os"
+	"path"
 	"testing"
 
 	"gotest.tools/v3/assert"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	"knative.dev/kn-plugin-event/pkg/configuration"
+	knk8s "knative.dev/client/pkg/k8s"
+	"knative.dev/kn-plugin-event/pkg/binding"
 	"knative.dev/kn-plugin-event/pkg/event"
+	"knative.dev/kn-plugin-event/pkg/k8s"
 	"sigs.k8s.io/yaml"
 )
 
 func TestMemoizeKubeClients(t *testing.T) {
 	t.Parallel()
-	testMemoizeKubeClientsCases(func(tc testMemoizeKubeClientsCase) {
+	tcs := []testMemoizeKubeClientsCase{{
+		name: "cli",
+		fn:   func() event.Binding { return binding.CliApp().Binding },
+	}, {
+		name: "ics",
+		fn:   func() event.Binding { return binding.IcsApp().Binding },
+	}}
+	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			cfgfile := tempConfigFile(t)
-			defer func() {
-				assert.NilError(t, os.Remove(cfgfile))
-			}()
-			props := &event.Properties{
-				KnPluginOptions: event.KnPluginOptions{
-					KubeconfigOptions: event.KubeconfigOptions{Path: cfgfile},
+			params := k8s.Params{
+				Params: knk8s.Params{
+					KubeCfgPath: cfgfile,
 				},
 			}
-			app := tc.fn()
-			ns1, err := app.DefaultNamespace(props)
+			cfg := &k8s.Configurator{
+				ClientConfig: params.GetClientConfig,
+			}
+			b := tc.fn()
+			cl, err := b.NewKubeClients(cfg)
 			assert.NilError(t, err)
+			cl2, err2 := b.NewKubeClients(cfg)
+			assert.NilError(t, err2)
+			assert.Equal(t, cl, cl2)
+
+			ns1 := cl.Namespace()
+			assert.Equal(t, "expected", ns1)
 			updateConfig(t, cfgfile, func(cfg *clientcmdapi.Config) {
 				cfg.Contexts[cfg.CurrentContext].Namespace = "replaced"
 			})
-			ns2, err := app.DefaultNamespace(props)
-			assert.NilError(t, err)
+			ns2 := cl.Namespace()
 			assert.Equal(t, ns1, ns2)
-		})
-	})
-}
+			cl, err = b.NewKubeClients(cfg)
+			assert.NilError(t, err)
+			ns3 := cl.Namespace()
+			assert.Equal(t, ns1, ns3)
 
-func testMemoizeKubeClientsCases(fn func(tc testMemoizeKubeClientsCase)) {
-	tcs := []testMemoizeKubeClientsCase{{
-		name: "cli",
-		fn: func() event.Binding {
-			return configuration.CreateCli(nil).Binding
-		},
-	}, {
-		name: "ics",
-		fn: func() event.Binding {
-			return configuration.CreateIcs(nil).Binding
-		},
-	}}
-	for _, tc := range tcs {
-		tc := tc
-		fn(tc)
+			b = tc.fn()
+			cl, err = b.NewKubeClients(cfg)
+			assert.NilError(t, err)
+			ns4 := cl.Namespace()
+			assert.Equal(t, "replaced", ns4)
+		})
 	}
 }
 
@@ -70,12 +77,10 @@ func updateConfig(tb testing.TB, cfgfile string, fn func(cfg *clientcmdapi.Confi
 
 func tempConfigFile(tb testing.TB) string {
 	tb.Helper()
-	tmpfile, err := os.CreateTemp("", "kubeconfig")
-	assert.NilError(tb, err)
-	assert.NilError(tb, tmpfile.Close())
+	tmpfile := path.Join(tb.TempDir(), "kubeconfig")
 	cfg := stubConfig()
-	safeConfig(tb, tmpfile.Name(), cfg)
-	return tmpfile.Name()
+	safeConfig(tb, tmpfile, cfg)
+	return tmpfile
 }
 
 func safeConfig(tb testing.TB, cfgfile string, config clientcmdapi.Config) {

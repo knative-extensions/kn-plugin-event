@@ -8,7 +8,7 @@ import (
 	"knative.dev/reconciler-test/pkg/feature"
 )
 
-// SystemUnderTest is a part of cluster we are testing the event propagation
+// SystemUnderTest is a part of the cluster we are testing the event propagation
 // though.
 type SystemUnderTest interface {
 	Name() string

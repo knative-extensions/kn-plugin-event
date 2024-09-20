@@ -1,6 +1,7 @@
 package sender
 
 import (
+	"context"
 	"fmt"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -8,8 +9,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/rand"
-	"knative.dev/kn-plugin-event/pkg/cli/ics"
 	"knative.dev/kn-plugin-event/pkg/event"
+	ics2 "knative.dev/kn-plugin-event/pkg/ics"
 	"knative.dev/kn-plugin-event/pkg/k8s"
 	"knative.dev/kn-plugin-event/pkg/metadata"
 )
@@ -17,26 +18,27 @@ import (
 const idLength = 16
 
 type inClusterSender struct {
-	addressable     *event.AddressableSpec
+	namespace       string
+	target          *event.Target
 	jobRunner       k8s.JobRunner
 	addressResolver k8s.ReferenceAddressResolver
 }
 
-func (i *inClusterSender) Send(ce cloudevents.Event) error {
+func (i *inClusterSender) Send(ctx context.Context, ce cloudevents.Event) error {
 	url, err := i.addressResolver.ResolveAddress(
-		i.addressable.Reference, i.addressable.URI,
+		ctx, i.target.Reference, i.target.RelativeURI,
 	)
 	if err != nil {
 		return fmt.Errorf("%w: %w", k8s.ErrInvalidReference, err)
 	}
-	kevent, err := ics.Encode(ce)
+	kevent, err := ics2.Encode(ce)
 	if err != nil {
-		return fmt.Errorf("%w: %w", ics.ErrCouldntEncode, err)
+		return fmt.Errorf("%w: %w", ics2.ErrCouldntEncode, err)
 	}
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      newJobName(),
-			Namespace: i.addressable.SenderNamespace,
+			Namespace: i.namespace,
 			Labels: map[string]string{
 				"event-id": ce.ID(),
 			},
@@ -60,14 +62,14 @@ func (i *inClusterSender) Send(ce cloudevents.Event) error {
 			},
 		},
 	}
-	err = i.jobRunner.Run(job)
+	err = i.jobRunner.Run(ctx, job)
 	if err != nil {
-		return fmt.Errorf("%w: %w", ics.ErrCantSendWithICS, err)
+		return fmt.Errorf("%w: %w", ics2.ErrCantSendWithICS, err)
 	}
 	return nil
 }
 
 func newJobName() string {
 	id := rand.String(idLength)
-	return fmt.Sprintf("kn-event-sender-%s", id)
+	return "kn-event-sender-" + id
 }

@@ -136,6 +136,7 @@ github.com/buildkite/interpolate v0.0.0-20200526001904-07f35b4ae251 h1:k6UDF1uPY
 github.com/buildkite/interpolate v0.0.0-20200526001904-07f35b4ae251/go.mod h1:gbPR1gPu9dB96mucYIR7T3B7p/78hRVSOuzIWLHK2Y4=
 github.com/c2h5oh/datasize v0.0.0-20231215233829-aa82cc1e6500 h1:6lhrsTEnloDPXyeZBvSYvQf8u86jbKehZPVDDlkgDl4=
 github.com/c2h5oh/datasize v0.0.0-20231215233829-aa82cc1e6500/go.mod h1:S/7n9copUssQ56c7aAgHqftWO4LTf4xY6CGWt8Bc+3M=
+github.com/cardil/knative-client/pkg v0.0.0-20240923095307-3a2bcba04752/go.mod h1:JR3XomuVf2cBqgvXFONkX6Ebf1/gJwUnl/1OH47U18g=
 github.com/cavaliercoder/badio v0.0.0-20160213150051-ce5280129e9e h1:YYUjy5BRwO5zPtfk+aa2gw255FIIoi93zMmuy19o0bc=
 github.com/cavaliercoder/badio v0.0.0-20160213150051-ce5280129e9e/go.mod h1:V284PjgVwSk4ETmz84rpu9ehpGg7swlIH8npP9k2bGw=
 github.com/cavaliercoder/go-rpm v0.0.0-20200122174316-8cb9fd9c31a8 h1:jP7ki8Tzx9ThnFPLDhBYAhEpI2+jOURnHQNURgsMvnY=
@@ -183,6 +184,7 @@ github.com/coreos/go-systemd/v22 v22.5.0/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSV
 github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f h1:lBNOc5arjvs8E5mO2tbpBpLoyyu8B6e44T7hJy6potg=
 github.com/cpuguy83/go-md2man v1.0.10 h1:BSKMNlYxDvnunlTymqtgONjNnaRV1sTpcovwwjF22jk=
 github.com/cpuguy83/go-md2man/v2 v2.0.3 h1:qMCsGGgs+MAzDFyp9LpAe1Lqy/fY/qCovCm0qnXZOBM=
+github.com/cpuguy83/go-md2man/v2 v2.0.4 h1:wfIWP927BUkWJb2NmU/kNDYIBTh/ziUX91+lVfRxZq4=
 github.com/cyberphone/json-canonicalization v0.0.0-20231011164504-785e29786b46 h1:2Dx4IHfC1yHWI12AxQDJM1QbRCDfk6M+blLzlZCXdrc=
 github.com/cyberphone/json-canonicalization v0.0.0-20231011164504-785e29786b46/go.mod h1:uzvlm1mxhHkdfqitSA92i7Se+S9ksOn3a3qmv/kyOCw=
 github.com/danieljoos/wincred v1.2.1 h1:dl9cBrupW8+r5250DYkYxocLeZ1Y4vB1kxgtjxw8GQs=
@@ -246,8 +248,6 @@ github.com/go-test/deep v1.1.0 h1:WOcxcdHcvdgThNXjw0t76K42FXTU7HpNQWHpA2HHNlg=
 github.com/go-test/deep v1.1.0/go.mod h1:5C2ZWiW0ErCdrYzpqxLbTX7MG14M9iiw8DgHncVwcsE=
 github.com/go-training/helloworld v0.0.0-20200225145412-ba5f4379d78b h1:0pOrjn0UzTcHdhDVdxrH8LwM7QLnAp8qiUtwXM04JEE=
 github.com/go-training/helloworld v0.0.0-20200225145412-ba5f4379d78b/go.mod h1:hGGmX3bRUkYkc9aKA6mkUxi6d+f1GmZF1je0FlVTgwU=
-github.com/gobuffalo/flect v1.0.2 h1:eqjPGSo2WmjgY2XlpGwo2NXgL3RucAKo4k4qQMNA5sA=
-github.com/gobuffalo/flect v1.0.2/go.mod h1:A5msMlrHtLqh9umBSnvabjsMrCcCpAyzglnDvkbYKHs=
 github.com/gobwas/glob v0.2.3 h1:A4xDbljILXROh+kObIiy5kIaPYD8e96x1tgBhUI5J+Y=
 github.com/gobwas/glob v0.2.3/go.mod h1:d3Ez4x06l9bZtSvzIay5+Yzi0fmZzPgnTbPcKjJAkT8=
 github.com/godbus/dbus/v5 v5.1.0 h1:4KLkAxT3aOY8Li4FRJe/KvhoNFFxo0m6fNuFUO8QJUk=

@@ -30,12 +30,6 @@ linters:
     - varnamelen
     - exhaustruct
     - depguard
-    # FIXME: remove `containedctx` exclude after fixing knative-sandbox/kn-plugin-event#202
-    - containedctx
-    # FIXME: consider enabling and fixing
-    - revive
-    - copyloopvar
-    - perfsprint
 
 issues:
   exclude-rules:
@@ -44,6 +38,12 @@ issues:
         - wrapcheck
 
 linters-settings:
+  wrapcheck:
+    ignorePackageGlobs:
+      - knative.dev/kn-plugin-event/pkg/*
+      - knative.dev/client/pkg/*
   gomoddirectives:
     # List of allowed `replace` directives. Default is empty.
-    replace-allow-list: []
+    replace-allow-list:
+      # TODO: Remove when https://github.com/knative/client/pull/1968 is merged
+      - knative.dev/client/pkg

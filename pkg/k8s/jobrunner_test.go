@@ -1,11 +1,12 @@
 package k8s_test
 
 import (
-	"fmt"
+	"context"
 	"math/rand"
 	"strconv"
 	"sync"
 	"testing"
+	"time"
 
 	"gotest.tools/v3/assert"
 	batchv1 "k8s.io/api/batch/v1"
@@ -19,17 +20,18 @@ import (
 
 func TestJobRunnerRun(t *testing.T) {
 	clients := &tests.FakeClients{TB: t, Objects: make([]runtime.Object, 0)}
-	runner := k8s.CreateJobRunner(clients)
+	runner := k8s.NewJobRunner(clients)
 	job := examplePiJob()
 	jobs := clients.Typed().BatchV1().Jobs(job.Namespace)
-	ctx := clients.Context()
+	ctx, cancel := context.WithTimeout(context.TODO(), time.Second)
+	defer cancel()
 	watcher, err := jobs.Watch(ctx, metav1.ListOptions{})
 	assert.NilError(t, err)
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		assert.NilError(t, runner.Run(&job))
+		assert.NilError(t, runner.Run(ctx, &job))
 	}()
 	ev := <-watcher.ResultChan()
 	assert.Equal(t, ev.Type, watch.Added)
@@ -62,8 +64,8 @@ func jobSuccess(job batchv1.Job) batchv1.Job {
 }
 
 func examplePiJob() batchv1.Job {
-	name := fmt.Sprintf("test-%s",
-		strconv.FormatInt(rand.Int63(), 36)) //nolint:gosec
+	name := "test-" +
+		strconv.FormatInt(rand.Int63(), 36) //nolint:gosec
 	return batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,

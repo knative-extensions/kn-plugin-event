@@ -6,7 +6,7 @@ import (
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"gotest.tools/v3/assert"
-	"knative.dev/kn-plugin-event/pkg/cli/ics"
+	"knative.dev/kn-plugin-event/pkg/ics"
 )
 
 func TestEncodeDecode(t *testing.T) {

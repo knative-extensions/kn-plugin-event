@@ -13,7 +13,7 @@ import (
 	"gotest.tools/v3/assert"
 	kes "knative.dev/kn-plugin-event/cmd/kn-event-sender"
 	internalics "knative.dev/kn-plugin-event/internal/ics"
-	"knative.dev/kn-plugin-event/pkg/cli/ics"
+	"knative.dev/kn-plugin-event/pkg/ics"
 	"knative.dev/kn-plugin-event/pkg/tests"
 )
 

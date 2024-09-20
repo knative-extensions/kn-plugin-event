@@ -11,7 +11,7 @@ import (
 	"knative.dev/reconciler-test/pkg/environment"
 )
 
-// global is the singleton instance of GlobalEnvironment. It is used to parse
+// Global is the singleton instance of GlobalEnvironment. It is used to parse
 // the testing config for the test run. The config will specify the cluster
 // config as well as the parsing level and state flags.
 var global environment.GlobalEnvironment //nolint:gochecknoglobals

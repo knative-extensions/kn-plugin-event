@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	// DefaultType holds a default type for a event.
+	// DefaultType holds a default type for an event.
 	DefaultType = "dev.knative.cli.plugin.event.generic"
 )
 

@@ -62,18 +62,13 @@ func sendEvent(ev cloudevents.Event, sink Sink) feature.StepFn {
 			"--field", fmt.Sprintf("data=%s", ev.Data()),
 			"--to", sink.String(),
 		}
-		// FIXME: remove --sender-namespace after fixing issue
-		//        knative-sandbox/kn-plugin-event#160
-		log.Warn("FIXME: knative-sandbox/kn-plugin-event#160")
-		args = append(args, "--sender-namespace", ns)
-
 		cmd := test.ResolveKnEventCommand(t).ToIcmd(args...)
 		log = log.With(json("cmd", cmd))
 		log.Info("Running")
 		result := icmd.RunCmd(cmd)
 		if err := result.Compare(icmd.Expected{
 			ExitCode: 0,
-			Out:      fmt.Sprintf("Event (ID: %s) have been sent.", ev.ID()),
+			Err:      fmt.Sprintf("Event (ID: %s) have been sent.", ev.ID()),
 		}); err != nil {
 			handleSendErr(ctx, t, err, ev)
 		}
@@ -92,7 +87,7 @@ func receiveEvent(ev cloudevents.Event, sinkName string) feature.StepFn {
 func handleSendErr(ctx context.Context, t feature.T, err error, ev cloudevents.Event) {
 	// TODO: most of this code should be moved to production CLI, so that in case
 	//       of send error, a nice, report is produced.
-	//       See: https://github.com/knative-sandbox/kn-plugin-event/issues/129
+	//       See: https://github.com/knative-extensions/kn-plugin-event/issues/129
 	if err == nil {
 		return
 	}
@@ -103,7 +98,7 @@ func handleSendErr(ctx context.Context, t feature.T, err error, ev cloudevents.E
 	pods := kube.CoreV1().Pods(ns)
 	events := kube.CoreV1().Events(ns)
 	jlist, kerr := jobs.List(ctx, metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("event-id=%s", ev.ID()),
+		LabelSelector: "event-id=" + ev.ID(),
 	})
 	if kerr != nil {
 		log.Error(kerr)
@@ -113,7 +108,7 @@ func handleSendErr(ctx context.Context, t feature.T, err error, ev cloudevents.E
 	}
 	jobName := jlist.Items[0].Name
 	plist, kerr := pods.List(ctx, metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("job-name=%s", jobName),
+		LabelSelector: "job-name=" + jobName,
 	})
 	if kerr != nil {
 		log.Error(kerr)

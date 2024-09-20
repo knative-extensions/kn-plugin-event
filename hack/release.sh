@@ -17,7 +17,7 @@
 set -Eeuo pipefail
 
 # Coordinates in GitHub.
-ORG_NAME="${ORG_NAME:-knative-sandbox}"
+ORG_NAME="${ORG_NAME:-knative-extensions}"
 
 source "$(go run knative.dev/hack/cmd/script release.sh)"
 

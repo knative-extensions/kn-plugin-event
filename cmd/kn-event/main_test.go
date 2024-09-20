@@ -9,16 +9,16 @@ import (
 
 	"github.com/wavesoftware/go-commandline"
 	"gotest.tools/v3/assert"
-	"knative.dev/kn-plugin-event/internal/cli/cmd"
+	"knative.dev/kn-plugin-event/internal/cli"
 )
 
 func TestMainFunc(t *testing.T) {
 	retcode := math.MinInt64
 	defer func() {
-		cmd.Options = nil
+		cli.Options = nil
 	}()
 	var buf bytes.Buffer
-	cmd.Options = []commandline.Option{
+	cli.Options = []commandline.Option{
 		commandline.WithExit(func(code int) {
 			retcode = code
 		}),

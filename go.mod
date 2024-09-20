@@ -5,15 +5,17 @@ go 1.22.0
 require (
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/ghodss/yaml v1.0.0
+	github.com/gobuffalo/flect v1.0.2
 	github.com/google/go-containerregistry v0.19.1
 	github.com/google/uuid v1.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/phayes/freeport v0.0.0-20220201140144-74d24b5ae9f5
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
+	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	github.com/thediveo/enumflag v0.10.0
-	github.com/wavesoftware/go-commandline v1.0.0
+	github.com/wavesoftware/go-commandline v1.1.0
 	github.com/wavesoftware/go-ensure v1.0.0
 	go.uber.org/zap v1.27.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -30,10 +32,14 @@ require (
 	sigs.k8s.io/yaml v1.4.0
 )
 
+// TODO: Remove when https://github.com/knative/client/pull/1968 is merged
+replace knative.dev/client/pkg => github.com/cardil/knative-client/pkg v0.0.0-20240923095307-3a2bcba04752
+
 require (
 	contrib.go.opencensus.io/exporter/ocagent v0.7.1-0.20200907061046-05415f1de66d // indirect
 	contrib.go.opencensus.io/exporter/prometheus v0.4.2 // indirect
 	contrib.go.opencensus.io/exporter/zipkin v0.1.2 // indirect
+	emperror.dev/errors v0.8.1 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v1.4.10 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -101,7 +107,6 @@ require (
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.18.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/wavesoftware/go-retcode v1.0.0 // indirect

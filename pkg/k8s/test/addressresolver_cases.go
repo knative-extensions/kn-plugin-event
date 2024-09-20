@@ -1,17 +1,21 @@
 package test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/url"
 	"strings"
 	"testing"
 
+	"github.com/gobuffalo/flect"
 	"gotest.tools/v3/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"knative.dev/client/pkg/flags/sink"
 	eventingduckv1 "knative.dev/eventing/pkg/apis/duck/v1"
 	eventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
 	messagingv1 "knative.dev/eventing/pkg/apis/messaging/v1"
@@ -19,9 +23,14 @@ import (
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 	"knative.dev/pkg/kmeta"
-	"knative.dev/pkg/tracker"
 	servingv1 "knative.dev/serving/pkg/apis/serving/v1"
 )
+
+func init() { //nolint:gochecknoinits
+	if !testing.Testing() {
+		panic("For testing only")
+	}
+}
 
 const (
 	// HTTPPort is 80.
@@ -36,30 +45,29 @@ var (
 	ErrDontContain = errors.New("don't contain")
 )
 
-func ResolveAddressTestCases(namespace string, casefn func(tc ResolveAddressTestCase)) {
-	tcs := []ResolveAddressTestCase{
+// ResolveAddressTestCases will return the test cases for resolving the address.
+func ResolveAddressTestCases(namespace string) []ResolveAddressTestCase {
+	return []ResolveAddressTestCase{
 		k8sService(namespace),
 		knService(namespace),
 		mtBroker(namespace),
 		channel(namespace),
-	}
-	for _, tc := range tcs {
-		casefn(tc)
 	}
 }
 
 // EnsureResolveAddress thelper lint skipped for greater visibility of
 // failure location.
 func EnsureResolveAddress( //nolint:thelper
+	ctx context.Context,
 	tb testing.TB,
 	tc ResolveAddressTestCase,
 	clientsFn func() (k8s.Clients, func(tb testing.TB)),
 ) {
-	uri := &apis.URL{}
+	uri := ""
 	clients, cleanup := clientsFn()
 	defer cleanup(tb)
-	resolver := k8s.CreateAddressResolver(clients)
-	u, err := resolver.ResolveAddress(tc.ref, uri)
+	resolver := k8s.NewAddressResolver(clients)
+	u, err := resolver.ResolveAddress(ctx, tc.ref, uri)
 	if tc.err != nil {
 		assert.ErrorIs(tb, err, tc.err)
 	} else {
@@ -72,7 +80,7 @@ type ResolveAddressTestCase struct {
 	Name    string
 	matches func(url *url.URL) error
 	err     error
-	ref     *tracker.Reference
+	ref     *sink.Reference
 	Objects []runtime.Object
 }
 
@@ -191,15 +199,20 @@ func channel(namespace string) ResolveAddressTestCase {
 	}
 }
 
-func toTrackerRef(accessor kmeta.Accessor) *tracker.Reference {
+func toTrackerRef(accessor kmeta.Accessor) *sink.Reference {
 	gvk := accessor.GroupVersionKind()
-	return &tracker.Reference{
-		APIVersion: gvk.GroupVersion().String(),
-		Kind:       gvk.Kind,
-		Namespace:  accessor.GetNamespace(),
-		Name:       accessor.GetName(),
-		Selector:   nil,
+	return &sink.Reference{
+		KubeReference: &sink.KubeReference{
+			GVR:       toGVR(gvk),
+			Namespace: accessor.GetNamespace(),
+			Name:      accessor.GetName(),
+		},
 	}
+}
+
+func toGVR(gvk schema.GroupVersionKind) schema.GroupVersionResource {
+	resource := flect.Pluralize(strings.ToLower(gvk.Kind))
+	return gvk.GroupVersion().WithResource(resource)
 }
 
 type matcher struct {

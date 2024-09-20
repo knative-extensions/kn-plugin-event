@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -9,20 +10,17 @@ import (
 )
 
 // Send will send CloudEvent to target.
-func (a *App) Send(ce cloudevents.Event, target TargetArgs, options *Options) error {
-	props, err := options.WithLogger(a)
+func (a *App) Send(ctx context.Context, ce cloudevents.Event, tArgs TargetArgs, params *Params) error {
+	target, err := a.createTarget(tArgs, params)
 	if err != nil {
 		return err
 	}
-	t, err := a.createTarget(target, props)
-	if err != nil {
-		return err
-	}
-	s, err := a.Binding.NewSender(t)
+	var sender event.Sender
+	sender, err = a.NewSender(params.Parse(), target)
 	if err != nil {
 		return cantSentEvent(err)
 	}
-	err = s.Send(ce)
+	err = sender.Send(ctx, ce)
 	if err == nil {
 		return nil
 	}
