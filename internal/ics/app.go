@@ -5,7 +5,6 @@ import (
 	"github.com/wavesoftware/go-commandline"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	outlogging "knative.dev/client/pkg/output/logging"
 	"knative.dev/kn-plugin-event/pkg/binding"
 	"knative.dev/kn-plugin-event/pkg/cli"
 	"knative.dev/kn-plugin-event/pkg/k8s"
@@ -28,12 +27,7 @@ func (a App) Command() *cobra.Command {
 	}
 	c.SetContext(cli.InitialContext())
 	c.PersistentPreRun = func(cmd *cobra.Command, _ []string) {
-		cli.SetupContext(cmd, zapcore.DebugLevel)
-	}
-	c.PersistentPostRunE = func(cmd *cobra.Command, _ []string) error {
-		closer := outlogging.LogFileCloserFrom(cmd.Context())
-		// ensure to close the log file
-		return closer()
+		cli.SetupContext(cmd, cli.SimplifiedLoggingSetup(zapcore.DebugLevel))
 	}
 	a.SetGlobalFlags(c.PersistentFlags())
 	return c

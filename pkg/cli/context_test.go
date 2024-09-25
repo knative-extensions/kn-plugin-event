@@ -29,7 +29,8 @@ import (
 func TestSetupContext(t *testing.T) {
 	cmd := &cobra.Command{}
 	cmd.SetContext(cli.InitialContext())
-	cli.SetupContext(cmd, zapcore.InvalidLevel)
+	cli.SetupContext(cmd, cli.SimplifiedLoggingSetup(zapcore.InvalidLevel))
+	cli.SetupContext(cmd, cli.DefaultLoggingSetup(zapcore.InvalidLevel))
 	ctx := cmd.Context()
 	assert.Equal(t, zapcore.InvalidLevel, outlogging.LogLevelFromContext(ctx))
 }

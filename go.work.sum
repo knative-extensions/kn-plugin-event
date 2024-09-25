@@ -136,7 +136,6 @@ github.com/buildkite/interpolate v0.0.0-20200526001904-07f35b4ae251 h1:k6UDF1uPY
 github.com/buildkite/interpolate v0.0.0-20200526001904-07f35b4ae251/go.mod h1:gbPR1gPu9dB96mucYIR7T3B7p/78hRVSOuzIWLHK2Y4=
 github.com/c2h5oh/datasize v0.0.0-20231215233829-aa82cc1e6500 h1:6lhrsTEnloDPXyeZBvSYvQf8u86jbKehZPVDDlkgDl4=
 github.com/c2h5oh/datasize v0.0.0-20231215233829-aa82cc1e6500/go.mod h1:S/7n9copUssQ56c7aAgHqftWO4LTf4xY6CGWt8Bc+3M=
-github.com/cardil/knative-client/pkg v0.0.0-20240923095307-3a2bcba04752/go.mod h1:JR3XomuVf2cBqgvXFONkX6Ebf1/gJwUnl/1OH47U18g=
 github.com/cavaliercoder/badio v0.0.0-20160213150051-ce5280129e9e h1:YYUjy5BRwO5zPtfk+aa2gw255FIIoi93zMmuy19o0bc=
 github.com/cavaliercoder/badio v0.0.0-20160213150051-ce5280129e9e/go.mod h1:V284PjgVwSk4ETmz84rpu9ehpGg7swlIH8npP9k2bGw=
 github.com/cavaliercoder/go-rpm v0.0.0-20200122174316-8cb9fd9c31a8 h1:jP7ki8Tzx9ThnFPLDhBYAhEpI2+jOURnHQNURgsMvnY=
@@ -676,6 +675,8 @@ k8s.io/kms v0.30.3 h1:NLg+oN45S2Y3U0WiLRzbS61AY/XrS5JBMZp531Z+Pho=
 k8s.io/kms v0.30.3/go.mod h1:GrMurD0qk3G4yNgGcsCEmepqf9KyyIrTXYR2lyUOJC4=
 knative.dev/caching v0.0.0-20240812133420-93e6a0a5b46d h1:pj+XufdayIdxV/PUFpuIB1Y/pFoiWPJT6VrAXja4OcE=
 knative.dev/caching v0.0.0-20240812133420-93e6a0a5b46d/go.mod h1:vxgDv5XOAYFa2LrreP8quBiyKB2HB2fqWG6nc6LmDR4=
+knative.dev/client/pkg v0.0.0-20240903134911-f09e7164ceaf h1:QPGwYLkkMwssyEw0ek8T1u4Q3+FSeVPSH4IIKThdngc=
+knative.dev/client/pkg v0.0.0-20240903134911-f09e7164ceaf/go.mod h1:JR3XomuVf2cBqgvXFONkX6Ebf1/gJwUnl/1OH47U18g=
 knative.dev/hack/schema v0.0.0-20240814130635-06f7aff93954 h1:0yjDplGHUnZ8NpcfgmH0thXSzG28VSM16hb3Vz171l8=
 knative.dev/hack/schema v0.0.0-20240814130635-06f7aff93954/go.mod h1:jRH/sx6mwwuMVhvJgnzSaoYA1N4qaIkJa+zxEGtVA5I=
 mvdan.cc/sh/v3 v3.7.0 h1:lSTjdP/1xsddtaKfGg7Myu7DnlHItd3/M2tomOcNNBg=

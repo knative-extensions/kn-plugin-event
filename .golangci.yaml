@@ -44,6 +44,4 @@ linters-settings:
       - knative.dev/client/pkg/*
   gomoddirectives:
     # List of allowed `replace` directives. Default is empty.
-    replace-allow-list:
-      # TODO: Remove when https://github.com/knative/client/pull/1968 is merged
-      - knative.dev/client/pkg
+    replace-allow-list: []

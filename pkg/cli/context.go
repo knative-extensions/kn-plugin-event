@@ -19,9 +19,11 @@ package cli
 import (
 	"context"
 
+	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"knative.dev/client/pkg/output"
 	outlogging "knative.dev/client/pkg/output/logging"
+	"knative.dev/pkg/logging"
 	"knative.dev/pkg/signals"
 )
 
@@ -39,8 +41,38 @@ func InitialContext() context.Context {
 	return initialCtx
 }
 
+// LoggingSetup is a func that sets the logging into the context.
+type LoggingSetup func(ctx context.Context) context.Context
+
+// DefaultLoggingSetup is the default logging setup.
+func DefaultLoggingSetup(logLevel zapcore.Level) func(ctx context.Context) context.Context {
+	return func(ctx context.Context) context.Context {
+		ctx = outlogging.WithLogLevel(ctx, logLevel)
+		return outlogging.EnsureLogger(ctx)
+	}
+}
+
+// SimplifiedLoggingSetup is just a production logger to avoid creating
+// additional log files.
+//
+//	 TODO: Remove this after simplified logging is supported in
+//		     knative.dev/client/pkg/output/logging package.
+func SimplifiedLoggingSetup(logLevel zapcore.Level) func(ctx context.Context) context.Context {
+	return func(ctx context.Context) context.Context {
+		prtr := output.PrinterFrom(ctx)
+		errout := prtr.ErrOrStderr()
+		ec := zap.NewProductionEncoderConfig()
+		logger := zap.New(zapcore.NewCore(
+			zapcore.NewJSONEncoder(ec),
+			zapcore.AddSync(errout),
+			logLevel,
+		))
+		return logging.WithLogger(ctx, logger.Sugar())
+	}
+}
+
 // SetupContext will set the context commonly for all CLIs.
-func SetupContext(ctxual Contextual, defaultLogLevel zapcore.Level) {
+func SetupContext(ctxual Contextual, loggingSetup LoggingSetup) {
 	ctx := ctxual.Context()
 	if ctx == initialCtx {
 		// TODO: knative.dev/pkg/signals should allow for resetting the
@@ -48,8 +80,7 @@ func SetupContext(ctxual Contextual, defaultLogLevel zapcore.Level) {
 		ctx = signals.NewContext()
 	}
 	ctx = output.WithContext(ctx, ctxual)
-	ctx = outlogging.WithLogLevel(ctx, defaultLogLevel)
-	ctx = outlogging.EnsureLogger(ctx)
+	ctx = loggingSetup(ctx)
 	ctxual.SetContext(ctx)
 }
 
