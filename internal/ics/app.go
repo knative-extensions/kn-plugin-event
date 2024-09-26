@@ -27,7 +27,7 @@ func (a App) Command() *cobra.Command {
 	}
 	c.SetContext(cli.InitialContext())
 	c.PersistentPreRun = func(cmd *cobra.Command, _ []string) {
-		cli.SetupContext(cmd, cli.SimplifiedLoggingSetup(zapcore.DebugLevel))
+		cli.SetupOutput(cmd, cli.SimplifiedLoggingSetup(zapcore.DebugLevel))
 	}
 	a.SetGlobalFlags(c.PersistentFlags())
 	return c

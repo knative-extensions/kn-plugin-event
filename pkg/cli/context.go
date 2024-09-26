@@ -18,6 +18,8 @@ package cli
 
 import (
 	"context"
+	"io"
+	"os"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -27,12 +29,14 @@ import (
 	"knative.dev/pkg/signals"
 )
 
-// Contextual represents a contextual entity that also can serve as an
-// output.Printer.
-type Contextual interface {
+// Cobralike represents a cobra.Command-like entity.
+type Cobralike interface {
 	SetContext(ctx context.Context)
 	Context() context.Context
 	output.Printer
+
+	SetOut(out io.Writer)
+	OutOrStderr() io.Writer
 }
 
 // InitialContext returns the initial context object, so it could be set ahead
@@ -71,21 +75,30 @@ func SimplifiedLoggingSetup(logLevel zapcore.Level) func(ctx context.Context) co
 	}
 }
 
-// SetupContext will set the context commonly for all CLIs.
-func SetupContext(ctxual Contextual, loggingSetup LoggingSetup) {
-	ctx := ctxual.Context()
+// SetupOutput will set the output for all CLIs commonly.
+func SetupOutput(cbr Cobralike, loggingSetup LoggingSetup) {
+	ctx := cbr.Context()
 	if ctx == initialCtx {
 		// TODO: knative.dev/pkg/signals should allow for resetting the
 		//       context for testing purposes.
 		ctx = signals.NewContext()
 	}
-	ctx = output.WithContext(ctx, ctxual)
+	// Cobra uses OutOrStderr for printing, and by default the out is nil,
+	// resulting in printing all messages to stderr.
+	// We want just logs to be printed on the stderr.
+	//
+	// TODO: This should be handled by knative.dev/client/pkg/output package.
+	if cbr.OutOrStderr() == os.Stderr {
+		// default to stdout
+		cbr.SetOut(os.Stdout)
+	}
+	ctx = output.WithContext(ctx, cbr)
 	ctx = loggingSetup(ctx)
-	ctxual.SetContext(ctx)
+	cbr.SetContext(ctx)
 }
 
 var (
 	initialCtxKey = struct{}{}         //nolint:gochecknoglobals
 	initialCtx    = context.WithValue( //nolint:gochecknoglobals
-		context.Background(), initialCtxKey, true)
+		context.TODO(), initialCtxKey, true)
 )

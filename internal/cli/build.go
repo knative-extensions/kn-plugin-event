@@ -22,6 +22,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"knative.dev/client/pkg/output"
+	outlogging "knative.dev/client/pkg/output/logging"
 	"knative.dev/kn-plugin-event/pkg/binding"
 	"knative.dev/kn-plugin-event/pkg/cli"
 )
@@ -46,16 +47,17 @@ func (b *buildCommand) command() *cobra.Command {
 
 func (b *buildCommand) run(cmd *cobra.Command, _ []string) error {
 	c := binding.CliApp()
+	ctx := cmd.Context()
 	ce, err := c.CreateWithArgs(b.event)
 	if err != nil {
 		return cantBuildEventError(err)
 	}
+	outlogging.LoggerFrom(ctx).Debugf("Event: %#v", ce)
 	out, err := c.PresentWith(ce, b.OutputMode)
 	if err != nil {
 		return fmt.Errorf("event %w: %w", ErrCantBePresented, err)
 	}
-	prt := output.PrinterFrom(cmd.Context())
-	prt.Println(out)
+	output.PrinterFrom(ctx).Println(out)
 	return nil
 }
 

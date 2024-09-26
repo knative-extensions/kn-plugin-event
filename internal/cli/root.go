@@ -58,7 +58,7 @@ func (a *App) Command() *cobra.Command {
 		if a.Verbose {
 			lvl = zapcore.DebugLevel
 		}
-		cli.SetupContext(cmd, cli.DefaultLoggingSetup(lvl))
+		cli.SetupOutput(cmd, cli.DefaultLoggingSetup(lvl))
 	}
 	c.PersistentPostRunE = func(cmd *cobra.Command, _ []string) error {
 		closer := outlogging.LogFileCloserFrom(cmd.Context())
