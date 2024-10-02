@@ -73,12 +73,12 @@ $ kn event build \
 
 To send and event you should utilize `send` subcommand. The `send` command
 leverages the same builder-like interface as `build` command does. You could
-send an event to public address of your application by using `--to-url` option,
-or to supported in-cluster resources by using `--to` option.
+send an event to public address of your application or to supported
+in-cluster resources by using `--to` option.
 
 #### Sending to public address
 
-To send event to public address you use `--to-url` option:
+To send event to public address you use pass it to the `--to` option:
 
 ```sh
 $ kn event send \
@@ -86,19 +86,19 @@ $ kn event send \
     --field player.game=2345 \
     --field points=456 \
     --type org.example.gaming.foo \
-    --to-url http://ce-api.foo.example.org/
+    --to http://ce-api.foo.example.org/
 ```
 
-> **NOTE**: All argument, except `--to-url` are optional. Use
+> **NOTE**: All argument, except `--to` are optional. Use
 > `kn event send --help` to see full usage information.
 
 #### Sending to in-cluster resources
 
-Sending event to in-cluster resources is done with a companion Job that is
-deployed on your cluster. In that way `kn-event` and send your event even to
+Sending events to in-cluster resources is done with a companion *Job* that
+is deployed on your cluster. This allows `kn-event` to send your events to
 resources that are not publicly accessible.
 
-Send an event to a Knative service `event-display` in namespace `default`:
+Send an event to a Knative service `showcase` in current namespace:
 
 ```sh
 $ kn event send \
@@ -106,11 +106,11 @@ $ kn event send \
     --id $(uuidgen) \
     --field event.type=test \
     --field event.data=98765 \
-    --to Service:serving.knative.dev/v1:event-display
+    --to showcase
 ```
 
-> **NOTE**: All argument, except `--to-url` are optional. Use
-> `kn event send --help` to see full usage information.
+> **NOTE**: The --to option follow [the Kn sink format](https://github.com/knative/client/blob/main/docs/cmd/kn_trigger_create.md#options).
+> Use `kn event send --help` to see full format description.
 
 ## Install
 
