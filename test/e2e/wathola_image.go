@@ -23,7 +23,7 @@ func WatholaForwarderImageFromContext(ctx context.Context) string {
 // WithCustomWatholaForwarderImage allows you to specify a custom wathola
 // forwarder image to be used when invoking watholaForwarder.step.
 func WithCustomWatholaForwarderImage(image string) environment.EnvOpts {
-	return func(ctx context.Context, env environment.Environment) (context.Context, error) {
+	return func(ctx context.Context, _ environment.Environment) (context.Context, error) {
 		return context.WithValue(ctx, watholaForwarderImageKey{}, image), nil
 	}
 }

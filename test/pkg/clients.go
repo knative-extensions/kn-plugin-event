@@ -6,7 +6,6 @@ import (
 
 	"gotest.tools/v3/assert"
 	clienttest "knative.dev/client/pkg/util/test"
-	"knative.dev/kn-plugin-event/pkg/event"
 	"knative.dev/kn-plugin-event/pkg/k8s"
 	plugintest "knative.dev/kn-plugin-event/test"
 )
@@ -28,7 +27,7 @@ type ClientsContext struct {
 func WithClients(tb testing.TB, handler func(c ClientsContext)) {
 	tb.Helper()
 	plugintest.MaybeSkip(tb)
-	clients, err := k8s.CreateKubeClient(&event.Properties{})
+	clients, err := k8s.NewClients(&k8s.Configurator{})
 	if err != nil && errors.Is(err, k8s.ErrNoKubernetesConnection) {
 		tb.Skip("AUTO-SKIP:", err)
 	} else {

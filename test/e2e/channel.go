@@ -4,7 +4,6 @@ package e2e
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -52,8 +51,7 @@ func (c channelSutImpl) step(ctx context.Context, t feature.T) {
 
 func (c channelSutImpl) sink() Sink {
 	return sinkFn(func() string {
-		return fmt.Sprintf("Channel:%s:%s",
-			messagingv1.SchemeGroupVersion, c.name())
+		return "channel:" + c.name()
 	})
 }
 

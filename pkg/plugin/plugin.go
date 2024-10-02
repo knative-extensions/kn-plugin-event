@@ -5,7 +5,7 @@ import (
 
 	"github.com/wavesoftware/go-commandline"
 	knplugin "knative.dev/client/pkg/plugin"
-	"knative.dev/kn-plugin-event/internal/cli/cmd"
+	"knative.dev/kn-plugin-event/internal/cli"
 	"knative.dev/kn-plugin-event/pkg/metadata"
 )
 
@@ -30,7 +30,7 @@ func (p plugin) Execute(args []string) error {
 	if p.Writer != nil {
 		opts = append(opts, commandline.WithOutput(p.Writer))
 	}
-	return commandline.New(new(cmd.App)).Execute(opts...) //nolint:wrapcheck
+	return commandline.New(new(cli.App)).Execute(opts...) //nolint:wrapcheck
 }
 
 func (p plugin) Description() (string, error) {

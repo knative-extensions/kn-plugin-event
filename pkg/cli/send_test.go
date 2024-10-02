@@ -1,16 +1,19 @@
 package cli_test
 
 import (
-	"bytes"
+	"context"
 	"fmt"
-	"strings"
 	"testing"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap/zaptest/observer"
 	"gotest.tools/v3/assert"
+	outlogging "knative.dev/client/pkg/output/logging"
 	"knative.dev/kn-plugin-event/pkg/cli"
 	"knative.dev/kn-plugin-event/pkg/event"
-	"knative.dev/kn-plugin-event/pkg/system"
+	"knative.dev/kn-plugin-event/pkg/k8s"
 	"knative.dev/kn-plugin-event/pkg/tests"
 )
 
@@ -35,32 +38,27 @@ func createExampleEvent() cloudevents.Event {
 
 func assertWithOutputMode(t *testing.T, want cloudevents.Event, mode cli.OutputMode) {
 	t.Helper()
-	var (
-		outBuf bytes.Buffer
-		errBuf bytes.Buffer
-	)
+	c, logs := observer.New(zapcore.DebugLevel)
+	log := &outlogging.ZapLogger{SugaredLogger: zap.New(c).Sugar()}
+	ctx := outlogging.WithLogger(context.TODO(), log)
 	sender := &tests.Sender{}
 	app := cli.App{
 		Binding: event.Binding{
-			CreateSender: func(target *event.Target) (event.Sender, error) {
+			CreateSender: func(*k8s.Configurator, *event.Target) (event.Sender, error) {
 				return sender, nil
 			},
 		},
-		Environment: system.WithOutputs(&outBuf, &errBuf, nil),
 	}
 	err := app.Send(
+		ctx,
 		want,
-		cli.TargetArgs{URL: "http://example.org"},
-		&cli.Options{
-			Output: mode,
-		},
+		cli.TargetArgs{Sink: "https://example.org"},
+		&cli.Params{OutputMode: mode},
 	)
 	assert.NilError(t, err)
 	assert.Equal(t, 1, len(sender.Sent))
 	assert.Equal(t, want.ID(), sender.Sent[0].ID())
 
-	outputs := outBuf.String()
-	assert.Check(t, strings.Contains(outputs,
-		fmt.Sprintf("Event (ID: %s) have been sent.", want.ID()),
-	))
+	msg := fmt.Sprintf("Event (ID: %s) have been sent.", want.ID())
+	assert.Equal(t, 1, logs.FilterMessage(msg).Len())
 }

@@ -2,6 +2,7 @@ package sender_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,9 +12,12 @@ import (
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/phayes/freeport"
+	"knative.dev/client/pkg/flags/sink"
 	"knative.dev/kn-plugin-event/pkg/event"
+	"knative.dev/kn-plugin-event/pkg/k8s"
 	"knative.dev/kn-plugin-event/pkg/sender"
 	"knative.dev/kn-plugin-event/pkg/tests"
+	"knative.dev/pkg/apis"
 )
 
 func TestDirectSenderSend(t *testing.T) {
@@ -24,12 +28,12 @@ func TestDirectSenderSend(t *testing.T) {
 	for i := range testsCases {
 		tt := testsCases[i]
 		t.Run(tt.name, func(t *testing.T) {
-			tt.context(func(u url.URL) {
+			tt.context(func(u apis.URL) {
 				binding := sender.Binding{}
-				s, err := binding.New(&event.Target{
-					Type:   event.TargetTypeReachable,
-					URLVal: &u,
-				})
+				cfg := &k8s.Configurator{}
+				s, err := binding.New(cfg, &event.Target{Reference: &sink.Reference{
+					URL: &u,
+				}})
 				if err != nil {
 					t.Error(err)
 					return
@@ -40,7 +44,8 @@ func TestDirectSenderSend(t *testing.T) {
 				if tt.validateErr != nil {
 					validateErr = tt.validateErr
 				}
-				validateErr(s.Send(tt.ce))
+				ctx := context.TODO()
+				validateErr(s.Send(ctx, tt.ce))
 			})
 		})
 	}
@@ -64,7 +69,7 @@ func undelivered(t *testing.T) testCase {
 		t.Error(err)
 		return testCase{}
 	}
-	u, err := url.Parse(fmt.Sprintf("http://localhost:%d/ce-not-supported", port))
+	u, err := apis.ParseURL(fmt.Sprintf("http://localhost:%d/ce-not-supported", port))
 	if err != nil {
 		t.Error(err)
 		return testCase{}
@@ -72,7 +77,7 @@ func undelivered(t *testing.T) testCase {
 	return testCase{
 		name: "undelivered",
 		ce:   ce,
-		context: func(handler func(u url.URL)) {
+		context: func(handler func(u apis.URL)) {
 			handler(*u)
 		},
 		validateErr: func(err error) {
@@ -99,11 +104,11 @@ func newEvent(id string) cloudevents.Event {
 	return ce
 }
 
-func sentEventIsValid(t *testing.T, want cloudevents.Event) func(hand func(u url.URL)) {
+func sentEventIsValid(t *testing.T, want cloudevents.Event) func(hand func(u apis.URL)) {
 	t.Helper()
-	return func(hand func(u url.URL)) {
+	return func(hand func(u apis.URL)) {
 		sent, err := tests.WithCloudEventsServer(func(serverURL url.URL) error {
-			hand(serverURL)
+			hand(apis.URL(serverURL))
 			return nil
 		})
 		if err != nil {
@@ -136,5 +141,5 @@ type testCase struct {
 	name        string
 	ce          cloudevents.Event
 	validateErr func(error)
-	context     func(func(u url.URL))
+	context     func(func(u apis.URL))
 }

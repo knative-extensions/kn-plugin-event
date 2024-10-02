@@ -1,9 +1,9 @@
 # kn-plugin-event
 
-[![Mage](https://github.com/knative-sandbox/kn-plugin-event/actions/workflows/go.yml/badge.svg?branch=main)](https://github.com/knative-sandbox/kn-plugin-event/actions/workflows/go.yml)
-[![Go Report Card](https://goreportcard.com/badge/knative-sandbox/kn-plugin-event)](https://goreportcard.com/report/knative-sandbox/kn-plugin-event)
-[![Releases](https://img.shields.io/github/release-pre/knative-sandbox/kn-plugin-event.svg?sort=semver)](https://github.com/knative-sandbox/kn-plugin-event/releases)
-[![LICENSE](https://img.shields.io/github/license/knative-sandbox/kn-plugin-event.svg)](https://github.com/knative-sandbox/kn-plugin-event/blob/main/LICENSE)
+[![Mage](https://github.com/knative-extensions/kn-plugin-event/actions/workflows/go.yml/badge.svg?branch=main)](https://github.com/knative-extensions/kn-plugin-event/actions/workflows/go.yml)
+[![Go Report Card](https://goreportcard.com/badge/knative-extensions/kn-plugin-event)](https://goreportcard.com/report/knative-extensions/kn-plugin-event)
+[![Releases](https://img.shields.io/github/release-pre/knative-extensions/kn-plugin-event.svg?sort=semver)](https://github.com/knative-extensions/kn-plugin-event/releases)
+[![LICENSE](https://img.shields.io/github/license/knative-extensions/kn-plugin-event.svg)](https://github.com/knative-extensions/kn-plugin-event/blob/main/LICENSE)
 [![Maturity level](https://img.shields.io/badge/Maturity%20level-ALPHA-red)](https://github.com/knative/community/tree/main/mechanics/MATURITY-LEVELS.md)
 
 `kn-plugin-event` is a plugin of Knative Client, for managing cloud events from
@@ -115,7 +115,7 @@ $ kn event send \
 ## Install
 
 You can download a pre-built version of `kn-plugin-event` from
-[our release page](https://github.com/knative-sandbox/kn-plugin-event/releases)
+[our release page](https://github.com/knative-extensions/kn-plugin-event/releases)
 . Choose the one that fits your platform.
 
 When the download is ready, you should be ready to use `kn-plugin-event` as a

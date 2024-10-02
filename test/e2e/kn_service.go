@@ -166,10 +166,7 @@ func (wf watholaForwarder) name() string {
 }
 
 func (wf watholaForwarder) sink() Sink {
-	return sinkFn(func() string {
-		return fmt.Sprintf("Service:%s:%s",
-			servingv1.SchemeGroupVersion, wf.name())
-	})
+	return sinkFn(wf.name)
 }
 
 func (wf watholaForwarder) configPath() string {
@@ -177,5 +174,5 @@ func (wf watholaForwarder) configPath() string {
 	if homedirEnv, ok := os.LookupEnv("KN_PLUGIN_EVENT_WATHOLA_HOMEDIR"); ok {
 		homedir = homedirEnv
 	}
-	return fmt.Sprintf("%s/.config/wathola/config.toml", homedir)
+	return path.Join(homedir, ".config", "wathola", "config.toml")
 }

@@ -2,23 +2,23 @@ package sender
 
 import (
 	"context"
-	"net/url"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"knative.dev/pkg/apis"
 )
 
 type directSender struct {
-	url url.URL
+	url apis.URL
 }
 
-func (d *directSender) Send(ce cloudevents.Event) error {
+func (d *directSender) Send(ctx context.Context, ce cloudevents.Event) error {
 	c, err := cloudevents.NewClientHTTP()
 	if err != nil {
 		return cantSentEvent(err)
 	}
 
 	// Set a target.
-	ctx := cloudevents.ContextWithTarget(context.TODO(), d.url.String())
+	ctx = cloudevents.ContextWithTarget(ctx, d.url.String())
 
 	// Send that Event.
 	err = c.Send(ctx, ce)

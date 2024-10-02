@@ -17,7 +17,7 @@ var ErrCouldNotResolve = errors.New("could not resolve image with registered res
 
 // Resolver will resolve given KO package paths into real OCI images references.
 // This interface probably should be moved into reconciler-test framework. See:
-// https://github.com/knative-sandbox/reconciler-test/issues/303
+// https://github.com/knative-extensions/reconciler-test/issues/303
 type Resolver interface {
 	// Resolve will resolve given KO package path into real OCI image reference.
 	Resolve(kopath string) (name.Reference, error)
@@ -31,7 +31,7 @@ type PackageResolver func(ctx context.Context) string
 
 // ExplicitPackage will return given package.
 func ExplicitPackage(pack string) PackageResolver {
-	return func(ctx context.Context) string {
+	return func(context.Context) string {
 		return pack
 	}
 }

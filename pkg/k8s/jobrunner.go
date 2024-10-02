@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
@@ -11,11 +12,11 @@ import (
 
 // JobRunner will launch a Job and monitor it for completion.
 type JobRunner interface {
-	Run(job *batchv1.Job) error
+	Run(ctx context.Context, job *batchv1.Job) error
 }
 
-// CreateJobRunner will create a JobRunner, or return an error.
-func CreateJobRunner(kube Clients) JobRunner {
+// NewJobRunner will create a JobRunner, or return an error.
+func NewJobRunner(kube Clients) JobRunner {
 	return &jobRunner{
 		kube: kube,
 	}
@@ -31,13 +32,13 @@ type task struct {
 	wg    *sync.WaitGroup
 }
 
-func (j *jobRunner) Run(job *batchv1.Job) error {
+func (j *jobRunner) Run(ctx context.Context, job *batchv1.Job) error {
 	ready := make(chan bool)
 	errs := make(chan error)
 	tsk := task{
 		errs, ready, &sync.WaitGroup{},
 	}
-	tasks := []func(*batchv1.Job, task){
+	tasks := []func(context.Context, *batchv1.Job, task){
 		// wait is started first,  making sure to capture success, even the ultra-fast one.
 		j.waitForSuccess,
 		j.createJob,
@@ -45,7 +46,7 @@ func (j *jobRunner) Run(job *batchv1.Job) error {
 	tsk.wg.Add(len(tasks))
 	// run all tasks in parallel
 	for _, fn := range tasks {
-		go fn(job, tsk)
+		go fn(ctx, job, tsk)
 		<-ready
 	}
 	go waitAndClose(tsk)
@@ -56,13 +57,12 @@ func (j *jobRunner) Run(job *batchv1.Job) error {
 		}
 	}
 
-	return j.deleteJob(job)
+	return j.deleteJob(ctx, job)
 }
 
-func (j *jobRunner) createJob(job *batchv1.Job, tsk task) {
+func (j *jobRunner) createJob(ctx context.Context, job *batchv1.Job, tsk task) {
 	defer tsk.wg.Done()
 	tsk.ready <- true
-	ctx := j.kube.Context()
 	jobs := j.kube.Typed().BatchV1().Jobs(job.Namespace)
 	_, err := jobs.Create(ctx, job, metav1.CreateOptions{})
 	if err != nil {
@@ -70,9 +70,9 @@ func (j *jobRunner) createJob(job *batchv1.Job, tsk task) {
 	}
 }
 
-func (j *jobRunner) waitForSuccess(job *batchv1.Job, tsk task) {
+func (j *jobRunner) waitForSuccess(ctx context.Context, job *batchv1.Job, tsk task) {
 	defer tsk.wg.Done()
-	err := j.watchJob(job, tsk, func(job *batchv1.Job) (bool, error) {
+	err := j.watchJob(ctx, job, tsk, func(job *batchv1.Job) (bool, error) {
 		if job.Status.CompletionTime == nil && job.Status.Failed == 0 {
 			return false, nil
 		}
@@ -93,8 +93,7 @@ func waitAndClose(tsk task) {
 	close(tsk.errs)
 }
 
-func (j *jobRunner) deleteJob(job *batchv1.Job) error {
-	ctx := j.kube.Context()
+func (j *jobRunner) deleteJob(ctx context.Context, job *batchv1.Job) error {
 	jobs := j.kube.Typed().BatchV1().Jobs(job.GetNamespace())
 	policy := metav1.DeletePropagationBackground
 	err := jobs.Delete(ctx, job.GetName(), metav1.DeleteOptions{
@@ -105,7 +104,7 @@ func (j *jobRunner) deleteJob(job *batchv1.Job) error {
 	}
 	pods := j.kube.Typed().CoreV1().Pods(job.GetNamespace())
 	err = pods.DeleteCollection(ctx, metav1.DeleteOptions{}, metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("job-name=%s", job.GetName()),
+		LabelSelector: "job-name=" + job.GetName(),
 	})
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
@@ -113,11 +112,15 @@ func (j *jobRunner) deleteJob(job *batchv1.Job) error {
 	return nil
 }
 
-func (j *jobRunner) watchJob(obj metav1.Object, tsk task, changeFn func(job *batchv1.Job) (bool, error)) error {
-	ctx := j.kube.Context()
+func (j *jobRunner) watchJob(
+	ctx context.Context,
+	obj metav1.Object,
+	tsk task,
+	changeFn func(job *batchv1.Job) (bool, error),
+) error {
 	jobs := j.kube.Typed().BatchV1().Jobs(obj.GetNamespace())
 	watcher, err := jobs.Watch(ctx, metav1.ListOptions{
-		FieldSelector: fmt.Sprintf("metadata.name=%s", obj.GetName()),
+		FieldSelector: "metadata.name=" + obj.GetName(),
 	})
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)

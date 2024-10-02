@@ -4,7 +4,6 @@ package e2e
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -49,8 +48,7 @@ func (b brokerSutImpl) step(ctx context.Context, t feature.T) {
 
 func (b brokerSutImpl) sink() Sink {
 	return sinkFn(func() string {
-		return fmt.Sprintf("Broker:%s:%s",
-			eventingv1.SchemeGroupVersion, b.name())
+		return "broker:" + b.name()
 	})
 }
 

@@ -2,6 +2,7 @@ package ics_test
 
 import (
 	"bytes"
+	"context"
 	"net/url"
 	"strings"
 	"testing"
@@ -9,17 +10,22 @@ import (
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/google/uuid"
+	"github.com/spf13/cobra"
 	"github.com/wavesoftware/go-commandline"
 	"gotest.tools/v3/assert"
 	internalics "knative.dev/kn-plugin-event/internal/ics"
-	"knative.dev/kn-plugin-event/pkg/cli/ics"
+	"knative.dev/kn-plugin-event/pkg/ics"
 	"knative.dev/kn-plugin-event/pkg/tests"
 )
 
 func TestApp(t *testing.T) {
-	var outBuf bytes.Buffer
+	var outBuf, errBuf bytes.Buffer
 	opts := []commandline.Option{
-		commandline.WithOutput(&outBuf),
+		commandline.WithCommand(func(cmd *cobra.Command) {
+			cmd.SetOut(&outBuf)
+			cmd.SetErr(&errBuf)
+			cmd.SetContext(context.TODO())
+		}),
 	}
 	id := uuid.New().String()
 	want := cloudevents.NewEvent()
@@ -39,10 +45,10 @@ func TestApp(t *testing.T) {
 			return commandline.New(internalics.App{}).Execute(opts...)
 		})
 	})
-	out := outBuf.String()
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, want, *got)
-	assert.Check(t, strings.Contains(out, "Event sent"))
-	assert.Check(t, strings.Contains(out, id))
+	assert.Check(t, strings.Contains(errBuf.String(), "Event sent"))
+	assert.Check(t, strings.Contains(errBuf.String(), id))
+	assert.Equal(t, "", outBuf.String())
 }

@@ -3,19 +3,20 @@ package cli
 import (
 	"github.com/thediveo/enumflag"
 	"knative.dev/kn-plugin-event/pkg/event"
-	"knative.dev/kn-plugin-event/pkg/system"
+	"knative.dev/kn-plugin-event/pkg/k8s"
 )
 
-// Options holds a general args for all commands.
-type Options struct {
-	event.KnPluginOptions
+// Params holds a general args for all commands.
+type Params struct {
+	// OutputMode define the type of output commands should be producing.
+	OutputMode
 
-	// Output define type of output commands should be producing.
-	Output OutputMode
-
-	// Verbose tells does commands should display additional information about
+	// Verbose tells should commands display additional information about
 	// what's happening? Verbose information is printed on stderr.
 	Verbose bool
+
+	// Kubernetes related parameters.
+	k8s.Params
 }
 
 // EventArgs holds args of event to be created with.
@@ -29,11 +30,8 @@ type EventArgs struct {
 
 // TargetArgs holds args specific for even sending.
 type TargetArgs struct {
-	URL             string
-	Addressable     string
-	Namespace       string
-	SenderNamespace string
-	AddressableURI  string
+	Sink           string
+	AddressableURI string
 }
 
 // OutputMode is type of output to produce.
@@ -49,5 +47,4 @@ const (
 // App object.
 type App struct {
 	event.Binding
-	system.Environment
 }

@@ -53,7 +53,7 @@ func init() { //nolint:gochecknoinits
 			Resolver: knative.NewVersionResolver(
 				knative.WithGit(
 					git.WithRemote(git.Remote{
-						URL: "https://github.com/knative-sandbox/kn-plugin-event.git",
+						URL: "https://github.com/knative-extensions/kn-plugin-event.git",
 					}),
 				),
 			),

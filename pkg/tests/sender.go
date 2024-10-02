@@ -1,6 +1,8 @@
 package tests
 
 import (
+	"context"
+
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 )
 
@@ -10,7 +12,7 @@ type Sender struct {
 }
 
 // Send will send event to specified target.
-func (m *Sender) Send(ce cloudevents.Event) error {
+func (m *Sender) Send(_ context.Context, ce cloudevents.Event) error {
 	m.Sent = append(m.Sent, ce)
 	return nil
 }

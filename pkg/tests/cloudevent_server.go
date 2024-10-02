@@ -17,7 +17,7 @@ var ErrCantStartCloudEventsServer = errors.New("can't start cloutevents server")
 // HTTP server which can catch a sent event.
 func WithCloudEventsServer(test func(serverURL url.URL) error) (*cloudevents.Event, error) {
 	var ce *cloudevents.Event
-	receive := func(ctx context.Context, event cloudevents.Event) {
+	receive := func(_ context.Context, event cloudevents.Event) {
 		ce = &event
 	}
 	ctx := context.Background()
