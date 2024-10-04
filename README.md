@@ -71,14 +71,15 @@ $ kn event build \
 
 ### Send an event
 
-To send and event you should utilize `send` subcommand. The `send` command
-leverages the same builder-like interface as `build` command does. You could
-send an event to public address of your application by using `--to-url` option,
-or to supported in-cluster resources by using `--to` option.
+To send an event, you should use the `send` subcommand. The `send` command uses
+the same builder-like interface as the `build` command. You can send an event to
+the public address of your application or to a supported in-cluster resource by
+using the `--to` option.
 
-#### Sending to public address
+#### Sending to a public address
 
-To send event to public address you use `--to-url` option:
+To send an event to a public address, you should pass the address to the `--to`
+option:
 
 ```sh
 $ kn event send \
@@ -86,31 +87,36 @@ $ kn event send \
     --field player.game=2345 \
     --field points=456 \
     --type org.example.gaming.foo \
-    --to-url http://ce-api.foo.example.org/
+    --to http://ce-api.foo.example.org/
 ```
 
-> **NOTE**: All argument, except `--to-url` are optional. Use
+> **NOTE**: All arguments, except `--to` are optional. Use
 > `kn event send --help` to see full usage information.
 
-#### Sending to in-cluster resources
+#### Sending to the in-cluster resources
 
-Sending event to in-cluster resources is done with a companion Job that is
-deployed on your cluster. In that way `kn-event` and send your event even to
+Sending events to the in-cluster resources is done with a companion *Job*
+that is deployed on your cluster. This allows `kn-event` to send your events to
 resources that are not publicly accessible.
 
-Send an event to a Knative service `event-display` in namespace `default`:
+Send an event to a Knative service `showcase` in current namespace:
 
 ```sh
 $ kn event send \
     --type org.example.kn.ping \
     --id $(uuidgen) \
-    --field event.type=test \
     --field event.data=98765 \
-    --to Service:serving.knative.dev/v1:event-display
+    --to showcase
 ```
 
-> **NOTE**: All argument, except `--to-url` are optional. Use
-> `kn event send --help` to see full usage information.
+To send the event to the broker named `foo` in `my-ns` namespace:
+
+```sh
+$ kn event send --to broker:foo:my-ns
+```
+
+> **NOTE**: The `--to` option follows [the Kn sink format](https://github.com/knative/client/blob/main/docs/cmd/kn_trigger_create.md#options).
+> Use `kn event send --help` to see full format description.
 
 ## Install
 
