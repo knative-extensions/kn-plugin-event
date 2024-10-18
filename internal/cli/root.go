@@ -29,6 +29,16 @@ import (
 // Options to override the commandline for testing purposes.
 var Options []commandline.Option //nolint:gochecknoglobals
 
+// EffectiveOptions are the options used for command run.
+//
+// TODO: Consider migrating to Cobra' error handler, see: https://github.com/spf13/cobra/pull/2199
+func EffectiveOptions() []commandline.Option {
+	return append(
+		[]commandline.Option{commandline.WithErrorHandler(errorHandler)},
+		Options...,
+	)
+}
+
 type App struct {
 	cli.Params
 }

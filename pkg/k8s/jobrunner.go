@@ -8,6 +8,9 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
+	outlogging "knative.dev/client/pkg/output/logging"
+	"knative.dev/kn-plugin-event/pkg/errors"
+	"sigs.k8s.io/yaml"
 )
 
 // JobRunner will launch a Job and monitor it for completion.
@@ -38,8 +41,10 @@ func (j *jobRunner) Run(ctx context.Context, job *batchv1.Job) error {
 	tsk := task{
 		errs, ready, &sync.WaitGroup{},
 	}
+	logdumpJob(ctx, job)
+
 	tasks := []func(context.Context, *batchv1.Job, task){
-		// wait is started first,  making sure to capture success, even the ultra-fast one.
+		// wait is started first, making sure to capture success, even the ultra-fast one.
 		j.waitForSuccess,
 		j.createJob,
 	}
@@ -66,25 +71,30 @@ func (j *jobRunner) createJob(ctx context.Context, job *batchv1.Job, tsk task) {
 	jobs := j.kube.Typed().BatchV1().Jobs(job.Namespace)
 	_, err := jobs.Create(ctx, job, metav1.CreateOptions{})
 	if err != nil {
-		tsk.errs <- fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
+		tsk.errs <- errors.Wrap(err, ErrJobFailed)
 	}
 }
 
 func (j *jobRunner) waitForSuccess(ctx context.Context, job *batchv1.Job, tsk task) {
 	defer tsk.wg.Done()
 	err := j.watchJob(ctx, job, tsk, func(job *batchv1.Job) (bool, error) {
-		if job.Status.CompletionTime == nil && job.Status.Failed == 0 {
-			return false, nil
+		if job.Status.Succeeded >= 1 {
+			return true, nil
 		}
-		// We should be done if we reach here.
-		if job.Status.Succeeded < 1 {
-			return false, fmt.Errorf("%w: %s", ErrICSenderJobFailed,
-				"expected to have successful job")
+		limit := int32(0)
+		if job.Spec.BackoffLimit != nil {
+			limit = *job.Spec.BackoffLimit
 		}
-		return true, nil
+		if job.Status.Failed >= limit {
+			logdumpJob(ctx, job)
+			return false, fmt.Errorf(
+				"%w \"%s\" %d times, exceeding the limit of %d",
+				ErrJobFailed, job.GetName(), job.Status.Failed, limit)
+		}
+		return false, nil
 	})
 	if err != nil {
-		tsk.errs <- fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
+		tsk.errs <- errors.Wrap(err, ErrJobFailed)
 	}
 }
 
@@ -100,14 +110,14 @@ func (j *jobRunner) deleteJob(ctx context.Context, job *batchv1.Job) error {
 		PropagationPolicy: &policy,
 	})
 	if err != nil {
-		return fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
+		return errors.Wrap(err, ErrJobFailed)
 	}
 	pods := j.kube.Typed().CoreV1().Pods(job.GetNamespace())
 	err = pods.DeleteCollection(ctx, metav1.DeleteOptions{}, metav1.ListOptions{
 		LabelSelector: "job-name=" + job.GetName(),
 	})
 	if err != nil {
-		return fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
+		return errors.Wrap(err, ErrJobFailed)
 	}
 	return nil
 }
@@ -123,7 +133,7 @@ func (j *jobRunner) watchJob(
 		FieldSelector: "metadata.name=" + obj.GetName(),
 	})
 	if err != nil {
-		return fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
+		return errors.Wrap(err, ErrJobFailed)
 	}
 	defer watcher.Stop()
 	resultCh := watcher.ResultChan()
@@ -132,13 +142,13 @@ func (j *jobRunner) watchJob(
 		if result.Type == watch.Added || result.Type == watch.Modified {
 			job, ok := result.Object.(*batchv1.Job)
 			if !ok {
-				return fmt.Errorf("%w: %s: %T", ErrICSenderJobFailed,
+				return fmt.Errorf("%w: %s: %T", ErrJobFailed,
 					"expected to watch batchv1.Job, got", result.Object)
 			}
 			var brk bool
 			brk, err = changeFn(job)
 			if err != nil {
-				return fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
+				return errors.Wrap(err, ErrJobFailed)
 			}
 			if brk {
 				return nil
@@ -146,4 +156,19 @@ func (j *jobRunner) watchJob(
 		}
 	}
 	return nil
+}
+
+func logdumpJob(ctx context.Context, job *batchv1.Job) {
+	log := outlogging.LoggerFrom(ctx)
+	image := "<unknown>"
+	if len(job.Spec.Template.Spec.Containers) == 1 {
+		image = job.Spec.Template.Spec.Containers[0].Image
+	}
+	if jobBytes, yerr := yaml.Marshal(job); yerr == nil {
+		log.WithFields(outlogging.Fields{"job": string(jobBytes)}).
+			Debug("Sender job image: ", image)
+	} else {
+		log.WithFields(outlogging.Fields{"err": yerr.Error()}).
+			Debug("Sender job image: ", image)
+	}
 }

@@ -2,20 +2,25 @@ package sender
 
 import (
 	"context"
-	"fmt"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/rand"
+	"knative.dev/kn-plugin-event/pkg/errors"
 	"knative.dev/kn-plugin-event/pkg/event"
-	ics2 "knative.dev/kn-plugin-event/pkg/ics"
+	"knative.dev/kn-plugin-event/pkg/ics"
 	"knative.dev/kn-plugin-event/pkg/k8s"
 	"knative.dev/kn-plugin-event/pkg/metadata"
+	"knative.dev/pkg/ptr"
 )
 
-const idLength = 16
+const (
+	idLength        = 6
+	defaultRetries  = 3
+	defaultDeadline = 5 // seconds
+)
 
 type inClusterSender struct {
 	namespace       string
@@ -29,11 +34,11 @@ func (i *inClusterSender) Send(ctx context.Context, ce cloudevents.Event) error 
 		ctx, i.target.Reference, i.target.RelativeURI,
 	)
 	if err != nil {
-		return fmt.Errorf("%w: %w", k8s.ErrInvalidReference, err)
+		return errors.Wrap(err, k8s.ErrInvalidReference)
 	}
-	kevent, err := ics2.Encode(ce)
+	kevent, err := ics.Encode(ce)
 	if err != nil {
-		return fmt.Errorf("%w: %w", ics2.ErrCouldntEncode, err)
+		return errors.Wrap(err, ics.ErrCouldntEncode)
 	}
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
@@ -44,9 +49,11 @@ func (i *inClusterSender) Send(ctx context.Context, ce cloudevents.Event) error 
 			},
 		},
 		Spec: batchv1.JobSpec{
+			BackoffLimit: ptr.Int32(defaultRetries),
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
-					RestartPolicy: corev1.RestartPolicyNever,
+					RestartPolicy:         corev1.RestartPolicyNever,
+					ActiveDeadlineSeconds: ptr.Int64(defaultDeadline),
 					Containers: []corev1.Container{{
 						Name:  "kn-event-sender",
 						Image: metadata.ResolveImage(),
@@ -64,7 +71,7 @@ func (i *inClusterSender) Send(ctx context.Context, ce cloudevents.Event) error 
 	}
 	err = i.jobRunner.Run(ctx, job)
 	if err != nil {
-		return fmt.Errorf("%w: %w", ics2.ErrCantSendWithICS, err)
+		return errors.Wrap(err, ics.ErrICSFailed)
 	}
 	return nil
 }

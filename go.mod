@@ -4,6 +4,7 @@ go 1.22.0
 
 require (
 	github.com/cloudevents/sdk-go/v2 v2.15.2
+	github.com/fatih/color v1.14.1
 	github.com/ghodss/yaml v1.0.0
 	github.com/gobuffalo/flect v1.0.2
 	github.com/google/go-containerregistry v0.19.1
@@ -15,7 +16,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	github.com/thediveo/enumflag v0.10.0
-	github.com/wavesoftware/go-commandline v1.1.0
+	github.com/wavesoftware/go-commandline v1.3.0
 	github.com/wavesoftware/go-ensure v1.0.0
 	go.uber.org/zap v1.27.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -77,6 +78,8 @@ require (
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/moby/term v0.5.0 // indirect
