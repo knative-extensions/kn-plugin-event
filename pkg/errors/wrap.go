@@ -29,3 +29,33 @@ func Wrap(err, wrap error) error {
 	}
 	return fmt.Errorf("%w: %w", wrap, err)
 }
+
+// UnwrapAll will get all the wrapped errors of a given one, regardless if a
+// single error was wrapped or multiple.
+func UnwrapAll(err error) []error {
+	cause := errors.Unwrap(err)
+	if cause != nil {
+		return []error{cause}
+	}
+	eg, ok := err.(multipleErrors)
+	if !ok {
+		return nil
+	}
+	return append(([]error)(nil), eg.Unwrap()...)
+}
+
+// Cause will determine the cause error of the given one, by returning the
+// second wrapped error.
+func Cause(err error) error {
+	errs := UnwrapAll(err)
+	switch len(errs) {
+	case 0, 1:
+		return nil
+	default:
+		return errs[1]
+	}
+}
+
+type multipleErrors interface {
+	Unwrap() []error
+}

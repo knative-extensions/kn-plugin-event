@@ -46,11 +46,12 @@ type App struct {
 
 func (a *App) Command() *cobra.Command {
 	c := &cobra.Command{
-		Use:          metadata.PluginUse,
-		Aliases:      []string{"kn " + metadata.PluginUse},
-		Short:        metadata.PluginDescription,
-		Long:         metadata.PluginLongDescription,
-		SilenceUsage: true,
+		Use:           metadata.PluginUse,
+		Aliases:       []string{"kn " + metadata.PluginUse},
+		Short:         metadata.PluginDescription,
+		Long:          metadata.PluginLongDescription,
+		SilenceUsage:  true,
+		SilenceErrors: true,
 	}
 
 	eventArgs := &cli.EventArgs{}

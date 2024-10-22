@@ -17,7 +17,7 @@ var (
 	// configure ICS sender.
 	ErrCantConfigureICS = errors.New("can't configure in-cluster sender")
 	// ErrICSFailed if the in-cluster sender has failed.
-	ErrICSFailed = errors.New("the in-cluster sender failed")
+	ErrICSFailed = errors.New("the in-cluster sender failure")
 )
 
 // Args holds a list of args for in-cluster-sender.

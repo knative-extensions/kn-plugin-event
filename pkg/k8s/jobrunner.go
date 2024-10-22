@@ -91,7 +91,8 @@ func (j *jobRunner) waitForSuccess(ctx context.Context, job *batchv1.Job, tsk ta
 		if job.Status.Failed >= limit {
 			j.logdumpJob(ctx, "Failed job", job)
 			return false, fmt.Errorf(
-				"%w %d times, exceeding the limit (job name: \"%s\")",
+				"%w %d times, exceeding the limit (job \"%s\" has been left on "+
+					"the cluster for debugging)",
 				ErrJobFailed, job.Status.Failed, job.GetName())
 		}
 		return false, nil
