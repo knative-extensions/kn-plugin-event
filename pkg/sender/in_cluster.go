@@ -18,7 +18,7 @@ import (
 
 const (
 	idLength          = 6
-	retriesDefault    = 4
+	retriesDefault    = 3
 	retriesConfigKey  = "plugins.event.in-cluster-sender.retries"
 	deadlineDefault   = 7 // seconds
 	deadlineConfigKey = "plugins.event.in-cluster-sender.deadline"

@@ -2,15 +2,17 @@ package k8s
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"reflect"
 	"sync"
 
 	batchv1 "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	outlogging "knative.dev/client/pkg/output/logging"
 	"knative.dev/kn-plugin-event/pkg/errors"
-	"sigs.k8s.io/yaml"
 )
 
 // JobRunner will launch a Job and monitor it for completion.
@@ -41,7 +43,7 @@ func (j *jobRunner) Run(ctx context.Context, job *batchv1.Job) error {
 	tsk := task{
 		errs, ready, &sync.WaitGroup{},
 	}
-	logdumpJob(ctx, job)
+	j.logdumpJob(ctx, "Job to be executed", job)
 
 	tasks := []func(context.Context, *batchv1.Job, task){
 		// wait is started first, making sure to capture success, even the ultra-fast one.
@@ -79,6 +81,7 @@ func (j *jobRunner) waitForSuccess(ctx context.Context, job *batchv1.Job, tsk ta
 	defer tsk.wg.Done()
 	err := j.watchJob(ctx, job, tsk, func(job *batchv1.Job) (bool, error) {
 		if job.Status.Succeeded >= 1 {
+			j.logdumpJob(ctx, "Successful job", job)
 			return true, nil
 		}
 		limit := int32(0)
@@ -86,10 +89,10 @@ func (j *jobRunner) waitForSuccess(ctx context.Context, job *batchv1.Job, tsk ta
 			limit = *job.Spec.BackoffLimit
 		}
 		if job.Status.Failed >= limit {
-			logdumpJob(ctx, job)
+			j.logdumpJob(ctx, "Failed job", job)
 			return false, fmt.Errorf(
-				"%w \"%s\" %d times, exceeding the limit of %d",
-				ErrJobFailed, job.GetName(), job.Status.Failed, limit)
+				"%w %d times, exceeding the limit (job name: \"%s\")",
+				ErrJobFailed, job.Status.Failed, job.GetName())
 		}
 		return false, nil
 	})
@@ -158,17 +161,50 @@ func (j *jobRunner) watchJob(
 	return nil
 }
 
-func logdumpJob(ctx context.Context, job *batchv1.Job) {
+func (j *jobRunner) logdumpJob(ctx context.Context, label string, job *batchv1.Job) {
 	log := outlogging.LoggerFrom(ctx)
 	image := "<unknown>"
 	if len(job.Spec.Template.Spec.Containers) == 1 {
 		image = job.Spec.Template.Spec.Containers[0].Image
 	}
-	if jobBytes, yerr := yaml.Marshal(job); yerr == nil {
-		log.WithFields(outlogging.Fields{"job": string(jobBytes)}).
-			Debug("Sender job image: ", image)
+	fields := outlogging.Fields{
+		"image": image,
+	}
+	marshalIntoFields(job, "job", "jmerr", fields)
+	// empty status -> the job isn't started yet
+	if !reflect.DeepEqual(job.Status, batchv1.JobStatus{}) {
+		// collect pods for a job that has been executed
+		j.marshalPodsOfJob(ctx, job, fields)
+	}
+	log.WithFields(fields).Debug(label)
+}
+
+func (j *jobRunner) marshalPodsOfJob(ctx context.Context, job *batchv1.Job, fields outlogging.Fields) {
+	pods := j.kube.Typed().CoreV1().Pods(job.GetNamespace())
+	list, err := pods.List(ctx, metav1.ListOptions{LabelSelector: "job-name=" + job.GetName()})
+	if err != nil {
+		fields["perr"] = err.Error()
 	} else {
-		log.WithFields(outlogging.Fields{"err": yerr.Error()}).
-			Debug("Sender job image: ", image)
+		marshalIntoFields(list, "pods", "pmerr", fields)
+		logs := make(map[string]string, list.Size())
+		for _, pod := range list.Items {
+			podLogs, plerr := pods.GetLogs(pod.GetName(), &corev1.PodLogOptions{}).DoRaw(ctx)
+			if plerr != nil {
+				fields["plerr"] = plerr.Error()
+				break
+			} else {
+				logs[pod.GetName()] = string(podLogs)
+			}
+		}
+		marshalIntoFields(logs, "logs", "lmerr", fields)
+	}
+}
+
+func marshalIntoFields(obj any, label, errLabel string, fields outlogging.Fields) {
+	if bytes, err := json.Marshal(obj); err == nil {
+		fields[label] = string(bytes)
+	} else {
+		fields[label] = fmt.Sprintf("%#v", obj)
+		fields[errLabel] = err.Error()
 	}
 }
