@@ -193,9 +193,8 @@ func (j *jobRunner) marshalPodsOfJob(ctx context.Context, job *batchv1.Job, fiel
 			if plerr != nil {
 				fields["plerr"] = plerr.Error()
 				break
-			} else {
-				logs[pod.GetName()] = string(podLogs)
 			}
+			logs[pod.GetName()] = string(podLogs)
 		}
 		marshalIntoFields(logs, "logs", "lmerr", fields)
 	}
