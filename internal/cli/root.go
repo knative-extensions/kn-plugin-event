@@ -21,6 +21,7 @@ import (
 	"github.com/thediveo/enumflag"
 	"github.com/wavesoftware/go-commandline"
 	"go.uber.org/zap/zapcore"
+	"knative.dev/client/pkg/config"
 	outlogging "knative.dev/client/pkg/output/logging"
 	"knative.dev/kn-plugin-event/pkg/cli"
 	"knative.dev/kn-plugin-event/pkg/metadata"
@@ -63,12 +64,13 @@ func (a *App) Command() *cobra.Command {
 		c.AddCommand(each.command())
 	}
 	c.SetContext(cli.InitialContext())
-	c.PersistentPreRun = func(cmd *cobra.Command, _ []string) {
+	c.PersistentPreRunE = func(cmd *cobra.Command, _ []string) error {
 		lvl := zapcore.InfoLevel
 		if a.Verbose {
 			lvl = zapcore.DebugLevel
 		}
 		cli.SetupOutput(cmd, cli.DefaultLoggingSetup(lvl))
+		return config.BootstrapConfig()
 	}
 	c.PersistentPostRunE = func(cmd *cobra.Command, _ []string) error {
 		closer := outlogging.LogFileCloserFrom(cmd.Context())
