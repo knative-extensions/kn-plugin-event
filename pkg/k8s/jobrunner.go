@@ -2,13 +2,10 @@ package k8s
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"reflect"
 	"sync"
 
 	batchv1 "k8s.io/api/batch/v1"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	outlogging "knative.dev/client/pkg/output/logging"
@@ -43,7 +40,7 @@ func (j *jobRunner) Run(ctx context.Context, job *batchv1.Job) error {
 	tsk := task{
 		errs, ready, &sync.WaitGroup{},
 	}
-	j.logdumpJob(ctx, "Job to be executed", job)
+	j.logJobInfo(ctx, "Job to be executed", job)
 
 	tasks := []func(context.Context, *batchv1.Job, task){
 		// wait is started first, making sure to capture success, even the ultra-fast one.
@@ -81,7 +78,7 @@ func (j *jobRunner) waitForSuccess(ctx context.Context, job *batchv1.Job, tsk ta
 	defer tsk.wg.Done()
 	err := j.watchJob(ctx, job, tsk, func(job *batchv1.Job) (bool, error) {
 		if job.Status.Succeeded >= 1 {
-			j.logdumpJob(ctx, "Successful job", job)
+			j.logJobInfo(ctx, "Successful job", job)
 			return true, nil
 		}
 		limit := int32(0)
@@ -89,7 +86,7 @@ func (j *jobRunner) waitForSuccess(ctx context.Context, job *batchv1.Job, tsk ta
 			limit = *job.Spec.BackoffLimit
 		}
 		if job.Status.Failed >= limit {
-			j.logdumpJob(ctx, "Failed job", job)
+			j.logJobInfo(ctx, "Failed job", job)
 			return false, fmt.Errorf(
 				"%w %d times, exceeding the limit (job \"%s\" has been left on "+
 					"the cluster for debugging)",
@@ -162,49 +159,9 @@ func (j *jobRunner) watchJob(
 	return nil
 }
 
-func (j *jobRunner) logdumpJob(ctx context.Context, label string, job *batchv1.Job) {
+func (j *jobRunner) logJobInfo(ctx context.Context, label string, job *batchv1.Job) {
 	log := outlogging.LoggerFrom(ctx)
-	image := "<unknown>"
-	if len(job.Spec.Template.Spec.Containers) == 1 {
-		image = job.Spec.Template.Spec.Containers[0].Image
-	}
-	fields := outlogging.Fields{
-		"image": image,
-	}
-	marshalIntoFields(job, "job", "jmerr", fields)
-	// empty status -> the job isn't started yet
-	if !reflect.DeepEqual(job.Status, batchv1.JobStatus{}) {
-		// collect pods for a job that has been executed
-		j.marshalPodsOfJob(ctx, job, fields)
-	}
+	g := jobGatherer{kube: j.kube}
+	fields := g.gather(ctx, job)
 	log.WithFields(fields).Debug(label)
-}
-
-func (j *jobRunner) marshalPodsOfJob(ctx context.Context, job *batchv1.Job, fields outlogging.Fields) {
-	pods := j.kube.Typed().CoreV1().Pods(job.GetNamespace())
-	list, err := pods.List(ctx, metav1.ListOptions{LabelSelector: "job-name=" + job.GetName()})
-	if err != nil {
-		fields["perr"] = err.Error()
-	} else {
-		marshalIntoFields(list, "pods", "pmerr", fields)
-		logs := make(map[string]string, list.Size())
-		for _, pod := range list.Items {
-			podLogs, plerr := pods.GetLogs(pod.GetName(), &corev1.PodLogOptions{}).DoRaw(ctx)
-			if plerr != nil {
-				fields["plerr"] = plerr.Error()
-				break
-			}
-			logs[pod.GetName()] = string(podLogs)
-		}
-		marshalIntoFields(logs, "logs", "lmerr", fields)
-	}
-}
-
-func marshalIntoFields(obj any, label, errLabel string, fields outlogging.Fields) {
-	if bytes, err := json.Marshal(obj); err == nil {
-		fields[label] = string(bytes)
-	} else {
-		fields[label] = fmt.Sprintf("%#v", obj)
-		fields[errLabel] = err.Error()
-	}
 }

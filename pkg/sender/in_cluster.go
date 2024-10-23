@@ -20,7 +20,7 @@ const (
 	idLength          = 6
 	retriesDefault    = 3
 	retriesConfigKey  = "plugins.event.in-cluster-sender.retries"
-	deadlineDefault   = 7 // seconds
+	deadlineDefault   = 10 // seconds
 	deadlineConfigKey = "plugins.event.in-cluster-sender.deadline"
 )
 
