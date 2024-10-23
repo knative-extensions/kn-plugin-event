@@ -8,6 +8,7 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
+	"knative.dev/client-pkg/pkg/output/tui"
 	outlogging "knative.dev/client/pkg/output/logging"
 	"knative.dev/kn-plugin-event/pkg/errors"
 )
@@ -75,7 +76,18 @@ func (j *jobRunner) createJob(ctx context.Context, job *batchv1.Job, tsk task) {
 }
 
 func (j *jobRunner) waitForSuccess(ctx context.Context, job *batchv1.Job, tsk task) {
+	message := "📬 Sending event within the cluster"
+	spin := tui.NewWidgets(ctx).NewSpinner(message)
 	defer tsk.wg.Done()
+	spinStop := make(chan error, 1)
+	var bspin *tui.BubbleSpinner
+	go spin.With(func(spinner tui.Spinner) error {
+		if s, ok := spinner.(*tui.BubbleSpinner); ok {
+			bspin = s
+		}
+		<-spinStop
+		return nil
+	})
 	err := j.watchJob(ctx, job, tsk, func(job *batchv1.Job) (bool, error) {
 		if job.Status.Succeeded >= 1 {
 			j.logJobInfo(ctx, "Successful job", job)
@@ -85,7 +97,15 @@ func (j *jobRunner) waitForSuccess(ctx context.Context, job *batchv1.Job, tsk ta
 		if job.Spec.BackoffLimit != nil {
 			limit = *job.Spec.BackoffLimit
 		}
+		if bspin != nil && job.Status.Failed > 0 {
+			retryMsg := fmt.Sprintf(" (try %d/%d)", job.Status.Failed+1, limit)
+			bspin.Text = message + retryMsg
+		}
 		if job.Status.Failed >= limit {
+			if bspin != nil {
+				bspin.Text = message
+			}
+			close(spinStop)
 			j.logJobInfo(ctx, "Failed job", job)
 			return false, fmt.Errorf(
 				"%w %d times, exceeding the limit (job \"%s\" has been left on "+

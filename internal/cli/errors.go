@@ -40,20 +40,20 @@ func errorHandler(err error, cmd *cobra.Command) bool {
 	ctx := cmd.Context()
 	if logfile := outlogging.LogFileFrom(ctx); logfile != nil {
 		logpath := logfile.Name()
-		hint := "Hint:"
+		hint := "🌟 Hint:"
 		if term.IsFancy(cmd.ErrOrStderr()) {
 			logpath = color.CyanString(logpath)
 			hint = color.YellowString(hint)
 		}
 		cmd.PrintErrln()
 		cmd.PrintErrln(hint, "The execution logs could help debug the failure.")
-		cmd.PrintErrln("      Consider, taking a look at the log file:", logpath)
+		cmd.PrintErrln("         Consider, taking a look at the log file:", logpath)
 	}
 	return false
 }
 
 func prettyPrintErr(err error, cmd *cobra.Command) {
-	prefix := "Error:"
+	prefix := "🔥 Error:"
 	stderr := cmd.ErrOrStderr()
 	if term.IsFancy(stderr) {
 		prefix = color.RedString(prefix)
