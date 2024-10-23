@@ -27,7 +27,7 @@ import (
 func TestNewClients(t *testing.T) {
 	basic, err := clientcmd.NewClientConfigFromBytes([]byte(basicKubeconfig))
 	assert.NilError(t, err)
-	t.Setenv("KUBECONFIG", "/var/blackhole/not-existing.yaml")
+	emptyKubeconfigEnv(t)
 	tcs := []newClientsTestCase{{
 		name:    "nil",
 		wantErr: k8s.ErrNoKubernetesConnection,
@@ -44,6 +44,20 @@ func TestNewClients(t *testing.T) {
 	for _, tc := range tcs {
 		t.Run(tc.name, tc.test)
 	}
+}
+
+func emptyKubeconfigEnv(t *testing.T) {
+	t.Helper()
+	t.Setenv("KUBECONFIG", "/var/blackhole/not-existing.yaml")
+	t.Setenv("KUBERNETES_MASTER", "")
+	t.Setenv("KUBERNETES_SERVICE_PORT_HTTPS", "")
+	t.Setenv("KUBERNETES_SERVICE_PORT", "")
+	t.Setenv("KUBERNETES_PORT_443_TCP", "")
+	t.Setenv("KUBERNETES_PORT_443_TCP_PROTO", "")
+	t.Setenv("KUBERNETES_PORT_443_TCP_ADDR", "")
+	t.Setenv("KUBERNETES_SERVICE_HOST", "")
+	t.Setenv("KUBERNETES_PORT", "")
+	t.Setenv("KUBERNETES_PORT_443_TCP_PORT", "")
 }
 
 func just(cc clientcmd.ClientConfig) func() (clientcmd.ClientConfig, error) {
