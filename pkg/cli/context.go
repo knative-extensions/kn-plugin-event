@@ -21,10 +21,13 @@ import (
 	"io"
 	"os"
 
+	"github.com/fatih/color"
+	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"knative.dev/client/pkg/output"
 	outlogging "knative.dev/client/pkg/output/logging"
+	"knative.dev/client/pkg/output/term"
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/signals"
 )
@@ -37,6 +40,9 @@ type Cobralike interface {
 
 	SetOut(out io.Writer)
 	OutOrStderr() io.Writer
+	SetErrPrefix(prefix string)
+	HasParent() bool
+	Parent() *cobra.Command
 }
 
 // InitialContext returns the initial context object, so it could be set ahead
@@ -95,6 +101,14 @@ func SetupOutput(cbr Cobralike, loggingSetup LoggingSetup) {
 	ctx = output.WithContext(ctx, cbr)
 	ctx = loggingSetup(ctx)
 	cbr.SetContext(ctx)
+
+	if term.IsFancy(cbr.OutOrStdout()) {
+		cbr.SetErrPrefix(color.RedString("Error:"))
+	}
+	if cbr.HasParent() {
+		cmd := cbr.Parent()
+		cmd.SetContext(ctx)
+	}
 }
 
 var (

@@ -2,6 +2,7 @@
 
 set -Eeo pipefail
 
+# shellcheck disable=SC1090
 source "$(go run knative.dev/hack/cmd/script e2e-tests.sh)"
 
 function start_latest_knative_serving() {

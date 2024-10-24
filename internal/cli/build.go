@@ -17,7 +17,6 @@
 package cli
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -25,6 +24,7 @@ import (
 	outlogging "knative.dev/client/pkg/output/logging"
 	"knative.dev/kn-plugin-event/pkg/binding"
 	"knative.dev/kn-plugin-event/pkg/cli"
+	"knative.dev/kn-plugin-event/pkg/errors"
 )
 
 // ErrCantBePresented is returned if data can't be presented.
@@ -62,8 +62,5 @@ func (b *buildCommand) run(cmd *cobra.Command, _ []string) error {
 }
 
 func cantBuildEventError(err error) error {
-	if errors.Is(err, cli.ErrCantBuildEvent) {
-		return err
-	}
-	return fmt.Errorf("%w: %w", cli.ErrCantBuildEvent, err)
+	return errors.Wrap(err, cli.ErrCantBuildEvent)
 }

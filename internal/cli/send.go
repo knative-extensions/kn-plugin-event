@@ -17,24 +17,17 @@
 package cli
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"knative.dev/client/pkg/flags/sink"
 	"knative.dev/kn-plugin-event/pkg/binding"
 	"knative.dev/kn-plugin-event/pkg/cli"
+	"knative.dev/kn-plugin-event/pkg/errors"
 	"knative.dev/kn-plugin-event/pkg/event"
 )
 
-var (
-	// ErrSendTargetValidationFailed is returned if a send target can't pass a
-	// validation.
-	ErrSendTargetValidationFailed = errors.New("send target validation failed")
-
-	// ErrCantSendEvent is returned if event can't be sent.
-	ErrCantSendEvent = errors.New("can't send event")
-)
+// ErrSendTargetValidationFailed is returned if the send target can't pass a
+// validation.
+var ErrSendTargetValidationFailed = errors.New("send target validation failed")
 
 type sendCommand struct {
 	target *cli.TargetArgs
@@ -63,7 +56,7 @@ option isn't specified target URL will not be changed.`,
 	c.PreRunE = func(*cobra.Command, []string) error {
 		err := cli.ValidateTarget(s.target)
 		if err != nil {
-			return fmt.Errorf("%w: %w", ErrSendTargetValidationFailed, err)
+			return errors.Wrap(err, ErrSendTargetValidationFailed)
 		}
 		return nil
 	}
@@ -84,8 +77,5 @@ func (s *sendCommand) run(cmd *cobra.Command, _ []string) error {
 }
 
 func cantSentEvent(err error) error {
-	if errors.Is(err, event.ErrCantSentEvent) {
-		return err
-	}
-	return fmt.Errorf("%w: %w", event.ErrCantSentEvent, err)
+	return errors.Wrap(err, event.ErrCantSentEvent)
 }

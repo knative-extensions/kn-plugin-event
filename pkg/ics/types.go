@@ -15,9 +15,9 @@ var (
 	ErrCouldntDecode = errors.New("couldn't decode an event")
 	// ErrCantConfigureICS is returned when the problem occurs while trying to
 	// configure ICS sender.
-	ErrCantConfigureICS = errors.New("can't configure ICS sender")
-	// ErrCantSendWithICS if can't send with ICS sender.
-	ErrCantSendWithICS = errors.New("can't send with ICS sender")
+	ErrCantConfigureICS = errors.New("can't configure in-cluster sender")
+	// ErrICSFailed if the in-cluster sender has failed.
+	ErrICSFailed = errors.New("the in-cluster sender failure")
 )
 
 // Args holds a list of args for in-cluster-sender.

@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	commandline.New(new(cli.App)).ExecuteOrDie(cli.Options...)
+	commandline.New(new(cli.App)).ExecuteOrDie(cli.EffectiveOptions()...)
 }
