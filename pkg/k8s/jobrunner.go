@@ -8,8 +8,8 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
-	"knative.dev/client-pkg/pkg/output/tui"
 	outlogging "knative.dev/client/pkg/output/logging"
+	"knative.dev/client/pkg/output/tui"
 	"knative.dev/kn-plugin-event/pkg/errors"
 )
 
@@ -76,43 +76,33 @@ func (j *jobRunner) createJob(ctx context.Context, job *batchv1.Job, tsk task) {
 }
 
 func (j *jobRunner) waitForSuccess(ctx context.Context, job *batchv1.Job, tsk task) {
-	message := "📬 Sending event within the cluster"
-	spin := tui.NewWidgets(ctx).NewSpinner(message)
 	defer tsk.wg.Done()
-	spinStop := make(chan error, 1)
-	var bspin *tui.BubbleSpinner
-	go spin.With(func(spinner tui.Spinner) error {
-		if s, ok := spinner.(*tui.BubbleSpinner); ok {
-			bspin = s
-		}
-		<-spinStop
-		return nil
-	})
-	err := j.watchJob(ctx, job, tsk, func(job *batchv1.Job) (bool, error) {
-		if job.Status.Succeeded >= 1 {
-			j.logJobInfo(ctx, "Successful job", job)
-			return true, nil
-		}
-		limit := int32(0)
-		if job.Spec.BackoffLimit != nil {
-			limit = *job.Spec.BackoffLimit
-		}
-		if bspin != nil && job.Status.Failed > 0 {
-			retryMsg := fmt.Sprintf(" (try %d/%d)", job.Status.Failed+1, limit)
-			bspin.Text = message + retryMsg
-		}
-		if job.Status.Failed >= limit {
-			if bspin != nil {
-				bspin.Text = message
+	message := "📬 Sending event within the cluster"
+	spin := newSpinner(ctx, message)
+	err := spin.With(func(_ tui.Spinner) error {
+		return j.watchJob(ctx, job, tsk, func(job *batchv1.Job) (bool, error) {
+			if job.Status.Succeeded >= 1 {
+				j.logJobInfo(ctx, "Successful job", job)
+				return true, nil
 			}
-			close(spinStop)
-			j.logJobInfo(ctx, "Failed job", job)
-			return false, fmt.Errorf(
-				"%w %d times, exceeding the limit (job \"%s\" has been left on "+
-					"the cluster for debugging)",
-				ErrJobFailed, job.Status.Failed, job.GetName())
-		}
-		return false, nil
+			limit := int32(0)
+			if job.Spec.BackoffLimit != nil {
+				limit = *job.Spec.BackoffLimit
+			}
+			if job.Status.Failed > 0 {
+				retryMsg := fmt.Sprintf(" (try %d/%d)", job.Status.Failed+1, limit)
+				spin.updateMessage(message + retryMsg)
+			}
+			if job.Status.Failed >= limit {
+				spin.updateMessage(message)
+				j.logJobInfo(ctx, "Failed job", job)
+				return false, fmt.Errorf(
+					"%w %d times, exceeding the limit (job \"%s\" has been left on "+
+						"the cluster for debugging)",
+					ErrJobFailed, job.Status.Failed, job.GetName())
+			}
+			return false, nil
+		})
 	})
 	if err != nil {
 		tsk.errs <- errors.Wrap(err, ErrJobFailed)
@@ -184,4 +174,26 @@ func (j *jobRunner) logJobInfo(ctx context.Context, label string, job *batchv1.J
 	g := jobGatherer{kube: j.kube}
 	fields := g.gather(ctx, job)
 	log.WithFields(fields).Debug(label)
+}
+
+// updatebleSpinner allow updating the spinner message.
+// TODO: Consider exposing similar interface in knative.dev/client/pkg/output/tui.
+type updatebleSpinner struct {
+	spin tui.Spinner
+}
+
+func (s *updatebleSpinner) updateMessage(message string) {
+	if bspin, ok := s.spin.(*tui.BubbleSpinner); ok {
+		bspin.Text = message
+	}
+}
+
+func (s *updatebleSpinner) With(fn func(tui.Spinner) error) error {
+	return s.spin.With(fn)
+}
+
+func newSpinner(ctx context.Context, message string) *updatebleSpinner {
+	return &updatebleSpinner{
+		spin: tui.NewWidgets(ctx).NewSpinner(message),
+	}
 }
