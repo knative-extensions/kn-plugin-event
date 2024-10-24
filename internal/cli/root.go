@@ -84,15 +84,19 @@ func (a *App) Command() *cobra.Command {
 }
 
 func (a *App) setGlobalFlags(c *cobra.Command) {
-	c.PersistentFlags().BoolVarP(
+	fl := c.PersistentFlags()
+	fl.BoolVarP(
 		&a.Verbose, "verbose", "v",
 		false, "verbose output",
 	)
-	c.PersistentFlags().VarP(
+	fl.VarP(
 		enumflag.New(&a.OutputMode, "output", outputModeIDs(), enumflag.EnumCaseInsensitive),
 		"output", "o",
 		"OutputMode format. One of: human|json|yaml.",
 	)
+	// TODO: config.BootstrapConfig should allow to add bootstrap flags to command
+	_ = fl.String("config", "", "")
+	_ = fl.MarkHidden("config")
 }
 
 var _ commandline.CobraProvider = new(App)
