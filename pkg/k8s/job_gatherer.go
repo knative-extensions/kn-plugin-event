@@ -36,7 +36,7 @@ type jobGatherer struct {
 
 func (g jobGatherer) gather(ctx context.Context, job *batchv1.Job) outlogging.Fields {
 	fields := outlogging.Fields{}
-	gatherImageInfo(job, fields)
+	fields["image"] = job.Spec.Template.Spec.Containers[0].Image
 	asJSONIntoFields(job, "job", fields)
 	// empty status -> the job isn't started yet
 	if !reflect.DeepEqual(job.Status, batchv1.JobStatus{}) {
@@ -44,21 +44,6 @@ func (g jobGatherer) gather(ctx context.Context, job *batchv1.Job) outlogging.Fi
 		g.gatherInfoOfPodsForJob(ctx, job, fields)
 	}
 	return fields
-}
-
-func gatherImageInfo(job *batchv1.Job, fields outlogging.Fields) {
-	switch len(job.Spec.Template.Spec.Containers) {
-	case 0:
-		// nothing
-	case 1:
-		fields["image"] = job.Spec.Template.Spec.Containers[0].Image
-	default:
-		imgs := make([]string, len(job.Spec.Template.Spec.Containers))
-		for i, container := range job.Spec.Template.Spec.Containers {
-			imgs[i] = container.Image
-		}
-		asJSONIntoFields(imgs, "images", fields)
-	}
 }
 
 func (g jobGatherer) gatherInfoOfPodsForJob(
