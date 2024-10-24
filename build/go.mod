@@ -191,8 +191,8 @@ require (
 	k8s.io/apimachinery v0.30.3 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/utils v0.0.0-20240711033017-18e509b52bc8 // indirect
-	knative.dev/client-pkg v0.0.0-20240808015000-22f598931483 // indirect
-	knative.dev/pkg v0.0.0-20241021183759-9b9d535af5ad // indirect
+	knative.dev/client-pkg v0.0.0-20241022130700-7b4bb48ac250 // indirect
+	knative.dev/pkg v0.0.0-20241024133302-6af2bf9747e9 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kind v0.22.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
