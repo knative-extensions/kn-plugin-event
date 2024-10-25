@@ -34,6 +34,9 @@ require (
 	sigs.k8s.io/yaml v1.4.0
 )
 
+// TODO: remove after knative/client#1973 is merged
+replace knative.dev/client/pkg => github.com/cardil/knative-client/pkg v0.0.0-20241025110936-4ece43045ffb
+
 require (
 	contrib.go.opencensus.io/exporter/ocagent v0.7.1-0.20200907061046-05415f1de66d // indirect
 	contrib.go.opencensus.io/exporter/prometheus v0.4.2 // indirect

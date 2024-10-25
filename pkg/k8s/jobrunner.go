@@ -78,8 +78,8 @@ func (j *jobRunner) createJob(ctx context.Context, job *batchv1.Job, tsk task) {
 func (j *jobRunner) waitForSuccess(ctx context.Context, job *batchv1.Job, tsk task) {
 	defer tsk.wg.Done()
 	message := "📬 Sending event within the cluster"
-	spin := newSpinner(ctx, message)
-	err := spin.With(func(_ tui.Spinner) error {
+	spin := tui.NewWidgets(ctx).NewSpinner(message)
+	err := spin.With(func(sc tui.SpinnerControl) error {
 		return j.watchJob(ctx, job, tsk, func(job *batchv1.Job) (bool, error) {
 			if job.Status.Succeeded >= 1 {
 				j.logJobInfo(ctx, "Successful job", job)
@@ -91,10 +91,10 @@ func (j *jobRunner) waitForSuccess(ctx context.Context, job *batchv1.Job, tsk ta
 			}
 			if job.Status.Failed > 0 {
 				retryMsg := fmt.Sprintf(" (try %d/%d)", job.Status.Failed+1, limit)
-				spin.updateMessage(message + retryMsg)
+				sc.UpdateMessage(message + retryMsg)
 			}
 			if job.Status.Failed >= limit {
-				spin.updateMessage(message)
+				sc.UpdateMessage(message)
 				j.logJobInfo(ctx, "Failed job", job)
 				return false, fmt.Errorf(
 					"%w %d times, exceeding the limit (job \"%s\" has been left on "+
@@ -174,26 +174,4 @@ func (j *jobRunner) logJobInfo(ctx context.Context, label string, job *batchv1.J
 	g := jobGatherer{kube: j.kube}
 	fields := g.gather(ctx, job)
 	log.WithFields(fields).Debug(label)
-}
-
-// updatebleSpinner allow updating the spinner message.
-// TODO: Consider exposing similar interface in knative.dev/client/pkg/output/tui.
-type updatebleSpinner struct {
-	spin tui.Spinner
-}
-
-func (s *updatebleSpinner) updateMessage(message string) {
-	if bspin, ok := s.spin.(*tui.BubbleSpinner); ok {
-		bspin.Text = message
-	}
-}
-
-func (s *updatebleSpinner) With(fn func(tui.Spinner) error) error {
-	return s.spin.With(fn)
-}
-
-func newSpinner(ctx context.Context, message string) *updatebleSpinner {
-	return &updatebleSpinner{
-		spin: tui.NewWidgets(ctx).NewSpinner(message),
-	}
 }

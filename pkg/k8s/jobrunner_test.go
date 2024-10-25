@@ -1,7 +1,3 @@
-//go:build !race
-
-// TODO: Find a way to run this with race checker
-
 package k8s_test
 
 import (
