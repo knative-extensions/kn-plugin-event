@@ -39,5 +39,4 @@ linters-settings:
       - knative.dev/client/pkg/*
   gomoddirectives:
     # List of allowed `replace` directives. Default is empty.
-    # TODO: remove after knative/client#1973 is merged
-    replace-allow-list: ['knative.dev/client/pkg']
+    replace-allow-list: []
