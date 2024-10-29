@@ -8,6 +8,9 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
+	outlogging "knative.dev/client/pkg/output/logging"
+	"knative.dev/client/pkg/output/tui"
+	"knative.dev/kn-plugin-event/pkg/errors"
 )
 
 // JobRunner will launch a Job and monitor it for completion.
@@ -38,8 +41,10 @@ func (j *jobRunner) Run(ctx context.Context, job *batchv1.Job) error {
 	tsk := task{
 		errs, ready, &sync.WaitGroup{},
 	}
+	j.logJobInfo(ctx, "Job to be executed", job)
+
 	tasks := []func(context.Context, *batchv1.Job, task){
-		// wait is started first,  making sure to capture success, even the ultra-fast one.
+		// wait is started first, making sure to capture success, even the ultra-fast one.
 		j.waitForSuccess,
 		j.createJob,
 	}
@@ -66,25 +71,41 @@ func (j *jobRunner) createJob(ctx context.Context, job *batchv1.Job, tsk task) {
 	jobs := j.kube.Typed().BatchV1().Jobs(job.Namespace)
 	_, err := jobs.Create(ctx, job, metav1.CreateOptions{})
 	if err != nil {
-		tsk.errs <- fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
+		tsk.errs <- errors.Wrap(err, ErrJobFailed)
 	}
 }
 
 func (j *jobRunner) waitForSuccess(ctx context.Context, job *batchv1.Job, tsk task) {
 	defer tsk.wg.Done()
-	err := j.watchJob(ctx, job, tsk, func(job *batchv1.Job) (bool, error) {
-		if job.Status.CompletionTime == nil && job.Status.Failed == 0 {
+	message := "📬 Sending event within the cluster"
+	spin := tui.NewWidgets(ctx).NewSpinner(message)
+	err := spin.With(func(sc tui.SpinnerControl) error {
+		return j.watchJob(ctx, job, tsk, func(job *batchv1.Job) (bool, error) {
+			if job.Status.Succeeded >= 1 {
+				j.logJobInfo(ctx, "Successful job", job)
+				return true, nil
+			}
+			limit := int32(0)
+			if job.Spec.BackoffLimit != nil {
+				limit = *job.Spec.BackoffLimit
+			}
+			if job.Status.Failed > 0 {
+				retryMsg := fmt.Sprintf(" (try %d/%d)", job.Status.Failed+1, limit)
+				sc.UpdateMessage(message + retryMsg)
+			}
+			if job.Status.Failed >= limit {
+				sc.UpdateMessage(message)
+				j.logJobInfo(ctx, "Failed job", job)
+				return false, fmt.Errorf(
+					"%w %d times, exceeding the limit (job \"%s\" has been left on "+
+						"the cluster for debugging)",
+					ErrJobFailed, job.Status.Failed, job.GetName())
+			}
 			return false, nil
-		}
-		// We should be done if we reach here.
-		if job.Status.Succeeded < 1 {
-			return false, fmt.Errorf("%w: %s", ErrICSenderJobFailed,
-				"expected to have successful job")
-		}
-		return true, nil
+		})
 	})
 	if err != nil {
-		tsk.errs <- fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
+		tsk.errs <- errors.Wrap(err, ErrJobFailed)
 	}
 }
 
@@ -100,14 +121,14 @@ func (j *jobRunner) deleteJob(ctx context.Context, job *batchv1.Job) error {
 		PropagationPolicy: &policy,
 	})
 	if err != nil {
-		return fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
+		return errors.Wrap(err, ErrJobFailed)
 	}
 	pods := j.kube.Typed().CoreV1().Pods(job.GetNamespace())
 	err = pods.DeleteCollection(ctx, metav1.DeleteOptions{}, metav1.ListOptions{
 		LabelSelector: "job-name=" + job.GetName(),
 	})
 	if err != nil {
-		return fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
+		return errors.Wrap(err, ErrJobFailed)
 	}
 	return nil
 }
@@ -123,7 +144,7 @@ func (j *jobRunner) watchJob(
 		FieldSelector: "metadata.name=" + obj.GetName(),
 	})
 	if err != nil {
-		return fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
+		return errors.Wrap(err, ErrJobFailed)
 	}
 	defer watcher.Stop()
 	resultCh := watcher.ResultChan()
@@ -132,13 +153,13 @@ func (j *jobRunner) watchJob(
 		if result.Type == watch.Added || result.Type == watch.Modified {
 			job, ok := result.Object.(*batchv1.Job)
 			if !ok {
-				return fmt.Errorf("%w: %s: %T", ErrICSenderJobFailed,
+				return fmt.Errorf("%w: %s: %T", ErrJobFailed,
 					"expected to watch batchv1.Job, got", result.Object)
 			}
 			var brk bool
 			brk, err = changeFn(job)
 			if err != nil {
-				return fmt.Errorf("%w: %w", ErrICSenderJobFailed, err)
+				return errors.Wrap(err, ErrJobFailed)
 			}
 			if brk {
 				return nil
@@ -146,4 +167,11 @@ func (j *jobRunner) watchJob(
 		}
 	}
 	return nil
+}
+
+func (j *jobRunner) logJobInfo(ctx context.Context, label string, job *batchv1.Job) {
+	log := outlogging.LoggerFrom(ctx)
+	g := jobGatherer{kube: j.kube}
+	fields := g.gather(ctx, job)
+	log.WithFields(fields).Debug(label)
 }
