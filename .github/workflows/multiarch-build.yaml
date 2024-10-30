@@ -18,4 +18,4 @@ jobs:
         - wathola-forwarder
     with:
       image: ${{ matrix.image }}
-      containerfile: .github/workflows/images/test/${{ matrix.image }}/Containerfile
+      containerfile: openshift/ci-operator/test-images/${{ matrix.image }}/Dockerfile
