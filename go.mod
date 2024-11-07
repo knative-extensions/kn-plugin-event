@@ -1,6 +1,6 @@
 module knative.dev/kn-plugin-event
 
-go 1.22
+go 1.22.0
 
 require (
 	github.com/cloudevents/sdk-go/v2 v2.15.2
