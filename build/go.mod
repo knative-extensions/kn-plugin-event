@@ -1,6 +1,6 @@
 module knative.dev/kn-plugin-event/build
 
-go 1.22.0
+go 1.22.7
 
 require (
 	knative.dev/kn-plugin-event v0.0.0
@@ -171,17 +171,17 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	go4.org v0.0.0-20230225012048-214862532bf5 // indirect
-	golang.org/x/crypto v0.28.0 // indirect
+	golang.org/x/crypto v0.29.0 // indirect
 	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa // indirect
-	golang.org/x/mod v0.21.0 // indirect
-	golang.org/x/net v0.30.0 // indirect
-	golang.org/x/oauth2 v0.22.0 // indirect
-	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.26.0 // indirect
-	golang.org/x/term v0.25.0 // indirect
-	golang.org/x/text v0.19.0 // indirect
-	golang.org/x/tools v0.26.0 // indirect
-	google.golang.org/protobuf v1.35.1 // indirect
+	golang.org/x/mod v0.22.0 // indirect
+	golang.org/x/net v0.31.0 // indirect
+	golang.org/x/oauth2 v0.23.0 // indirect
+	golang.org/x/sync v0.9.0 // indirect
+	golang.org/x/sys v0.27.0 // indirect
+	golang.org/x/term v0.26.0 // indirect
+	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/tools v0.27.0 // indirect
+	google.golang.org/protobuf v1.35.2 // indirect
 	gopkg.in/go-jose/go-jose.v2 v2.6.3 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
@@ -191,8 +191,8 @@ require (
 	k8s.io/apimachinery v0.30.3 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/utils v0.0.0-20240711033017-18e509b52bc8 // indirect
-	knative.dev/client-pkg v0.0.0-20241022130700-7b4bb48ac250 // indirect
-	knative.dev/pkg v0.0.0-20241026180704-25f6002b00f3 // indirect
+	knative.dev/client-pkg v0.0.0-20241106014333-14f4a3a4c3e1 // indirect
+	knative.dev/pkg v0.0.0-20241128013618-f3ab5605e542 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kind v0.22.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
