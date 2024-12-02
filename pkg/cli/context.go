@@ -111,8 +111,7 @@ func SetupOutput(cbr Cobralike, loggingSetup LoggingSetup) {
 	}
 }
 
-var (
-	initialCtxKey = struct{}{}         //nolint:gochecknoglobals
-	initialCtx    = context.WithValue( //nolint:gochecknoglobals
-		context.TODO(), initialCtxKey, true)
-)
+type initialCtxKey struct{}
+
+var initialCtx = context.WithValue( //nolint:gochecknoglobals
+	context.TODO(), initialCtxKey{}, true)
