@@ -1,42 +1,136 @@
+version: "2"
 run:
-  timeout: 5m
   build-tags:
     - e2e
     - mage
     - ignored
-
 linters:
-  disable-all: false
-  presets:
-    - bugs
-    - unused
-    - complexity
-    - format
-    - performance
-    - style
   enable:
-    - gci
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - canonicalheader
+    - containedctx
+    - contextcheck
+    - copyloopvar
+    - cyclop
+    - decorder
+    - dogsled
+    - dupl
+    - durationcheck
+    - err113
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    - exptostd
+    - fatcontext
+    - forbidigo
+    - forcetypeassert
+    - funlen
+    - ginkgolinter
+    - gocheckcompilerdirectives
+    - gochecknoglobals
+    - gochecknoinits
+    - gochecksumtype
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - goheader
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - gosmopolitan
+    - grouper
+    - iface
+    - importas
+    - inamedparam
+    - interfacebloat
+    - intrange
+    - lll
+    - loggercheck
+    - maintidx
+    - makezero
+    - mirror
+    - misspell
+    - mnd
+    - musttag
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnesserr
+    - nilnil
+    - noctx
+    - nolintlint
+    - nonamedreturns
+    - nosprintfhostport
+    - perfsprint
+    - prealloc
+    - predeclared
+    - promlinter
+    - protogetter
+    - reassign
+    - recvcheck
+    - revive
+    - rowserrcheck
+    - sloglint
+    - spancheck
+    - sqlclosecheck
+    - staticcheck
+    - tagalign
+    - tagliatelle
+    - testifylint
+    - testpackage
+    - tparallel
+    - unconvert
+    - unparam
+    - usestdlibvars
+    - wastedassign
+    - whitespace
+    - wrapcheck
+    - zerologlint
   disable:
-    - paralleltest
-    - nlreturn
-    - wsl
+    - depguard
+    - exhaustruct
     - godox
     - ireturn
+    - nlreturn
+    - paralleltest
     - varnamelen
-    - exhaustruct
-    - depguard
-
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - wrapcheck
-
-linters-settings:
-  wrapcheck:
-    ignorePackageGlobs:
-      - knative.dev/kn-plugin-event/pkg/*
-      - knative.dev/client/pkg/*
-  gomoddirectives:
-    # List of allowed `replace` directives. Default is empty.
-    replace-allow-list: []
+    - wsl
+  settings:
+    wrapcheck:
+      ignore-package-globs:
+        - knative.dev/kn-plugin-event/pkg/*
+        - knative.dev/client/pkg/*
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - wrapcheck
+        path: _test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

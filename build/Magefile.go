@@ -60,7 +60,7 @@ func init() { //nolint:gochecknoinits
 		},
 		Artifacts: []config.Artifact{sender, cli},
 		Checks: []config.Task{checks.GolangCiLint(func(o *checks.GolangCiLintOptions) {
-			o.Version = "v1.62.2"
+			o.Version = "v2.1.2"
 		})},
 		BuildVariables: map[string]config.Resolver{
 			metadata.ImageBasenamePath(): imageBasenameFromEnv,

@@ -45,7 +45,7 @@ func (app *App) configure(cfg *k8s.Configurator) (config, error) {
 	target := &event.Target{
 		Reference: &sink.Reference{URL: u},
 	}
-	s, err := app.Binding.CreateSender(cfg, target)
+	s, err := app.CreateSender(cfg, target)
 	if err != nil {
 		return config{}, errors.Wrap(err, ErrCantConfigureICS)
 	}

@@ -41,7 +41,7 @@ func (kp *Params) Parse() *Configurator {
 }
 
 func (kp *Params) SetGlobalFlags(flags *pflag.FlagSet) {
-	kp.Params.SetFlags(flags)
+	kp.SetFlags(flags)
 }
 
 func (kp *Params) SetCommandFlags(flags *pflag.FlagSet) {
