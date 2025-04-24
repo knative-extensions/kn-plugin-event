@@ -40,6 +40,7 @@ func groupVersionKind(ctx context.Context, obj runtime.Object) schema.GroupVersi
 	if err != nil {
 		log.Fatal(err)
 	}
+	//nolint:staticcheck
 	if !(len(kinds) > 0) {
 		log.Fatal(errNoKinds)
 	}

@@ -60,7 +60,7 @@ func (a *App) createTarget(args TargetArgs, params *Params) (*event.Target, erro
 		}, nil
 	}
 	var namespace string
-	clients, kerr := a.Binding.NewKubeClients(params.Parse())
+	clients, kerr := a.NewKubeClients(params.Parse())
 	if kerr != nil {
 		return nil, kerr
 	}

@@ -129,7 +129,7 @@ func idViolatesRFC1123(t *testing.T) inClusterTestCase {
 				errs := validation.IsDNS1035Label(name)
 				if len(errs) > 0 {
 					//goland:noinspection GoErrorStringFormat
-					return fmt.Errorf("Job.batch \"%s\" is invalid: "+ //nolint:goerr113
+					return fmt.Errorf("Job.batch \"%s\" is invalid: "+ //nolint:err113
 						"metadata.name: Invalid value: \"%s\": %s",
 						name, name, strings.Join(errs, ", "))
 				}
