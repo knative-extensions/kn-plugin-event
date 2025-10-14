@@ -804,6 +804,8 @@ knative.dev/pkg v0.0.0-20241021183759-9b9d535af5ad h1:Nrjtr2H168rJeamH4QdyLMV1lE
 knative.dev/pkg v0.0.0-20241021183759-9b9d535af5ad/go.mod h1:StJI72GWcm/iErmk4RqFJiOo8RLbVqPbHxUqeVwAzeo=
 knative.dev/toolbox/magetasks v0.0.0-20240412084849-703489d35306 h1:mG2rEGCg4vZAs+D2rIzISuqmND8HNkcNCYvRmEXvG8s=
 knative.dev/toolbox/magetasks v0.0.0-20240412084849-703489d35306/go.mod h1:+LHHOXHlXXXiD8WG0ke72XTt/SSpSqUUX1dG8h9AGIE=
+knative.dev/toolbox/magetasks v0.0.0-20251014134735-7842b8f3eb72 h1:QC5VT1rTiK2NxXaE/sv//Da7WhvRDHllk/VywCND7EQ=
+knative.dev/toolbox/magetasks v0.0.0-20251014134735-7842b8f3eb72/go.mod h1:1nfGcDoGtuIR4nOOgg5SwQq9Sdxy/XuM971sowS4X90=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
