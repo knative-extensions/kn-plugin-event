@@ -22,7 +22,7 @@ func TestInClusterSender(t *testing.T) {
 		reconcilertestk8s.WithEventListener,
 		knative.WithKnativeNamespace("knative-eventing"),
 		knative.WithLoggingConfig,
-		knative.WithTracingConfig,
+		knative.WithObservabilityConfig,
 		e2e.ConfigureImages(),
 	)
 
