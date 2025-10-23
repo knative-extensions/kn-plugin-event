@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	knative.dev/kn-plugin-event v0.0.0
-	knative.dev/toolbox/magetasks v0.0.0-20250612145048-e9fe9e820228
+	knative.dev/toolbox/magetasks v0.0.0-20251014115432-7bd83997489b
 )
 
 require (
@@ -193,7 +193,7 @@ require (
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/utils v0.0.0-20241210054802-24370beab758 // indirect
 	knative.dev/client-pkg v0.0.0-20241106014333-14f4a3a4c3e1 // indirect
-	knative.dev/pkg v0.0.0-20250909011231-077dcf0d00e8 // indirect
+	knative.dev/pkg v0.0.0-20251022162148-4ebd86bc2d85 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
 	sigs.k8s.io/kind v0.22.0 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
