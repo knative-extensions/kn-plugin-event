@@ -24,7 +24,6 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exptostd
     - fatcontext
     - forbidigo
     - forcetypeassert
@@ -40,13 +39,11 @@ linters:
     - gocyclo
     - godot
     - goheader
-    - gomoddirectives
     - gomodguard
     - goprintffuncname
     - gosec
     - gosmopolitan
     - grouper
-    - iface
     - importas
     - inamedparam
     - interfacebloat
@@ -62,7 +59,6 @@ linters:
     - nakedret
     - nestif
     - nilerr
-    - nilnesserr
     - nilnil
     - noctx
     - nolintlint
@@ -74,7 +70,6 @@ linters:
     - promlinter
     - protogetter
     - reassign
-    - recvcheck
     - revive
     - rowserrcheck
     - sloglint
