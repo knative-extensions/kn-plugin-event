@@ -3,7 +3,6 @@
 package main
 
 import (
-	"knative.dev/toolbox/magetasks/pkg/checks"
 	"os"
 
 	"knative.dev/kn-plugin-event/build/overrides"
@@ -15,6 +14,7 @@ import (
 	"knative.dev/toolbox/magetasks/config/buildvars"
 	"knative.dev/toolbox/magetasks/pkg/artifact"
 	"knative.dev/toolbox/magetasks/pkg/artifact/platform"
+	"knative.dev/toolbox/magetasks/pkg/checks"
 	"knative.dev/toolbox/magetasks/pkg/git"
 	"knative.dev/toolbox/magetasks/pkg/image"
 	"knative.dev/toolbox/magetasks/pkg/knative"
