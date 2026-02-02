@@ -1,4 +1,7 @@
-/build/_output/
 /*.test
 /tmp
 /.idea
+
+# Built binaries
+/kn-event
+/kn-event-*

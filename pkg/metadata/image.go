@@ -20,13 +20,3 @@ func ResolveImage() string {
 	}
 	return Image
 }
-
-// ImagePath return a path to the image variable.
-func ImagePath() string {
-	return importPath("Image")
-}
-
-// ImageBasenamePath return a path to the image basename variable.
-func ImageBasenamePath() string {
-	return importPath("ImageBasename")
-}

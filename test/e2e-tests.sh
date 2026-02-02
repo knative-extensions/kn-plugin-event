@@ -27,7 +27,10 @@ initialize "$@"
 
 set -Eeuo pipefail
 
-./mage publish
+./hack/publish.sh
+./hack/build.sh --fast
+
+export KN_PLUGIN_EVENT_EXECUTABLE="${PWD}/kn-event"
 
 go_test_e2e -timeout 10m ./test/... || fail_test 'kn-event e2e tests'
 
