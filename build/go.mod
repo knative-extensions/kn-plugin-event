@@ -1,6 +1,6 @@
 module knative.dev/kn-plugin-event/build
 
-go 1.25.5
+go 1.24.2
 
 require (
 	knative.dev/kn-plugin-event v0.0.0
