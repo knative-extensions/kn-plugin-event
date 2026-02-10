@@ -1219,8 +1219,8 @@ k8s.io/kube-openapi v0.0.0-20250710124328-f3f2b991d03b h1:MloQ9/bdJyIu9lb1PzujOP
 k8s.io/kube-openapi v0.0.0-20250710124328-f3f2b991d03b/go.mod h1:UZ2yyWbFTpuhSbFhv24aGNOdoRdJZgsIObGBUaYVsts=
 k8s.io/utils v0.0.0-20260108192941-914a6e750570 h1:JT4W8lsdrGENg9W+YwwdLJxklIuKWdRm+BC+xt33FOY=
 k8s.io/utils v0.0.0-20260108192941-914a6e750570/go.mod h1:xDxuJ0whA3d0I4mf/C4ppKHxXynQ+fxnkmQH0vTHnuk=
-knative.dev/client/pkg v0.0.0-20260209024044-5ed0949cc111 h1:fw6GT2+WvcoJVtXiVOTjvY++jl/xsKwkJu9fVNtW7+0=
-knative.dev/client/pkg v0.0.0-20260209024044-5ed0949cc111/go.mod h1:yZEjAEOE7Rrm43BQ1l+dXmEuB+ULOzIptRD+RsRxr/A=
+knative.dev/client/pkg v0.0.0-20260209142546-a7350fae9de4 h1:VOEnm0mdj1QAj8lU7kxd5EvOLEpv5Xq7LhzDftcn+uE=
+knative.dev/client/pkg v0.0.0-20260209142546-a7350fae9de4/go.mod h1:wQG6C8Gi45rzGQ3U0mqocNxZBLA/TOAIh1OE2SO5o8o=
 knative.dev/eventing v0.48.1-0.20260209140146-9e76da08faaa h1:vyeGAYExViSBjNFzQaJG+oEeibvlVIuwXI+Wk6jit7c=
 knative.dev/eventing v0.48.1-0.20260209140146-9e76da08faaa/go.mod h1:cNuws5NsPccVhuRRfriVYIiQXXuNyaNInVVWVoCue8g=
 knative.dev/hack v0.0.0-20260209014120-6d9b47beac82 h1:BPSV+0dwVVIlV3svLfBhd8vg+Y7UTFKykJn78NLwogo=
@@ -1231,8 +1231,8 @@ knative.dev/pkg v0.0.0-20260209013900-57e664f0ea40 h1:x/1+W83jAfNn0dyhUZRC2FwkDx
 knative.dev/pkg v0.0.0-20260209013900-57e664f0ea40/go.mod h1:Tz3GoxcNC5vH3Zo//cW3mnHL474u+Y1wbsUIZ11p8No=
 knative.dev/reconciler-test v0.0.0-20260209014124-3e047ab70815 h1:ynTnyoLFY/vXI3nLIXFcr86hiPG0SV11zF+JB+2cIF8=
 knative.dev/reconciler-test v0.0.0-20260209014124-3e047ab70815/go.mod h1:FUaadFiniAaqqBp/D2g2cO/FUABVR8W4yZd2azDzp7I=
-knative.dev/serving v0.48.1-0.20260209123045-582fadac9316 h1:8Y7Rwp7PkVdRY3fzZieMYqQmm9Yxrs+92pnP3Q+WRUg=
-knative.dev/serving v0.48.1-0.20260209123045-582fadac9316/go.mod h1:d9DFPD83Ce82LjYRkeRFRdISBhYficFp/OBUv5M6bLo=
+knative.dev/serving v0.48.1-0.20260209232655-a202eddeaccb h1:LAtxTIZsJ43Orp13NCF4OySbmQYP7Az3RWa8wLcLdAU=
+knative.dev/serving v0.48.1-0.20260209232655-a202eddeaccb/go.mod h1:d9DFPD83Ce82LjYRkeRFRdISBhYficFp/OBUv5M6bLo=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
