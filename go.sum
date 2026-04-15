@@ -1222,8 +1222,8 @@ k8s.io/utils v0.0.0-20260108192941-914a6e750570 h1:JT4W8lsdrGENg9W+YwwdLJxklIuKW
 k8s.io/utils v0.0.0-20260108192941-914a6e750570/go.mod h1:xDxuJ0whA3d0I4mf/C4ppKHxXynQ+fxnkmQH0vTHnuk=
 knative.dev/client/pkg v0.0.0-20260414023335-1977a50c04df h1:lVwgz0nFbAiYQUhAVdUf144dJWLDHxf3H+cNlq5siio=
 knative.dev/client/pkg v0.0.0-20260414023335-1977a50c04df/go.mod h1:aAFzTzKkLSK6I6W4g/+QUMpv5ty2UcOngcXxzn+a1FE=
-knative.dev/eventing v0.48.1-0.20260414032532-6df7e4901d09 h1:zneqwFZ/yyH4oj6ylUSyTsHY8ivHdlUdM1mWrSP19Ms=
-knative.dev/eventing v0.48.1-0.20260414032532-6df7e4901d09/go.mod h1:Y3FYNf5gNCIuqv+NzUAmqfbHJ8n+TxXSsZoV/20jfV0=
+knative.dev/eventing v0.48.1-0.20260414191034-3b3ea1d037e6 h1:maXR76gTo6zpNjZOir4npylXw5wQX2BcXisq8fcaf4c=
+knative.dev/eventing v0.48.1-0.20260414191034-3b3ea1d037e6/go.mod h1:Y3FYNf5gNCIuqv+NzUAmqfbHJ8n+TxXSsZoV/20jfV0=
 knative.dev/hack v0.0.0-20260318014029-7eede7fdcbad h1:yH957Dv5HrPgllwTs7e1wvCKcjg/PC0QPQGEWkK7QFw=
 knative.dev/hack v0.0.0-20260318014029-7eede7fdcbad/go.mod h1:L5RzHgbvam0u8QFHfzCX6MKxu/a/gIGEdaRBqNiVbl0=
 knative.dev/networking v0.0.0-20260407015926-cc2f0572b3c2 h1:8QlbccV/8/YO2zIoCAOvjU/0t5HxMiWyo480cwohrlQ=
@@ -1232,8 +1232,8 @@ knative.dev/pkg v0.0.0-20260414003832-e65cbe95a718 h1:/8xILwHO82gYQXgqQgP9jbSpxg
 knative.dev/pkg v0.0.0-20260414003832-e65cbe95a718/go.mod h1:m+Jaj5UyK7VkrEx6rt4buVX3a5eaB+vtJqEfQVGnAGQ=
 knative.dev/reconciler-test v0.0.0-20260414022037-297d1bb61e06 h1:XPyjOrS3a6olbUeR7zuAOfTNITwl1a4m08zqrGgovo4=
 knative.dev/reconciler-test v0.0.0-20260414022037-297d1bb61e06/go.mod h1:SE/0eKYf5MgUbMnclCY5vcL87l4cP0RSzHjXGV2nGn0=
-knative.dev/serving v0.48.1-0.20260414140234-00a6d854d211 h1:n72zuF0BvwV5lhRHOD0dXoC+i5sZvVtYFABTzwmIKhY=
-knative.dev/serving v0.48.1-0.20260414140234-00a6d854d211/go.mod h1:P60pzf3AwCuySGeD/rviwvWixfZBgyTeQJJkZRycRkw=
+knative.dev/serving v0.48.1-0.20260414185134-ed8b5055a09c h1:mfYQzcnAJ2OfUq+aaIkqmU1uKa4id1C7+TF/Ry/uYF0=
+knative.dev/serving v0.48.1-0.20260414185134-ed8b5055a09c/go.mod h1:P60pzf3AwCuySGeD/rviwvWixfZBgyTeQJJkZRycRkw=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
