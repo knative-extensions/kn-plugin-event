@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	cetest "github.com/cloudevents/sdk-go/v2/test"
@@ -67,7 +67,7 @@ func sendEvent(ev cloudevents.Event, sink Sink) feature.StepFn {
 		if artifacts == "" {
 			artifacts = os.TempDir()
 		}
-		cacheDir := path.Join(artifacts, t.Name())
+		cacheDir := filepath.Clean(filepath.Join(artifacts, t.Name()))
 		if err := os.MkdirAll(cacheDir, dirPerm); err != nil {
 			t.Fatal(err)
 		}
@@ -80,7 +80,7 @@ func sendEvent(ev cloudevents.Event, sink Sink) feature.StepFn {
 			Err:      fmt.Sprintf("Event (ID: %s) have been sent.", ev.ID()),
 		}); err != nil {
 			t.Fatal(err, "\n\nExecution log: "+
-				path.Join(cacheDir, "last-exec.log.jsonl"))
+				filepath.Join(cacheDir, "last-exec.log.jsonl"))
 		}
 		assert.NotContains(t, result.Stderr(), issue228Warn)
 		log.Info("Succeeded")
