@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Copyright 2021 The Knative Authors
 #
@@ -15,6 +15,8 @@
 # limitations under the License.
 
 set -Eeuo pipefail
+
+export GO_LICENSES_FLAGS="--ignore gotest.tools/v3"
 
 source "$(go run knative.dev/hack/cmd/script presubmit-tests.sh)"
 
