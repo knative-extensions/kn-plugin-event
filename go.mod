@@ -19,18 +19,18 @@ require (
 	github.com/thediveo/enumflag v0.10.0
 	github.com/wavesoftware/go-commandline v1.3.0
 	github.com/wavesoftware/go-ensure v1.0.0
-	go.uber.org/zap v1.27.1
+	go.uber.org/zap v1.28.0
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools/v3 v3.5.2
 	k8s.io/api v0.35.4
 	k8s.io/apimachinery v0.35.4
 	k8s.io/client-go v0.35.4
 	knative.dev/client/pkg v0.0.0-20260429013708-479f2162b627
-	knative.dev/eventing v0.49.0
-	knative.dev/hack v0.0.0-20260421155212-aeb7b4a9bf96
-	knative.dev/pkg v0.0.0-20260422015212-ec452872dcc1
-	knative.dev/reconciler-test v0.0.0-20260424102515-e1c3185a30af
-	knative.dev/serving v0.49.0
+	knative.dev/eventing v0.49.1-0.20260504114613-23fbca18994b
+	knative.dev/hack v0.0.0-20260428014158-b2a37f1b6e7b
+	knative.dev/pkg v0.0.0-20260505204821-021ad709ec68
+	knative.dev/reconciler-test v0.0.0-20260428014059-fe117fe2261a
+	knative.dev/serving v0.49.1-0.20260504070613-3d28fb878e74
 	sigs.k8s.io/yaml v1.6.0
 )
 
