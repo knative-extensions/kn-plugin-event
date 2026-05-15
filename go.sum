@@ -1232,8 +1232,8 @@ knative.dev/pkg v0.0.0-20260507212125-df317a52d112 h1:ftdGpzukmrlcTRTCZytQQ+mAMU
 knative.dev/pkg v0.0.0-20260507212125-df317a52d112/go.mod h1:JM+8ds+MTBtPK2aCp6pGUHQx9gNIL8wuMhqr0sxtDog=
 knative.dev/reconciler-test v0.0.0-20260506021927-a807ab8bf3d4 h1:84j5ue6kEwqRetJZXeIVo70GJIAjo79GHhZSaK7hjvo=
 knative.dev/reconciler-test v0.0.0-20260506021927-a807ab8bf3d4/go.mod h1:BveV+mP/Dp0gZ7l7k82LkakRugtNI0fvPxvbpKHa5ZM=
-knative.dev/serving v0.49.1-0.20260513130130-29a43b69d8f0 h1:/PY4Bn9kvL6W/xu4SCNcavq3e1w1Sf+Tluz+kdj82X0=
-knative.dev/serving v0.49.1-0.20260513130130-29a43b69d8f0/go.mod h1:3hXF5IUiZow3USDS0rA5UQeZCP30OwuDalcQS96XmFQ=
+knative.dev/serving v0.49.1-0.20260515125932-a4e653bb53da h1:CbJUXD8MlfKLTnDLZVQX1Tl5vhCs+D1BSY9FH9J4Zt4=
+knative.dev/serving v0.49.1-0.20260515125932-a4e653bb53da/go.mod h1:3hXF5IUiZow3USDS0rA5UQeZCP30OwuDalcQS96XmFQ=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
