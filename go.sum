@@ -1220,8 +1220,8 @@ k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912 h1:Y3gxNAuB0OBLImH611+UDZ
 k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912/go.mod h1:kdmbQkyfwUagLfXIad1y2TdrjPFWp2Q89B3qkRwf/pQ=
 k8s.io/utils v0.0.0-20260108192941-914a6e750570 h1:JT4W8lsdrGENg9W+YwwdLJxklIuKWdRm+BC+xt33FOY=
 k8s.io/utils v0.0.0-20260108192941-914a6e750570/go.mod h1:xDxuJ0whA3d0I4mf/C4ppKHxXynQ+fxnkmQH0vTHnuk=
-knative.dev/client/pkg v0.0.0-20260521150228-18d5fab09405 h1:NAZ7xo3iuKS54mmacFrKOT5y1AttEXV9laPv4bV855Q=
-knative.dev/client/pkg v0.0.0-20260521150228-18d5fab09405/go.mod h1:qkdYaRStafV8F+nBr7zMkHwONco+KoKfHEsZqAZhgzs=
+knative.dev/client/pkg v0.0.0-20260522144428-a374036ff565 h1:Tfgz/CvlJEWKobmfikecfZqKQWb7sM6roCAfAfsoq2I=
+knative.dev/client/pkg v0.0.0-20260522144428-a374036ff565/go.mod h1:RZOQ0T13RFdz8HZyG32JKhsrUfzW4lSqfXv5JsiwFew=
 knative.dev/eventing v0.49.1-0.20260521032925-b4a23c85e4bb h1:5/Br4CeH58vhttdba0qHo6t1HhACb2xAqefC2QCea74=
 knative.dev/eventing v0.49.1-0.20260521032925-b4a23c85e4bb/go.mod h1:UIhAVSZ2oAsPHZ87PKHzt2xgPF+hHSMdYulCEiWIowA=
 knative.dev/hack v0.0.0-20260428014158-b2a37f1b6e7b h1:MvbV2F2BdI8qKrYYUhDwbUZbX0BAYRSIpXM2TOtTvs0=
@@ -1232,8 +1232,8 @@ knative.dev/pkg v0.0.0-20260520153225-91e8142be85c h1:pzGFYMEGKz/NyAm+K16AYo8tG7
 knative.dev/pkg v0.0.0-20260520153225-91e8142be85c/go.mod h1:TaNtJ5LwYdcDj+SENimVsHby1nDBI6zI1oNCkR4xH2Y=
 knative.dev/reconciler-test v0.0.0-20260521141032-6a18bd4ee659 h1:tpcSwKnnCxMnd+wdiiUdRvBG5tngPBjtOt4g0q6uMiE=
 knative.dev/reconciler-test v0.0.0-20260521141032-6a18bd4ee659/go.mod h1:8vpSNADAeQBeR11vA2ZZewsOH5Z/1wPv5GeSeq8trxo=
-knative.dev/serving v0.49.1-0.20260522131527-c3847a68c543 h1:/q5lWr3yiboR99ZMn5ACN/Ub7CGIr91z9ps0t4bK0sI=
-knative.dev/serving v0.49.1-0.20260522131527-c3847a68c543/go.mod h1:x6gbqpd3gVwoWKQHHfvreavfym7Ls6nFqrqbDR94WNY=
+knative.dev/serving v0.49.1-0.20260522182426-828857607363 h1:tnoUsThkA2iki6PoNQb5EvKwww9oM+AcLDjFS4jLnh8=
+knative.dev/serving v0.49.1-0.20260522182426-828857607363/go.mod h1:x6gbqpd3gVwoWKQHHfvreavfym7Ls6nFqrqbDR94WNY=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
