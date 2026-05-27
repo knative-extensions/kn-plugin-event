@@ -28,7 +28,7 @@ require (
 	knative.dev/client/pkg v0.0.0-20260525150729-19b7e45aed4b
 	knative.dev/eventing v0.49.1-0.20260521032925-b4a23c85e4bb
 	knative.dev/hack v0.0.0-20260428014158-b2a37f1b6e7b
-	knative.dev/pkg v0.0.0-20260520153225-91e8142be85c
+	knative.dev/pkg v0.0.0-20260526162440-71f6ad65d251
 	knative.dev/reconciler-test v0.0.0-20260521141032-6a18bd4ee659
 	knative.dev/serving v0.49.1-0.20260525133029-a4ab6ebc4761
 	sigs.k8s.io/yaml v1.6.0
@@ -160,10 +160,10 @@ require (
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/exp v0.0.0-20251209150349-8475f28825e9 // indirect
-	golang.org/x/net v0.54.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/oauth2 v0.35.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.44.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/term v0.43.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
