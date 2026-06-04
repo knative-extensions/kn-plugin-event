@@ -1222,8 +1222,8 @@ k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912 h1:Y3gxNAuB0OBLImH611+UDZ
 k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912/go.mod h1:kdmbQkyfwUagLfXIad1y2TdrjPFWp2Q89B3qkRwf/pQ=
 k8s.io/utils v0.0.0-20260108192941-914a6e750570 h1:JT4W8lsdrGENg9W+YwwdLJxklIuKWdRm+BC+xt33FOY=
 k8s.io/utils v0.0.0-20260108192941-914a6e750570/go.mod h1:xDxuJ0whA3d0I4mf/C4ppKHxXynQ+fxnkmQH0vTHnuk=
-knative.dev/client/pkg v0.0.0-20260603025304-ad369c5eb9fa h1:7bMuRJsw0rHjp1HCpWKMqLDEDKQBIWkbIy3OTg2Ap80=
-knative.dev/client/pkg v0.0.0-20260603025304-ad369c5eb9fa/go.mod h1:yU6bE0D00QPbcVpwUS+bos69sLKCp5Te8GYLs9Zf73Q=
+knative.dev/client/pkg v0.0.0-20260603153307-b36797799628 h1:0fB3L3CV59NWGm0IrJjfPj6UgR+l8MHVmwgAU56t0K4=
+knative.dev/client/pkg v0.0.0-20260603153307-b36797799628/go.mod h1:KdhDvCgj5Mtj9cJvQ5D2kdAuRr3BUgYc3UzZo2BuuHQ=
 knative.dev/eventing v0.49.1-0.20260602160610-a962fa5fbb06 h1:AlTrf8YFMDG/85cST9XKPG0OVB1mboYr734SY7zkcqU=
 knative.dev/eventing v0.49.1-0.20260602160610-a962fa5fbb06/go.mod h1:ibEWNiJvssamCNesm0N1BmB5rhWdAyJHYEIcxI+99sQ=
 knative.dev/hack v0.0.0-20260428014158-b2a37f1b6e7b h1:MvbV2F2BdI8qKrYYUhDwbUZbX0BAYRSIpXM2TOtTvs0=
@@ -1234,8 +1234,8 @@ knative.dev/pkg v0.0.0-20260602142205-ac97e43f6622 h1:Lf5I3oaFc0bErDP7yUbOxT+6Ga
 knative.dev/pkg v0.0.0-20260602142205-ac97e43f6622/go.mod h1:A6IJjMX0nATYJ4eJAcqXGLiMTg1AXsA9QtPd7nI9Tk0=
 knative.dev/reconciler-test v0.0.0-20260602150814-125bf8d48e1c h1:M8GPqYxAGOLtvqk0fNUjnJp6rzxqpIRCbESh3hfMsVs=
 knative.dev/reconciler-test v0.0.0-20260602150814-125bf8d48e1c/go.mod h1:QBq7VXOkZ5mbuXn7lK2pGCXLGIJsRyh0hSjoF1wd1Ds=
-knative.dev/serving v0.49.1-0.20260603135608-7775d6e8e499 h1:/pVm7TCGZUIZQe44D11lo488fXJ3v3PuUu6P7/tcz2U=
-knative.dev/serving v0.49.1-0.20260603135608-7775d6e8e499/go.mod h1:aVIwAozgXB/6zWHZjCYPgP8oSR8f4hoR+zamOo5gd4g=
+knative.dev/serving v0.49.1-0.20260603160305-2a03fe72c7b8 h1:wJbAh+ODH1rKCBzID4+p6UgCOVSi/O5AwubIp72o5DQ=
+knative.dev/serving v0.49.1-0.20260603160305-2a03fe72c7b8/go.mod h1:fHHSUO7OjvmJmDIQ2VBsAHUjN24c75FmW2vudgbMU48=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
