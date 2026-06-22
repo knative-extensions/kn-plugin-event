@@ -28,7 +28,7 @@ require (
 	knative.dev/client/pkg v0.0.0-20260619150650-1d03beb63dea
 	knative.dev/eventing v0.49.1-0.20260617191249-8cf4c4b67303
 	knative.dev/hack v0.0.0-20260428014158-b2a37f1b6e7b
-	knative.dev/pkg v0.0.0-20260615201544-6300c57a9e78
+	knative.dev/pkg v0.0.0-20260622140654-39ebae2ee2dc
 	knative.dev/reconciler-test v0.0.0-20260616023650-a4d79b33cda4
 	knative.dev/serving v0.49.1-0.20260619134249-6fb71ff2ecf4
 	sigs.k8s.io/yaml v1.6.0
