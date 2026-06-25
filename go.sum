@@ -1222,8 +1222,8 @@ k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912 h1:Y3gxNAuB0OBLImH611+UDZ
 k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912/go.mod h1:kdmbQkyfwUagLfXIad1y2TdrjPFWp2Q89B3qkRwf/pQ=
 k8s.io/utils v0.0.0-20260108192941-914a6e750570 h1:JT4W8lsdrGENg9W+YwwdLJxklIuKWdRm+BC+xt33FOY=
 k8s.io/utils v0.0.0-20260108192941-914a6e750570/go.mod h1:xDxuJ0whA3d0I4mf/C4ppKHxXynQ+fxnkmQH0vTHnuk=
-knative.dev/client/pkg v0.0.0-20260623145100-9ce38f8045e8 h1:XsZ2aB3rtVU1zD2uYmrh6gZhjAXFwVfWL8Yy0zJlxXY=
-knative.dev/client/pkg v0.0.0-20260623145100-9ce38f8045e8/go.mod h1:C9UvqcvpSm9jOkg6EZSFA4g2XwFHYk5DXIYEE/AifUc=
+knative.dev/client/pkg v0.0.0-20260624143518-11ea2c199e6a h1:/s0qxif8giBNMbbN/Xnxyv2/MlQtDb1p5fSBXhhNEhw=
+knative.dev/client/pkg v0.0.0-20260624143518-11ea2c199e6a/go.mod h1:vw/dHpApoKne4CXu7fYJWARaLuRd+tPBYk98QvWZBSM=
 knative.dev/eventing v0.49.1-0.20260617191249-8cf4c4b67303 h1:kG/rr63mOgmoEDzdYrDMIMIXfKPO0ycheUVQk94JtGA=
 knative.dev/eventing v0.49.1-0.20260617191249-8cf4c4b67303/go.mod h1:qAdl4gctMP0BvhxtkM7QCalOHcwY62MjB4s9XYSwzAw=
 knative.dev/hack v0.0.0-20260428014158-b2a37f1b6e7b h1:MvbV2F2BdI8qKrYYUhDwbUZbX0BAYRSIpXM2TOtTvs0=
@@ -1234,8 +1234,8 @@ knative.dev/pkg v0.0.0-20260622140654-39ebae2ee2dc h1:i2GrJuRdTFd4sNWocwefVGwuSO
 knative.dev/pkg v0.0.0-20260622140654-39ebae2ee2dc/go.mod h1:Ve19ZYW7DwIfQL4oCT9t9zmPp4egv0KacKVPXUcivDQ=
 knative.dev/reconciler-test v0.0.0-20260616023650-a4d79b33cda4 h1:ePcqhYqn7YAcXFV1N7Tjo/4o3JJzL38aCfNbHDQmzHY=
 knative.dev/reconciler-test v0.0.0-20260616023650-a4d79b33cda4/go.mod h1:n9xFTvS9uVHAWlUkbaLP8rgFbfLOnSMIKVadb7GslrQ=
-knative.dev/serving v0.49.1-0.20260624131218-bb61237fecb9 h1:rK7ff/eiEHYOBVp9Oly3ovVV/rnT9zuXEaKeGUk4/qI=
-knative.dev/serving v0.49.1-0.20260624131218-bb61237fecb9/go.mod h1:WZgo4qbsdf/kqnnE6mwulg8egXHqw0seZ1OqpiCTggA=
+knative.dev/serving v0.49.1-0.20260624144117-dbce551f802c h1:ovbxqdxIfXDaJClH3pD1BF1X4C6H6uGDa//e7mime+k=
+knative.dev/serving v0.49.1-0.20260624144117-dbce551f802c/go.mod h1:WZgo4qbsdf/kqnnE6mwulg8egXHqw0seZ1OqpiCTggA=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
