@@ -1223,8 +1223,8 @@ k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912 h1:Y3gxNAuB0OBLImH611+UDZ
 k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912/go.mod h1:kdmbQkyfwUagLfXIad1y2TdrjPFWp2Q89B3qkRwf/pQ=
 k8s.io/utils v0.0.0-20260108192941-914a6e750570 h1:JT4W8lsdrGENg9W+YwwdLJxklIuKWdRm+BC+xt33FOY=
 k8s.io/utils v0.0.0-20260108192941-914a6e750570/go.mod h1:xDxuJ0whA3d0I4mf/C4ppKHxXynQ+fxnkmQH0vTHnuk=
-knative.dev/client/pkg v0.0.0-20260820141721-ca5d6c8df0d6 h1:Cj4GhI9RROLmaIyGouhFgQi98oJZ0F6VT1lR3MHoAFY=
-knative.dev/client/pkg v0.0.0-20260820141721-ca5d6c8df0d6/go.mod h1:813Ccnl1H6IUZXFscwJElJZfh5qfSfpluu1HKzTw2Ao=
+knative.dev/client/pkg v0.0.0-20260821023028-cf7412af6fef h1:OotWh7tcfhqqSQkLPdt1oNoSqM5+V3M4Eu2zVHpbxNA=
+knative.dev/client/pkg v0.0.0-20260821023028-cf7412af6fef/go.mod h1:4NLzEf4mgZ+46LkEWe44+qP55ehu7tuouA/n1EPrRwI=
 knative.dev/eventing v0.50.1-0.20260820115420-72ec4f420db1 h1:N61jbMWe2eUDVBnXP2beXD0OmUGSxb75NTfhAtBeS8o=
 knative.dev/eventing v0.50.1-0.20260820115420-72ec4f420db1/go.mod h1:HC1K7A1oa/sMd6X6RHO547NgvL2gtKlmNK+HYnELz6g=
 knative.dev/hack v0.0.0-20260428014158-b2a37f1b6e7b h1:MvbV2F2BdI8qKrYYUhDwbUZbX0BAYRSIpXM2TOtTvs0=
@@ -1233,10 +1233,10 @@ knative.dev/networking v0.0.0-20260727162500-c7a7b772cac9 h1:DX4tHb6E2L6sqJbbbSo
 knative.dev/networking v0.0.0-20260727162500-c7a7b772cac9/go.mod h1:B1jEsChm8uZvhXwuc7ySZEKG8B6GK+FrQeGx+cL7GGc=
 knative.dev/pkg v0.0.0-20260820190123-c9015f8bfdea h1:vNg/ixrFn2UMDAh727Ag26G3jZAQGskbn5VOwZvKoOM=
 knative.dev/pkg v0.0.0-20260820190123-c9015f8bfdea/go.mod h1:azi5R3dOIcS9Pp8+QAZR9Yp7e/eoD7rNVFIefkZr8N8=
-knative.dev/reconciler-test v0.0.0-20260819124120-853c96f78205 h1:oRlxFSp2ttV3IvUQZlfISkTJdJge18o9242iWPOOWM0=
-knative.dev/reconciler-test v0.0.0-20260819124120-853c96f78205/go.mod h1:zA56CLpjULjcJI4QQYEagGllEoy8koGAeZ6eLjUZ7VI=
-knative.dev/serving v0.50.1-0.20260819122420-ffaaaf78b938 h1:iAZ7KwBpkLDcbOa+w+7HVFDV3SedkqMi6D/npvAE7F0=
-knative.dev/serving v0.50.1-0.20260819122420-ffaaaf78b938/go.mod h1:MP+yKsx/gLczU+agah1HgRrpU6KT0SV96a7bD+v5PKo=
+knative.dev/reconciler-test v0.0.0-20260821021027-c844fc2204aa h1:nv9Q4YBvKFLJCmnMS0pooQb8+4eFVuWWgaXv71NbsEk=
+knative.dev/reconciler-test v0.0.0-20260821021027-c844fc2204aa/go.mod h1:DMKhLoD/0cSATDyAPlHH0vICDEZhr45LHzt9iCmavAY=
+knative.dev/serving v0.50.1-0.20260821122824-98e5ef90aa70 h1:15SH9Ne0DBpYFNLuCnF4UQJ+MNi3WopTWmSZPNMfX40=
+knative.dev/serving v0.50.1-0.20260821122824-98e5ef90aa70/go.mod h1:MP+yKsx/gLczU+agah1HgRrpU6KT0SV96a7bD+v5PKo=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
