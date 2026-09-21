@@ -919,8 +919,8 @@ google.golang.org/grpc v1.23.0/go.mod h1:Y5yQAOtifL1yxbo5wqy6BxZv8vAUGQwXBOALyac
 google.golang.org/grpc v1.26.0/go.mod h1:qbnxyOmOxrQa7FizSgH+ReBfzJrCY1pSN7KXBS8abTk=
 google.golang.org/grpc v1.27.0/go.mod h1:qbnxyOmOxrQa7FizSgH+ReBfzJrCY1pSN7KXBS8abTk=
 google.golang.org/grpc v1.27.1/go.mod h1:qbnxyOmOxrQa7FizSgH+ReBfzJrCY1pSN7KXBS8abTk=
-google.golang.org/grpc v1.83.1 h1:HIO0+BEtBP6soyqvqC8sNUjZ7bTs+0hFQuFF+RAy++Y=
-google.golang.org/grpc v1.83.1/go.mod h1:kDyl6SKsiHKt0uylY5gtn5cEjkrIOhQOGDgIc4JGwzQ=
+google.golang.org/grpc v1.83.2 h1:EManeRomTObA0BU7I8vXgg/78uE5MJ9M8B39EX2WscU=
+google.golang.org/grpc v1.83.2/go.mod h1:YPI1hK3kDked6iHvgX3tR0y+nX/qpMFKhPgFsokw1S8=
 google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af h1:+5/Sw3GsDNlEmu7TfklWKPdQ0Ykja5VEmq2i817+jbI=
 google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af/go.mod h1:HTf+CrKn2C3g5S8VImy6tdcUvCska2kB7j23XfzDpco=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
@@ -955,8 +955,8 @@ k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2 h1:AZYQSJemyQB5eRxqcPky+/7EdBj0x
 k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2/go.mod h1:xDxuJ0whA3d0I4mf/C4ppKHxXynQ+fxnkmQH0vTHnuk=
 knative.dev/client-pkg v0.0.0-20240328140606-2dec0683c965 h1:fDpMtdYzIg0X47B5PcoLJf0s1sU88VooRH0xfhfcgJ8=
 knative.dev/client-pkg v0.0.0-20240328140606-2dec0683c965/go.mod h1:PYodo1bmKTrxnNCfLJa6a8wdg3QQH0XTOPlZJwrY64A=
-knative.dev/pkg v0.0.0-20260825072334-d2a153acc00c h1:x99AILfR+9/dMMSXTpD5akQkCxfqreR+Py40i4pUrmA=
-knative.dev/pkg v0.0.0-20260825072334-d2a153acc00c/go.mod h1:79LFLJ+XR5kxkPWy4KBBJkdTrk00t7zynpgOpP8uKrs=
+knative.dev/pkg v0.0.0-20260918182429-5dc1978f0042 h1:hZ4eQYaloFYHe70C6EAjGb3N9mKLPNOwhEdQmNs6v2M=
+knative.dev/pkg v0.0.0-20260918182429-5dc1978f0042/go.mod h1:zhIH5iW5e2l3rajXrpi3u31lEUTncLniK5BhtSe4DpI=
 knative.dev/toolbox/magetasks v0.0.0-20251014115432-7bd83997489b h1:HhwQQK+IKgoThASl9V1Tu85ObPhnf23YISzokyIMBws=
 knative.dev/toolbox/magetasks v0.0.0-20251014115432-7bd83997489b/go.mod h1:GtPgEIjdQSQkHdwXxinLT88Pnw502MwlW6elqid5SLE=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
