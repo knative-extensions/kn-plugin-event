@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	knative.dev/kn-plugin-event v0.0.0
-	knative.dev/toolbox/magetasks v0.0.0-20251014115432-7bd83997489b
+	knative.dev/toolbox/magetasks v0.0.0-20261018173936-cd303b8bb750
 )
 
 require (
