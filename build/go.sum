@@ -957,8 +957,8 @@ knative.dev/client-pkg v0.0.0-20240328140606-2dec0683c965 h1:fDpMtdYzIg0X47B5Pco
 knative.dev/client-pkg v0.0.0-20240328140606-2dec0683c965/go.mod h1:PYodo1bmKTrxnNCfLJa6a8wdg3QQH0XTOPlZJwrY64A=
 knative.dev/pkg v0.0.0-20261013193643-0795cb87d2bd h1:z6f9oaPeMBaxQSbqLix2xF0AR0CxhHhR+Npqh/1KSTA=
 knative.dev/pkg v0.0.0-20261013193643-0795cb87d2bd/go.mod h1:Y0IP1sZCnEcIrKXcM9tSqO0a5326ISSngHWc/iCbzlo=
-knative.dev/toolbox/magetasks v0.0.0-20261018173936-cd303b8bb750 h1:id0Jcr5D0Kf03CRCUZv/gq8L7/CfuzHZsvynjhkjZCA=
-knative.dev/toolbox/magetasks v0.0.0-20261018173936-cd303b8bb750/go.mod h1:w8FlpoCceDwS23BAPNYTxvDtiVG701DHHb2dEQfoUlM=
+knative.dev/toolbox/magetasks v0.0.0-20261020013233-7bf6e8c96ced h1:/sZOlVkVWj6fVguTaEkj4TLh2KGJ+e9VhG1Dmx6/ngk=
+knative.dev/toolbox/magetasks v0.0.0-20261020013233-7bf6e8c96ced/go.mod h1:w8FlpoCceDwS23BAPNYTxvDtiVG701DHHb2dEQfoUlM=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
