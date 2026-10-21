@@ -955,8 +955,8 @@ k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2 h1:AZYQSJemyQB5eRxqcPky+/7EdBj0x
 k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2/go.mod h1:xDxuJ0whA3d0I4mf/C4ppKHxXynQ+fxnkmQH0vTHnuk=
 knative.dev/client-pkg v0.0.0-20240328140606-2dec0683c965 h1:fDpMtdYzIg0X47B5PcoLJf0s1sU88VooRH0xfhfcgJ8=
 knative.dev/client-pkg v0.0.0-20240328140606-2dec0683c965/go.mod h1:PYodo1bmKTrxnNCfLJa6a8wdg3QQH0XTOPlZJwrY64A=
-knative.dev/pkg v0.0.0-20261013193643-0795cb87d2bd h1:z6f9oaPeMBaxQSbqLix2xF0AR0CxhHhR+Npqh/1KSTA=
-knative.dev/pkg v0.0.0-20261013193643-0795cb87d2bd/go.mod h1:Y0IP1sZCnEcIrKXcM9tSqO0a5326ISSngHWc/iCbzlo=
+knative.dev/pkg v0.0.0-20261021131637-a9cb74f8504a h1:STmijx29RzKWIu/rkfMhp+9716VJMRD0yrH3y8oVLNc=
+knative.dev/pkg v0.0.0-20261021131637-a9cb74f8504a/go.mod h1:/UqTWhk3p2S4BAeJal7uenkZ/tJiItoyxHlawuSEyEE=
 knative.dev/toolbox/magetasks v0.0.0-20261020013233-7bf6e8c96ced h1:/sZOlVkVWj6fVguTaEkj4TLh2KGJ+e9VhG1Dmx6/ngk=
 knative.dev/toolbox/magetasks v0.0.0-20261020013233-7bf6e8c96ced/go.mod h1:w8FlpoCceDwS23BAPNYTxvDtiVG701DHHb2dEQfoUlM=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
