@@ -958,10 +958,10 @@ k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2 h1:AZYQSJemyQB5eRxqcPky+/7EdBj0x
 k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2/go.mod h1:xDxuJ0whA3d0I4mf/C4ppKHxXynQ+fxnkmQH0vTHnuk=
 knative.dev/client-pkg v0.0.0-20240328140606-2dec0683c965 h1:fDpMtdYzIg0X47B5PcoLJf0s1sU88VooRH0xfhfcgJ8=
 knative.dev/client-pkg v0.0.0-20240328140606-2dec0683c965/go.mod h1:PYodo1bmKTrxnNCfLJa6a8wdg3QQH0XTOPlZJwrY64A=
-knative.dev/pkg v0.0.0-20261022132244-2a1a4a3ea290 h1:N/hZwcYamhMfI0lpj4ySQM5ld0clocai06UrLS4/OxU=
-knative.dev/pkg v0.0.0-20261022132244-2a1a4a3ea290/go.mod h1:HLET20I2kcDvcDQNG4oG0NJCMb5l7t5VYqgWbixXRLU=
-knative.dev/toolbox/magetasks v0.0.0-20261020013233-7bf6e8c96ced h1:/sZOlVkVWj6fVguTaEkj4TLh2KGJ+e9VhG1Dmx6/ngk=
-knative.dev/toolbox/magetasks v0.0.0-20261020013233-7bf6e8c96ced/go.mod h1:w8FlpoCceDwS23BAPNYTxvDtiVG701DHHb2dEQfoUlM=
+knative.dev/pkg v0.0.0-20261023132203-c36432dafbb3 h1:iFmmcvHyRit4Vsg8RoEwpFSTD4GWYufom0VY27jEA7E=
+knative.dev/pkg v0.0.0-20261023132203-c36432dafbb3/go.mod h1:HLET20I2kcDvcDQNG4oG0NJCMb5l7t5VYqgWbixXRLU=
+knative.dev/toolbox/magetasks v0.0.0-20261023133546-1392dad8fae8 h1:8XJZqFSEu/ZpJEQrACCjn3+rmbgrfr/J4wXQhsNdKFQ=
+knative.dev/toolbox/magetasks v0.0.0-20261023133546-1392dad8fae8/go.mod h1:w8FlpoCceDwS23BAPNYTxvDtiVG701DHHb2dEQfoUlM=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
