@@ -72,7 +72,6 @@ func sendEvent(ev cloudevents.Event, sink Sink) feature.StepFn {
 			t.Fatal(err)
 		}
 		cmd.Env = append(os.Environ(), configdir.CacheDirEnvName+"="+cacheDir)
-		log = log.With(json("cmd", cmd))
 		log.Info("Running")
 		result := icmd.RunCmd(cmd)
 		if err := result.Compare(icmd.Expected{
