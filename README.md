@@ -95,7 +95,7 @@ $ kn event send \
 
 #### Sending to the in-cluster resources
 
-Sending events to the in-cluster resources is done with a companion *Job*
+Sending events to the in-cluster resources is done with a companion _Job_
 that is deployed on your cluster. This allows `kn-event` to send your events to
 resources that are not publicly accessible.
 
